@@ -1,0 +1,691 @@
+import express from "express";
+import path from "path";
+import fs from "fs";
+import { createServer as createViteServer } from "vite";
+import dotenv from "dotenv";
+
+dotenv.config();
+
+const app = express();
+const PORT = 3000;
+
+app.use(express.json({ limit: "50mb" }));
+
+// --- DATABASE PATH AND SCHEMA ---
+const DB_PATH = path.join(process.cwd(), "db.json");
+
+interface Office {
+  id: string; // Office code, e.g., OF1001
+  name: string;
+  ownerName: string;
+  ownerEmail: string;
+  groupId: string | null; // Belongs to a group office
+}
+
+interface Group {
+  id: string; // Group code, e.g., G1
+  name: string;
+  ownerName: string;
+  ownerEmail: string;
+}
+
+interface EmailLog {
+  id: string;
+  timestamp: string;
+  auditName: string;
+  stage: "Tespit" | "Kontrol" | "Ceza";
+  type: "Danışman" | "İlan";
+  officeId: string;
+  officeName: string;
+  recipient: string;
+  subject: string;
+  bodyHtml: string;
+  status: "Gönderildi" | "Simüle Edildi" | "Hata";
+  errorDetails?: string;
+}
+
+interface AuditPeriod {
+  id: string;
+  name: string;
+  status: "Aktif" | "Tamamlandı";
+  currentPhase: "Tespit" | "Kontrol" | "Ceza" | "Kapatıldı";
+  createdAt: string;
+  updatedAt: string;
+  
+  // Phase 1: Tespit Data
+  phase1Uploaded: boolean;
+  phase1DanismanRaw: any[];
+  phase1IlanPanelRaw: any[];
+  phase1IlanSahibindenRaw: any[];
+  phase1ProblematicOffices: string[]; // List of problematic office/group IDs
+  phase1ApprovedOffices: string[]; // List of offices/groups user approved to send mails
+  
+  // Phase 2: Kontrol Data
+  phase2Uploaded: boolean;
+  phase2DanismanRaw: any[];
+  phase2IlanPanelRaw: any[];
+  phase2IlanSahibindenRaw: any[];
+  phase2ProblematicOffices: string[]; // Problematic in control
+  phase2ApprovedOffices: string[]; // List of offices/groups user approved in Phase 2
+  
+  // Phase 3: Ceza Data
+  phase3ProblematicOffices: string[]; // Core non-compliant offices
+  phase3ApprovedOffices: string[]; // Final penalized offices
+}
+
+interface AppConfig {
+  resendApiKey: string;
+  brevoApiKey: string;
+  senderEmail: string;
+}
+
+interface Database {
+  offices: Office[];
+  groups: Group[];
+  audits: AuditPeriod[];
+  emails: EmailLog[];
+  config: AppConfig;
+}
+
+// --- SEED/DEFAULT DATA ---
+const DEFAULT_OFFICES: Office[] = [
+  { id: "OF1001", name: "Master İstanbul Merkez", ownerName: "Ahmet Yılmaz", ownerEmail: "ahmet@masteristanbul.com", groupId: "G1" },
+  { id: "OF1002", name: "Master İstanbul Beşiktaş", ownerName: "Ahmet Yılmaz", ownerEmail: "ahmet@masteristanbul.com", groupId: "G1" },
+  { id: "OF1003", name: "Master Ankara Çankaya", ownerName: "Mehmet Kaya", ownerEmail: "mehmet@masterankara.com", groupId: "G2" },
+  { id: "OF1004", name: "Master Ankara Ümitköy", ownerName: "Mehmet Kaya", ownerEmail: "mehmet@masterankara.com", groupId: "G2" },
+  { id: "OF1005", name: "Master İzmir Bornova", ownerName: "Can Demir", ownerEmail: "can@masterizmir.com", groupId: "G3" },
+  { id: "OF1006", name: "Master İzmir Karşıyaka", ownerName: "Can Demir", ownerEmail: "can@masterizmir.com", groupId: "G3" },
+  { id: "OF1007", name: "Master Antalya Konyaaltı", ownerName: "Elif Şahin", ownerEmail: "elif@masterantalya.com", groupId: null },
+  { id: "OF1008", name: "Master Bursa Nilüfer", ownerName: "Mustafa Yıldız", ownerEmail: "mustafa@masterbursa.com", groupId: null }
+];
+
+const DEFAULT_GROUPS: Group[] = [
+  { id: "G1", name: "İstanbul Kuzey Grubu", ownerName: "Ahmet Yılmaz", ownerEmail: "ahmet@masteristanbul.com" },
+  { id: "G2", name: "Ankara Çankaya Grubu", ownerName: "Mehmet Kaya", ownerEmail: "mehmet@masterankara.com" },
+  { id: "G3", name: "İzmir Körfez Grubu", ownerName: "Can Demir", ownerEmail: "can@masterizmir.com" }
+];
+
+const DEFAULT_DB: Database = {
+  offices: DEFAULT_OFFICES,
+  groups: DEFAULT_GROUPS,
+  audits: [],
+  emails: [],
+  config: {
+    resendApiKey: "",
+    brevoApiKey: "",
+    senderEmail: "denetim@masterturk.com"
+  }
+};
+
+// --- DB READ/WRITE HELPERS ---
+function readDB(): Database {
+  try {
+    if (!fs.existsSync(DB_PATH)) {
+      fs.writeFileSync(DB_PATH, JSON.stringify(DEFAULT_DB, null, 2), "utf8");
+      return DEFAULT_DB;
+    }
+    const data = fs.readFileSync(DB_PATH, "utf8");
+    return JSON.parse(data);
+  } catch (err) {
+    console.error("Error reading database:", err);
+    return DEFAULT_DB;
+  }
+}
+
+function writeDB(data: Database) {
+  try {
+    fs.writeFileSync(DB_PATH, JSON.stringify(data, null, 2), "utf8");
+  } catch (err) {
+    console.error("Error writing database:", err);
+  }
+}
+
+// Ensure database is initialized
+readDB();
+
+// --- EMAIL DISPATCH COMPONENT (REAL AND SIMULATED) ---
+async function dispatchEmail(
+  config: AppConfig,
+  to: string,
+  subject: string,
+  bodyHtml: string
+): Promise<{ status: "Gönderildi" | "Simüle Edildi" | "Hata"; errorDetails?: string }> {
+  // If API keys are configured, make a real call
+  if (config.resendApiKey) {
+    try {
+      const response = await fetch("https://api.resend.com/emails", {
+        method: "POST",
+        headers: {
+          "Authorization": `Bearer ${config.resendApiKey}`,
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify({
+          from: config.senderEmail || "onboarding@resend.dev",
+          to: [to],
+          subject: subject,
+          html: bodyHtml,
+        }),
+      });
+      if (response.ok) {
+        return { status: "Gönderildi" };
+      } else {
+        const errorText = await response.text();
+        return { status: "Hata", errorDetails: `Resend error: ${response.status} - ${errorText}` };
+      }
+    } catch (err: any) {
+      return { status: "Hata", errorDetails: `Resend request failed: ${err.message}` };
+    }
+  }
+
+  if (config.brevoApiKey) {
+    try {
+      const response = await fetch("https://api.brevo.com/v3/smtp/email", {
+        method: "POST",
+        headers: {
+          "api-key": config.brevoApiKey,
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify({
+          sender: { name: "Franchise Denetim Sistemi", email: config.senderEmail || "denetim@masterturk.com" },
+          to: [{ email: to }],
+          subject: subject,
+          htmlContent: bodyHtml,
+        }),
+      });
+      if (response.ok) {
+        return { status: "Gönderildi" };
+      } else {
+        const errorText = await response.text();
+        return { status: "Hata", errorDetails: `Brevo error: ${response.status} - ${errorText}` };
+      }
+    } catch (err: any) {
+      return { status: "Hata", errorDetails: `Brevo request failed: ${err.message}` };
+    }
+  }
+
+  // Fallback to simulated delivery
+  return { status: "Simüle Edildi" };
+}
+
+// --- API ENDPOINTS ---
+
+// 1. Office Management API
+app.get("/api/offices", (req, res) => {
+  const db = readDB();
+  res.json(db.offices);
+});
+
+app.post("/api/offices", (req, res) => {
+  const db = readDB();
+  const office: Office = req.body;
+  if (!office.id || !office.name) {
+    return res.status(400).json({ error: "Ofis kodu ve adı zorunludur." });
+  }
+
+  const existingIdx = db.offices.findIndex((o) => o.id === office.id);
+  if (existingIdx > -1) {
+    db.offices[existingIdx] = office;
+  } else {
+    db.offices.push(office);
+  }
+  writeDB(db);
+  res.json(office);
+});
+
+app.delete("/api/offices/:id", (req, res) => {
+  const db = readDB();
+  const id = req.params.id;
+  db.offices = db.offices.filter((o) => o.id !== id);
+  writeDB(db);
+  res.json({ success: true });
+});
+
+// 2. Group Management API
+app.get("/api/groups", (req, res) => {
+  const db = readDB();
+  res.json(db.groups);
+});
+
+app.post("/api/groups", (req, res) => {
+  const db = readDB();
+  const { group, officeIds } = req.body; // { group: { id, name, ownerName, ownerEmail }, officeIds: string[] }
+  
+  if (!group || !group.id || !group.name) {
+    return res.status(400).json({ error: "Grup kodu ve adı zorunludur." });
+  }
+
+  const existingIdx = db.groups.findIndex((g) => g.id === group.id);
+  if (existingIdx > -1) {
+    db.groups[existingIdx] = group;
+  } else {
+    db.groups.push(group);
+  }
+
+  // Reset groupId for previously bound offices
+  db.offices = db.offices.map((off) => {
+    if (off.groupId === group.id) {
+      return { ...off, groupId: null };
+    }
+    return off;
+  });
+
+  // Assign new officeIds
+  db.offices = db.offices.map((off) => {
+    if (officeIds.includes(off.id)) {
+      return { ...off, groupId: group.id };
+    }
+    return off;
+  });
+
+  writeDB(db);
+  res.json({ group, officeIds });
+});
+
+app.delete("/api/groups/:id", (req, res) => {
+  const db = readDB();
+  const id = req.params.id;
+  db.groups = db.groups.filter((g) => g.id !== id);
+  db.offices = db.offices.map((off) => {
+    if (off.groupId === id) {
+      return { ...off, groupId: null };
+    }
+    return off;
+  });
+  writeDB(db);
+  res.json({ success: true });
+});
+
+// 3. Configuration API
+app.get("/api/config", (req, res) => {
+  const db = readDB();
+  res.json(db.config);
+});
+
+app.post("/api/config", (req, res) => {
+  const db = readDB();
+  db.config = { ...db.config, ...req.body };
+  writeDB(db);
+  res.json(db.config);
+});
+
+// 4. Audit Management API
+app.get("/api/audits", (req, res) => {
+  const db = readDB();
+  res.json(db.audits);
+});
+
+// Get currently active audit period
+app.get("/api/audits/active", (req, res) => {
+  const db = readDB();
+  const active = db.audits.find((a) => a.status === "Aktif");
+  res.json(active || null);
+});
+
+// Create a new audit period
+app.post("/api/audits", (req, res) => {
+  const db = readDB();
+  const { name } = req.body;
+  if (!name) {
+    return res.status(400).json({ error: "Denetim dönem adı gereklidir." });
+  }
+
+  // Auto complete any existing active audits
+  db.audits = db.audits.map((a) => {
+    if (a.status === "Aktif") {
+      return { ...a, status: "Tamamlandı", updatedAt: new Date().toISOString() };
+    }
+    return a;
+  });
+
+  const newAudit: AuditPeriod = {
+    id: "AUD_" + Date.now(),
+    name,
+    status: "Aktif",
+    currentPhase: "Tespit",
+    createdAt: new Date().toISOString(),
+    updatedAt: new Date().toISOString(),
+    phase1Uploaded: false,
+    phase1DanismanRaw: [],
+    phase1IlanPanelRaw: [],
+    phase1IlanSahibindenRaw: [],
+    phase1ProblematicOffices: [],
+    phase1ApprovedOffices: [],
+    phase2Uploaded: false,
+    phase2DanismanRaw: [],
+    phase2IlanPanelRaw: [],
+    phase2IlanSahibindenRaw: [],
+    phase2ProblematicOffices: [],
+    phase2ApprovedOffices: [],
+    phase3ProblematicOffices: [],
+    phase3ApprovedOffices: []
+  };
+
+  db.audits.push(newAudit);
+  writeDB(db);
+  res.json(newAudit);
+});
+
+// Upload CSV/Excel data for the active phase
+app.post("/api/audits/active/upload", (req, res) => {
+  const db = readDB();
+  const activeIdx = db.audits.findIndex((a) => a.status === "Aktif");
+  if (activeIdx === -1) {
+    return res.status(404).json({ error: "Aktif bir denetim dönemi bulunamadı." });
+  }
+
+  const { type, data } = req.body; // type: 'danisman' | 'ilan_panel' | 'ilan_sahibinden'
+  const active = db.audits[activeIdx];
+
+  if (active.currentPhase === "Tespit") {
+    if (type === "danisman") active.phase1DanismanRaw = data;
+    if (type === "ilan_panel") active.phase1IlanPanelRaw = data;
+    if (type === "ilan_sahibinden") active.phase1IlanSahibindenRaw = data;
+    
+    // If all required data for Phase 1 is loaded, or if they are loaded individually, update status
+    active.phase1Uploaded = true;
+  } else if (active.currentPhase === "Kontrol") {
+    if (type === "danisman") active.phase2DanismanRaw = data;
+    if (type === "ilan_panel") active.phase2IlanPanelRaw = data;
+    if (type === "ilan_sahibinden") active.phase2IlanSahibindenRaw = data;
+    
+    active.phase2Uploaded = true;
+  }
+
+  active.updatedAt = new Date().toISOString();
+  db.audits[activeIdx] = active;
+  writeDB(db);
+  res.json(active);
+});
+
+// Update problematic state of active audit phase without advancing
+app.post("/api/audits/active/problematic", (req, res) => {
+  const db = readDB();
+  const activeIdx = db.audits.findIndex((a) => a.status === "Aktif");
+  if (activeIdx === -1) {
+    return res.status(404).json({ error: "Aktif bir denetim dönemi bulunamadı." });
+  }
+
+  const { problematicIds, approvedIds } = req.body;
+  const active = db.audits[activeIdx];
+
+  if (active.currentPhase === "Tespit") {
+    active.phase1ProblematicOffices = problematicIds;
+    active.phase1ApprovedOffices = approvedIds;
+  } else if (active.currentPhase === "Kontrol") {
+    active.phase2ProblematicOffices = problematicIds;
+    active.phase2ApprovedOffices = approvedIds;
+  } else if (active.currentPhase === "Ceza") {
+    active.phase3ProblematicOffices = problematicIds;
+    active.phase3ApprovedOffices = approvedIds;
+  }
+
+  active.updatedAt = new Date().toISOString();
+  db.audits[activeIdx] = active;
+  writeDB(db);
+  res.json(active);
+});
+
+// Helper: Get Office or Group Name/Details
+function getEntityInfo(id: string, offices: Office[], groups: Group[]) {
+  if (id.startsWith("G")) {
+    const group = groups.find(g => g.id === id);
+    return {
+      id: id,
+      name: group ? `${group.name} (Grup Ofis)` : "Tanımsız Grup",
+      ownerName: group ? group.ownerName : "Bilinmiyor",
+      ownerEmail: group ? group.ownerEmail : ""
+    };
+  } else {
+    const off = offices.find(o => o.id === id);
+    return {
+      id: id,
+      name: off ? off.name : "Tanımsız Ofis",
+      ownerName: off ? off.ownerName : "Bilinmiyor",
+      ownerEmail: off ? off.ownerEmail : ""
+    };
+  }
+}
+
+// Generate Beautiful HTML Email Templates in Turkish
+function generateHTMLTemplate(
+  stage: "Tespit" | "Kontrol" | "Ceza",
+  type: "Danışman" | "İlan",
+  entityName: string,
+  ownerName: string,
+  details: string
+): { subject: string, html: string } {
+  let subject = "";
+  let headerColor = "#0d9488"; // Teal-600
+  let phaseTitle = "";
+
+  if (stage === "Tespit") {
+    subject = `[DÖNEM DENETİMİ] - 1. Aşama Tespit Bildirimi: ${entityName}`;
+    phaseTitle = "Aşama 1: Tespit Fazı Bildirimi";
+    headerColor = "#0f766e"; // Teal-700
+  } else if (stage === "Kontrol") {
+    subject = `[ÖNEMLİ] - 2. Aşama Kontrol Fazı Uyarı Bildirimi: ${entityName}`;
+    phaseTitle = "Aşama 2: Kontrol ve Düzeltme Fazı";
+    headerColor = "#b45309"; // Amber-700
+  } else if (stage === "Ceza") {
+    subject = `[CEZAİ İŞLEM] - Nihai Ceza Fazı Bildirimi: ${entityName}`;
+    phaseTitle = "Aşama 3: Nihai Ceza Fazı";
+    headerColor = "#be123c"; // Rose-700
+  }
+
+  const html = `
+    <!DOCTYPE html>
+    <html>
+    <head>
+      <meta charset="utf-8">
+      <style>
+        body { font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; background-color: #f3f4f6; color: #1f2937; margin: 0; padding: 20px; }
+        .container { max-width: 600px; margin: 0 auto; background-color: #ffffff; border-radius: 8px; overflow: hidden; box-shadow: 0 4px 6px -1px rgba(0,0,0,0.1); border: 1px solid #e5e7eb; }
+        .header { background-color: ${headerColor}; padding: 25px; text-align: center; color: #ffffff; }
+        .header h1 { margin: 0; font-size: 22px; font-weight: 600; letter-spacing: -0.025em; }
+        .header p { margin: 5px 0 0 0; font-size: 14px; opacity: 0.9; }
+        .content { padding: 30px; line-height: 1.6; }
+        .greeting { font-size: 16px; font-weight: 600; margin-bottom: 15px; }
+        .details-box { background-color: #f9fafb; border-left: 4px solid ${headerColor}; padding: 15px; margin: 20px 0; border-radius: 0 4px 4px 0; }
+        .details-title { font-weight: 600; margin-bottom: 5px; color: #374151; }
+        .warning-text { color: #be123c; font-weight: 600; }
+        .footer { background-color: #f9fafb; padding: 20px; text-align: center; font-size: 12px; color: #6b7280; border-top: 1px solid #f3f4f6; }
+        .cta-button { display: inline-block; background-color: ${headerColor}; color: #ffffff; text-decoration: none; padding: 10px 20px; border-radius: 5px; font-weight: 500; margin-top: 15px; }
+      </style>
+    </head>
+    <body>
+      <div class="container">
+        <div class="header">
+          <h1>${phaseTitle}</h1>
+          <p>${type} Denetimi Kapsamında Uyumsuzluk Tespiti</p>
+        </div>
+        <div class="content">
+          <div class="greeting">Sayın ${ownerName},</div>
+          <p>Bağımsız franchise ofislerimizin standartlara uyum süreçlerini takip etmek amacıyla gerçekleştirdiğimiz rutin dönem denetimlerimizde, <strong>${entityName}</strong> bünyesinde birtakım uyumsuzluklar tespit edilmiştir.</p>
+          
+          <div class="details-box">
+            <div class="details-title">🔍 Tespit Edilen Detaylar (${type} Denetimi):</div>
+            <div style="font-size: 14px; white-space: pre-wrap;">${details}</div>
+          </div>
+
+          ${stage === "Tespit" ? `
+            <p><strong>Aksiyon Adımı:</strong> Lütfen en geç <strong class="warning-text">3 gün içerisinde</strong> ilgili verilerinizi (Panel ve İlan portalları) güncelleyerek uyumlu hale getiriniz. Kontrol fazında uyumluluk gösteren ofislerimiz süreçten elenecektir.</p>
+          ` : stage === "Kontrol" ? `
+            <p class="warning-text">⚠️ ÖNEMLİ UYARI:</p>
+            <p>Yapılan ilk tespit bildiriminin ardından geçen sürede gerekli düzeltmelerin yapılmadığı veya yetersiz kaldığı gözlemlenmiştir. Lütfen <strong class="warning-text">son 2 gün içerisinde</strong> uyumsuzlukları gideriniz. Aksi takdirde süreç <strong>Nihai Ceza Fazı'na</strong> aktarılacak ve cezai yaptırımlar devreye alınacaktır.</p>
+          ` : `
+            <p class="warning-text">🚨 CEZAİ YAPTIRIM BİLDİRİMİ:</p>
+            <p>Yapılan tüm uyarılara ve tanınan kontrol sürelerine rağmen uyumsuzluğun giderilmediği tespit edilmiştir. İlgili durum ceza havuzuna aktarılmış olup, sözleşme maddeleri uyarınca franchise ceza faturası/yaptırımı uygulanacaktır.</p>
+          `}
+
+          <p>İş birliğiniz ve hassasiyetiniz için teşekkür eder, iyi çalışmalar dileriz.</p>
+          <p style="margin-top: 25px; font-size: 13px; color: #9ca3af;">MasterTurk Franchise Denetim Direktörlüğü<br/><em>Bu e-posta otomatik olarak oluşturulmuştur.</em></p>
+        </div>
+        <div class="footer">
+          &copy; 2026 MasterTurk Gayrimenkul A.Ş. Tüm Hakları Saklıdır.
+        </div>
+      </div>
+    </body>
+    </html>
+  `;
+  return { subject, html };
+}
+
+// 5. Advance Active Audit Period & Dispatch Mails
+app.post("/api/audits/active/advance", async (req, res) => {
+  const db = readDB();
+  const activeIdx = db.audits.findIndex((a) => a.status === "Aktif");
+  if (activeIdx === -1) {
+    return res.status(404).json({ error: "Aktif bir denetim dönemi bulunamadı." });
+  }
+
+  const active = db.audits[activeIdx];
+  const { approvedDanismanIds = [], approvedIlanIds = [], detailsMap = {} } = req.body;
+  
+  // Combine all approved IDs to flag as problematic for this phase
+  const allApprovedIds = Array.from(new Set([...approvedDanismanIds, ...approvedIlanIds])) as string[];
+
+  const newEmails: EmailLog[] = [];
+
+  // Send e-mails for Danışman
+  for (const entityId of approvedDanismanIds) {
+    const info = getEntityInfo(entityId, db.offices, db.groups);
+    const detailText = detailsMap[entityId + "_danisman"] || "Yetkisiz / Kaçak Danışman tespiti yapılmıştır.";
+    
+    const mailTemplate = generateHTMLTemplate(
+      active.currentPhase as any,
+      "Danışman",
+      info.name,
+      info.ownerName,
+      detailText
+    );
+
+    const dispatchResult = await dispatchEmail(
+      db.config,
+      info.ownerEmail || "destek@masterturk.com",
+      mailTemplate.subject,
+      mailTemplate.html
+    );
+
+    newEmails.push({
+      id: "EML_" + Math.random().toString(36).substr(2, 9),
+      timestamp: new Date().toISOString(),
+      auditName: active.name,
+      stage: active.currentPhase as any,
+      type: "Danışman",
+      officeId: entityId,
+      officeName: info.name,
+      recipient: info.ownerEmail || "destek@masterturk.com",
+      subject: mailTemplate.subject,
+      bodyHtml: mailTemplate.html,
+      status: dispatchResult.status,
+      errorDetails: dispatchResult.errorDetails
+    });
+  }
+
+  // Send e-mails for İlan
+  for (const entityId of approvedIlanIds) {
+    const info = getEntityInfo(entityId, db.offices, db.groups);
+    const detailText = detailsMap[entityId + "_ilan"] || "İlan portföy sayıları limit fark toleransını aşmaktadır.";
+
+    const mailTemplate = generateHTMLTemplate(
+      active.currentPhase as any,
+      "İlan",
+      info.name,
+      info.ownerName,
+      detailText
+    );
+
+    const dispatchResult = await dispatchEmail(
+      db.config,
+      info.ownerEmail || "destek@masterturk.com",
+      mailTemplate.subject,
+      mailTemplate.html
+    );
+
+    newEmails.push({
+      id: "EML_" + Math.random().toString(36).substr(2, 9),
+      timestamp: new Date().toISOString(),
+      auditName: active.name,
+      stage: active.currentPhase as any,
+      type: "İlan",
+      officeId: entityId,
+      officeName: info.name,
+      recipient: info.ownerEmail || "destek@masterturk.com",
+      subject: mailTemplate.subject,
+      bodyHtml: mailTemplate.html,
+      status: dispatchResult.status,
+      errorDetails: dispatchResult.errorDetails
+    });
+  }
+
+  // Append generated emails to DB log
+  db.emails = [...newEmails, ...db.emails];
+
+  // Advance Phase
+  if (active.currentPhase === "Tespit") {
+    active.phase1ProblematicOffices = allApprovedIds;
+    active.phase1ApprovedOffices = allApprovedIds;
+    active.currentPhase = "Kontrol";
+  } else if (active.currentPhase === "Kontrol") {
+    active.phase2ProblematicOffices = allApprovedIds;
+    active.phase2ApprovedOffices = allApprovedIds;
+    active.currentPhase = "Ceza";
+  } else if (active.currentPhase === "Ceza") {
+    active.phase3ProblematicOffices = allApprovedIds;
+    active.phase3ApprovedOffices = allApprovedIds;
+  }
+
+  active.updatedAt = new Date().toISOString();
+  db.audits[activeIdx] = active;
+  writeDB(db);
+
+  res.json({ active, sentEmailsCount: newEmails.length });
+});
+
+// Close Active Audit Period
+app.post("/api/audits/active/close", (req, res) => {
+  const db = readDB();
+  const activeIdx = db.audits.findIndex((a) => a.status === "Aktif");
+  if (activeIdx === -1) {
+    return res.status(404).json({ error: "Aktif bir denetim dönemi bulunamadı." });
+  }
+
+  const active = db.audits[activeIdx];
+  active.status = "Tamamlandı";
+  active.currentPhase = "Kapatıldı";
+  active.updatedAt = new Date().toISOString();
+
+  db.audits[activeIdx] = active;
+  writeDB(db);
+  res.json(active);
+});
+
+// 6. Sent Emails Log API
+app.get("/api/emails", (req, res) => {
+  const db = readDB();
+  res.json(db.emails);
+});
+
+
+// --- VITE MIDDLEWARE SETUP AND STATIC SERVING ---
+async function startServer() {
+  if (process.env.NODE_ENV !== "production") {
+    const vite = await createViteServer({
+      server: { middlewareMode: true },
+      appType: "spa",
+    });
+    app.use(vite.middlewares);
+  } else {
+    const distPath = path.join(process.cwd(), "dist");
+    app.use(express.static(distPath));
+    app.get("*", (req, res) => {
+      res.sendFile(path.join(distPath, "index.html"));
+    });
+  }
+
+  app.listen(PORT, "0.0.0.0", () => {
+    console.log(`Server running on port ${PORT}`);
+  });
+}
+
+startServer();

@@ -1,0 +1,6 @@
+{
+  "name": "Franchise Denetim ve Grup Ofis Yönetimi",
+  "description": "Bağımsız franchise ofislerinin denetim süreçlerini (Kaçak Danışman ve İlan Portföy Sayıları) grup konsolidasyonu ve 3 fazlı huni akışıyla takip eden profesyonel denetim sistemi.",
+  "requestFramePermissions": [],
+  "majorCapabilities": ["MAJOR_CAPABILITY_SERVER_SIDE_GEMINI_API"]
+}
