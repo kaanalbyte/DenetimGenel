@@ -375,7 +375,7 @@ app.post("/api/config", (req, res) => {
 
 app.post("/api/config/test-email", async (req, res) => {
   const db = readDB();
-  const { to } = req.body;
+  const { to, config: clientConfig } = req.body;
   if (!to) {
     return res.status(400).json({ error: "Alıcı e-posta adresi zorunludur." });
   }
@@ -409,23 +409,29 @@ app.post("/api/config/test-email", async (req, res) => {
     </html>
   `;
 
-  const result = await dispatchEmail(db.config, to, subject, bodyHtml);
+  const configToUse = clientConfig || db.config;
+  const result = await dispatchEmail(configToUse, to, subject, bodyHtml);
   if (result.status === "Gönderildi" || result.status === "Simüle Edildi") {
-    db.emails.unshift({
+    const newLog = {
       id: "EML_" + Math.random().toString(36).substr(2, 9),
       timestamp: new Date().toISOString(),
       auditName: "Sistem Testi",
-      stage: "Tespit",
-      type: "İlan",
+      stage: "Tespit" as const,
+      type: "İlan" as const,
       officeId: "TEST",
       officeName: "SMTP Test Ofisi",
       recipient: to,
       subject: subject,
       bodyHtml: bodyHtml,
       status: result.status
-    });
-    writeDB(db);
-    res.json({ success: true, status: result.status });
+    };
+    
+    // Only write to DB if we are using server state
+    if (!clientConfig) {
+      db.emails.unshift(newLog);
+      writeDB(db);
+    }
+    res.json({ success: true, status: result.status, newLog });
   } else {
     res.json({ success: false, status: result.status, errorDetails: result.errorDetails || "Bilinmeyen bir hata oluştu." });
   }
@@ -656,13 +662,29 @@ function generateHTMLTemplate(
 // 5. Advance Active Audit Period & Dispatch Mails
 app.post("/api/audits/active/advance", async (req, res) => {
   const db = readDB();
-  const activeIdx = db.audits.findIndex((a) => a.status === "Aktif");
-  if (activeIdx === -1) {
+  
+  // Use passed in client state if present, otherwise read from server db
+  let active: any = null;
+  let activeIdx = -1;
+  const isClientState = !!req.body.activeAudit;
+
+  if (isClientState) {
+    active = req.body.activeAudit;
+  } else {
+    activeIdx = db.audits.findIndex((a) => a.status === "Aktif");
+    if (activeIdx !== -1) {
+      active = db.audits[activeIdx];
+    }
+  }
+
+  if (!active) {
     return res.status(404).json({ error: "Aktif bir denetim dönemi bulunamadı." });
   }
 
-  const active = db.audits[activeIdx];
   const { approvedDanismanIds = [], approvedIlanIds = [], detailsMap = {} } = req.body;
+  const offices = req.body.offices || db.offices;
+  const groups = req.body.groups || db.groups;
+  const config = req.body.config || db.config;
   
   // Combine all approved IDs to flag as problematic for this phase
   const allApprovedIds = Array.from(new Set([...approvedDanismanIds, ...approvedIlanIds])) as string[];
@@ -671,7 +693,7 @@ app.post("/api/audits/active/advance", async (req, res) => {
 
   // Send e-mails for Danışman
   for (const entityId of approvedDanismanIds) {
-    const info = getEntityInfo(entityId, db.offices, db.groups);
+    const info = getEntityInfo(entityId, offices, groups);
     const detailText = detailsMap[entityId + "_danisman"] || "Yetkisiz / Kaçak Danışman tespiti yapılmıştır.";
     
     const mailTemplate = generateHTMLTemplate(
@@ -683,7 +705,7 @@ app.post("/api/audits/active/advance", async (req, res) => {
     );
 
     const dispatchResult = await dispatchEmail(
-      db.config,
+      config,
       info.ownerEmail || "destek@masterturk.com",
       mailTemplate.subject,
       mailTemplate.html
@@ -707,7 +729,7 @@ app.post("/api/audits/active/advance", async (req, res) => {
 
   // Send e-mails for İlan
   for (const entityId of approvedIlanIds) {
-    const info = getEntityInfo(entityId, db.offices, db.groups);
+    const info = getEntityInfo(entityId, offices, groups);
     const detailText = detailsMap[entityId + "_ilan"] || "İlan portföy sayıları limit fark toleransını aşmaktadır.";
 
     const mailTemplate = generateHTMLTemplate(
@@ -719,7 +741,7 @@ app.post("/api/audits/active/advance", async (req, res) => {
     );
 
     const dispatchResult = await dispatchEmail(
-      db.config,
+      config,
       info.ownerEmail || "destek@masterturk.com",
       mailTemplate.subject,
       mailTemplate.html
@@ -741,10 +763,7 @@ app.post("/api/audits/active/advance", async (req, res) => {
     });
   }
 
-  // Append generated emails to DB log
-  db.emails = [...newEmails, ...db.emails];
-
-  // Advance Phase
+  // Advance Phase on the active object
   if (active.currentPhase === "Tespit") {
     active.phase1ProblematicOffices = allApprovedIds;
     active.phase1ApprovedOffices = allApprovedIds;
@@ -757,12 +776,16 @@ app.post("/api/audits/active/advance", async (req, res) => {
     active.phase3ProblematicOffices = allApprovedIds;
     active.phase3ApprovedOffices = allApprovedIds;
   }
-
   active.updatedAt = new Date().toISOString();
-  db.audits[activeIdx] = active;
-  writeDB(db);
 
-  res.json({ active, sentEmailsCount: newEmails.length });
+  // If we are using server database state, write to db
+  if (!isClientState && activeIdx !== -1) {
+    db.emails = [...newEmails, ...db.emails];
+    db.audits[activeIdx] = active;
+    writeDB(db);
+  }
+
+  res.json({ active, sentEmails: newEmails });
 });
 
 // Close Active Audit Period
@@ -811,4 +834,8 @@ async function startServer() {
   });
 }
 
-startServer();
+export default app;
+
+if (!process.env.VERCEL) {
+  startServer();
+}
