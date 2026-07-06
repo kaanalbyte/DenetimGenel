@@ -83,7 +83,14 @@ export default function EmailSimulator({ emails, config, onSaveConfig, onRefresh
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({ to: testRecipient.trim() })
       });
-      const data = await res.json();
+      let data;
+      try {
+        data = await res.json();
+      } catch (jsonErr) {
+        const text = await res.clone().text().catch(() => "");
+        throw new Error(text || "Sunucu geçersiz veya boş bir yanıt döndürdü.");
+      }
+
       if (res.ok && data.success) {
         if (data.status === "Simüle Edildi") {
           setTestResult({ success: true, message: "Test e-postası başarıyla simüle edildi! (E-posta servisiniz aktif olmadığı için giden kutusu arşivine eklendi.)" });
@@ -92,7 +99,8 @@ export default function EmailSimulator({ emails, config, onSaveConfig, onRefresh
         }
         onRefresh();
       } else {
-        setTestResult({ success: false, message: data.errorDetails || "Gönderim başarısız oldu. API anahtarını veya gönderici adresini kontrol edin." });
+        const errMsg = data.errorDetails || data.error || data.message || "Gönderim başarısız oldu. API bağlantı ayarlarınızı kontrol edin.";
+        setTestResult({ success: false, message: errMsg });
       }
     } catch (err: any) {
       setTestResult({ success: false, message: "İstek hatası: " + err.message });

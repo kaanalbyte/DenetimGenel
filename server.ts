@@ -1,7 +1,6 @@
 import express from "express";
 import path from "path";
 import fs from "fs";
-import { createServer as createViteServer } from "vite";
 import dotenv from "dotenv";
 import nodemailer from "nodemailer";
 
@@ -184,92 +183,99 @@ async function dispatchEmail(
   subject: string,
   bodyHtml: string
 ): Promise<{ status: "Gönderildi" | "Simüle Edildi" | "Hata"; errorDetails?: string }> {
-  // If SMTP is enabled, send via SMTP
-  if (config.smtpEnabled && config.smtpHost && config.smtpUser) {
-    try {
-      const transporter = nodemailer.createTransport({
-        host: config.smtpHost,
-        port: Number(config.smtpPort || 465),
-        secure: config.smtpSecure !== false, // Default is true (e.g. SSL for 465)
-        auth: {
-          user: config.smtpUser,
-          pass: config.smtpPass || "",
-        },
-        tls: {
-          rejectUnauthorized: false // Avoid failing on custom or workspace self-signed certificates
-        }
-      });
+  try {
+    const cfg = config || {} as AppConfig;
 
-      const info = await transporter.sendMail({
-        from: config.senderEmail || config.smtpUser,
-        to: to,
-        subject: subject,
-        html: bodyHtml,
-      });
+    // If SMTP is enabled, send via SMTP
+    if (cfg.smtpEnabled && cfg.smtpHost && cfg.smtpUser) {
+      try {
+        const transporter = nodemailer.createTransport({
+          host: cfg.smtpHost,
+          port: Number(cfg.smtpPort || 465),
+          secure: cfg.smtpSecure !== false, // Default is true (e.g. SSL for 465)
+          auth: {
+            user: cfg.smtpUser,
+            pass: cfg.smtpPass || "",
+          },
+          tls: {
+            rejectUnauthorized: false // Avoid failing on custom or workspace self-signed certificates
+          }
+        });
 
-      console.log("Email successfully sent via SMTP to: %s, Message ID: %s", to, info.messageId);
-      return { status: "Gönderildi" };
-    } catch (err: any) {
-      console.error("SMTP delivery failed:", err);
-      return { status: "Hata", errorDetails: `SMTP Hatası: ${err.message}` };
-    }
-  }
-
-  // If API keys are configured, make a real call
-  if (config.resendApiKey) {
-    try {
-      const response = await fetch("https://api.resend.com/emails", {
-        method: "POST",
-        headers: {
-          "Authorization": `Bearer ${config.resendApiKey}`,
-          "Content-Type": "application/json",
-        },
-        body: JSON.stringify({
-          from: config.senderEmail || "onboarding@resend.dev",
-          to: [to],
+        const info = await transporter.sendMail({
+          from: cfg.senderEmail || cfg.smtpUser,
+          to: to,
           subject: subject,
           html: bodyHtml,
-        }),
-      });
-      if (response.ok) {
-        return { status: "Gönderildi" };
-      } else {
-        const errorText = await response.text();
-        return { status: "Hata", errorDetails: `Resend error: ${response.status} - ${errorText}` };
-      }
-    } catch (err: any) {
-      return { status: "Hata", errorDetails: `Resend request failed: ${err.message}` };
-    }
-  }
+        });
 
-  if (config.brevoApiKey) {
-    try {
-      const response = await fetch("https://api.brevo.com/v3/smtp/email", {
-        method: "POST",
-        headers: {
-          "api-key": config.brevoApiKey,
-          "Content-Type": "application/json",
-        },
-        body: JSON.stringify({
-          sender: { name: "Franchise Denetim Sistemi", email: config.senderEmail || "denetim@masterturk.com" },
-          to: [{ email: to }],
-          subject: subject,
-          htmlContent: bodyHtml,
-        }),
-      });
-      if (response.ok) {
+        console.log("Email successfully sent via SMTP to: %s, Message ID: %s", to, info.messageId);
         return { status: "Gönderildi" };
-      } else {
-        const errorText = await response.text();
-        return { status: "Hata", errorDetails: `Brevo error: ${response.status} - ${errorText}` };
+      } catch (err: any) {
+        console.error("SMTP delivery failed:", err);
+        return { status: "Hata", errorDetails: `SMTP Hatası: ${err.message}` };
       }
-    } catch (err: any) {
-      return { status: "Hata", errorDetails: `Brevo request failed: ${err.message}` };
     }
-  }
 
-  // Fallback to simulated delivery
-  return { status: "Simüle Edildi" };
+    // If API keys are configured, make a real call
+    if (cfg.resendApiKey) {
+      try {
+        const response = await fetch("https://api.resend.com/emails", {
+          method: "POST",
+          headers: {
+            "Authorization": `Bearer ${cfg.resendApiKey}`,
+            "Content-Type": "application/json",
+          },
+          body: JSON.stringify({
+            from: cfg.senderEmail || "onboarding@resend.dev",
+            to: [to],
+            subject: subject,
+            html: bodyHtml,
+          }),
+        });
+        if (response.ok) {
+          return { status: "Gönderildi" };
+        } else {
+          const errorText = await response.text();
+          return { status: "Hata", errorDetails: `Resend error: ${response.status} - ${errorText}` };
+        }
+      } catch (err: any) {
+        return { status: "Hata", errorDetails: `Resend request failed: ${err.message}` };
+      }
+    }
+
+    if (cfg.brevoApiKey) {
+      try {
+        const response = await fetch("https://api.brevo.com/v3/smtp/email", {
+          method: "POST",
+          headers: {
+            "api-key": cfg.brevoApiKey,
+            "Content-Type": "application/json",
+          },
+          body: JSON.stringify({
+            sender: { name: "Franchise Denetim Sistemi", email: cfg.senderEmail || "denetim@masterturk.com" },
+            to: [{ email: to }],
+            subject: subject,
+            htmlContent: bodyHtml,
+          }),
+        });
+        if (response.ok) {
+          return { status: "Gönderildi" };
+        } else {
+          const errorText = await response.text();
+          return { status: "Hata", errorDetails: `Brevo error: ${response.status} - ${errorText}` };
+        }
+      } catch (err: any) {
+        return { status: "Hata", errorDetails: `Brevo request failed: ${err.message}` };
+      }
+    }
+
+    // Fallback to simulated delivery
+    return { status: "Simüle Edildi" };
+  } catch (globalErr: any) {
+    console.error("Global dispatchEmail exception:", globalErr);
+    return { status: "Hata", errorDetails: `Sistem Hatası: ${globalErr.message}` };
+  }
 }
 
 // --- API ENDPOINTS ---
@@ -374,66 +380,71 @@ app.post("/api/config", (req, res) => {
 });
 
 app.post("/api/config/test-email", async (req, res) => {
-  const db = readDB();
-  const { to, config: clientConfig } = req.body;
-  if (!to) {
-    return res.status(400).json({ error: "Alıcı e-posta adresi zorunludur." });
-  }
-
-  const subject = "MasterTurk Franchise Denetimi - SMTP Test E-postası";
-  const bodyHtml = `
-    <!DOCTYPE html>
-    <html>
-    <head>
-      <meta charset="utf-8">
-    </head>
-    <body style="font-family: sans-serif; padding: 20px; background-color: #f3f4f6;">
-      <div style="max-width: 600px; margin: 0 auto; border: 1px solid #e5e7eb; border-radius: 8px; overflow: hidden; background-color: #ffffff; box-shadow: 0 4px 6px -1px rgba(0,0,0,0.1);">
-        <div style="background-color: #2563eb; color: white; padding: 20px; text-align: center;">
-          <h1 style="margin: 0; font-size: 20px;">Bağlantı Testi Başarılı!</h1>
-        </div>
-        <div style="padding: 25px; line-height: 1.6; color: #374151;">
-          <p>Merhaba,</p>
-          <p>Bu e-posta, MasterTurk Franchise Denetim Portalı üzerinden yaptığınız SMTP/Servis bağlantı testi amacıyla gönderilmiştir.</p>
-          <p>Resend / Brevo API bağlantınız <strong>başarıyla kurulmuş</strong> ve sistem üzerinden gerçek e-posta gönderimi doğrulanmıştır.</p>
-          <div style="background-color: #f3f4f6; padding: 12px; border-radius: 6px; font-family: monospace; font-size: 13px; margin: 20px 0;">
-            Tarih: ${new Date().toLocaleString("tr-TR")}
-          </div>
-          <p>Artık denetim hunisi üzerinden franchise bayilerinize gerçek uyarı bildirimlerini güvenle gönderebilirsiniz.</p>
-        </div>
-        <div style="background-color: #f9fafb; padding: 15px; text-align: center; font-size: 12px; color: #6b7280; border-top: 1px solid #f3f4f6;">
-          MasterTurk Franchise Denetim Direktörlüğü
-        </div>
-      </div>
-    </body>
-    </html>
-  `;
-
-  const configToUse = clientConfig || db.config;
-  const result = await dispatchEmail(configToUse, to, subject, bodyHtml);
-  if (result.status === "Gönderildi" || result.status === "Simüle Edildi") {
-    const newLog = {
-      id: "EML_" + Math.random().toString(36).substr(2, 9),
-      timestamp: new Date().toISOString(),
-      auditName: "Sistem Testi",
-      stage: "Tespit" as const,
-      type: "İlan" as const,
-      officeId: "TEST",
-      officeName: "SMTP Test Ofisi",
-      recipient: to,
-      subject: subject,
-      bodyHtml: bodyHtml,
-      status: result.status
-    };
-    
-    // Only write to DB if we are using server state
-    if (!clientConfig) {
-      db.emails.unshift(newLog);
-      writeDB(db);
+  try {
+    const db = readDB();
+    const { to, config: clientConfig } = req.body;
+    if (!to) {
+      return res.status(400).json({ error: "Alıcı e-posta adresi zorunludur." });
     }
-    res.json({ success: true, status: result.status, newLog });
-  } else {
-    res.json({ success: false, status: result.status, errorDetails: result.errorDetails || "Bilinmeyen bir hata oluştu." });
+
+    const subject = "MasterTurk Franchise Denetimi - SMTP Test E-postası";
+    const bodyHtml = `
+      <!DOCTYPE html>
+      <html>
+      <head>
+        <meta charset="utf-8">
+      </head>
+      <body style="font-family: sans-serif; padding: 20px; background-color: #f3f4f6;">
+        <div style="max-width: 600px; margin: 0 auto; border: 1px solid #e5e7eb; border-radius: 8px; overflow: hidden; background-color: #ffffff; box-shadow: 0 4px 6px -1px rgba(0,0,0,0.1);">
+          <div style="background-color: #2563eb; color: white; padding: 20px; text-align: center;">
+            <h1 style="margin: 0; font-size: 20px;">Bağlantı Testi Başarılı!</h1>
+          </div>
+          <div style="padding: 25px; line-height: 1.6; color: #374151;">
+            <p>Merhaba,</p>
+            <p>Bu e-posta, MasterTurk Franchise Denetim Portalı üzerinden yaptığınız SMTP/Servis bağlantı testi amacıyla gönderilmiştir.</p>
+            <p>Resend / Brevo API bağlantınız <strong>başarıyla kurulmuş</strong> ve sistem üzerinden gerçek e-posta gönderimi doğrulanmıştır.</p>
+            <div style="background-color: #f3f4f6; padding: 12px; border-radius: 6px; font-family: monospace; font-size: 13px; margin: 20px 0;">
+              Tarih: ${new Date().toLocaleString("tr-TR")}
+            </div>
+            <p>Artık denetim hunisi üzerinden franchise bayilerinize gerçek uyarı bildirimlerini güvenle gönderebilirsiniz.</p>
+          </div>
+          <div style="background-color: #f9fafb; padding: 15px; text-align: center; font-size: 12px; color: #6b7280; border-top: 1px solid #f3f4f6;">
+            MasterTurk Franchise Denetim Direktörlüğü
+          </div>
+        </div>
+      </body>
+      </html>
+    `;
+
+    const configToUse = clientConfig || db.config;
+    const result = await dispatchEmail(configToUse, to, subject, bodyHtml);
+    if (result.status === "Gönderildi" || result.status === "Simüle Edildi") {
+      const newLog = {
+        id: "EML_" + Math.random().toString(36).substr(2, 9),
+        timestamp: new Date().toISOString(),
+        auditName: "Sistem Testi",
+        stage: "Tespit" as const,
+        type: "İlan" as const,
+        officeId: "TEST",
+        officeName: "SMTP Test Ofisi",
+        recipient: to,
+        subject: subject,
+        bodyHtml: bodyHtml,
+        status: result.status
+      };
+      
+      // Only write to DB if we are using server state
+      if (!clientConfig) {
+        db.emails.unshift(newLog);
+        writeDB(db);
+      }
+      res.json({ success: true, status: result.status, newLog });
+    } else {
+      res.json({ success: false, status: result.status, errorDetails: result.errorDetails || "Bilinmeyen bir hata oluştu." });
+    }
+  } catch (err: any) {
+    console.error("Error in test-email handler:", err);
+    res.status(500).json({ success: false, error: "Sunucu hatası: " + err.message });
   }
 });
 
@@ -661,131 +672,136 @@ function generateHTMLTemplate(
 
 // 5. Advance Active Audit Period & Dispatch Mails
 app.post("/api/audits/active/advance", async (req, res) => {
-  const db = readDB();
-  
-  // Use passed in client state if present, otherwise read from server db
-  let active: any = null;
-  let activeIdx = -1;
-  const isClientState = !!req.body.activeAudit;
-
-  if (isClientState) {
-    active = req.body.activeAudit;
-  } else {
-    activeIdx = db.audits.findIndex((a) => a.status === "Aktif");
-    if (activeIdx !== -1) {
-      active = db.audits[activeIdx];
-    }
-  }
-
-  if (!active) {
-    return res.status(404).json({ error: "Aktif bir denetim dönemi bulunamadı." });
-  }
-
-  const { approvedDanismanIds = [], approvedIlanIds = [], detailsMap = {} } = req.body;
-  const offices = req.body.offices || db.offices;
-  const groups = req.body.groups || db.groups;
-  const config = req.body.config || db.config;
-  
-  // Combine all approved IDs to flag as problematic for this phase
-  const allApprovedIds = Array.from(new Set([...approvedDanismanIds, ...approvedIlanIds])) as string[];
-
-  const newEmails: EmailLog[] = [];
-
-  // Send e-mails for Danışman
-  for (const entityId of approvedDanismanIds) {
-    const info = getEntityInfo(entityId, offices, groups);
-    const detailText = detailsMap[entityId + "_danisman"] || "Yetkisiz / Kaçak Danışman tespiti yapılmıştır.";
+  try {
+    const db = readDB();
     
-    const mailTemplate = generateHTMLTemplate(
-      active.currentPhase as any,
-      "Danışman",
-      info.name,
-      info.ownerName,
-      detailText
-    );
+    // Use passed in client state if present, otherwise read from server db
+    let active: any = null;
+    let activeIdx = -1;
+    const isClientState = !!req.body.activeAudit;
 
-    const dispatchResult = await dispatchEmail(
-      config,
-      info.ownerEmail || "destek@masterturk.com",
-      mailTemplate.subject,
-      mailTemplate.html
-    );
+    if (isClientState) {
+      active = req.body.activeAudit;
+    } else {
+      activeIdx = db.audits.findIndex((a) => a.status === "Aktif");
+      if (activeIdx !== -1) {
+        active = db.audits[activeIdx];
+      }
+    }
 
-    newEmails.push({
-      id: "EML_" + Math.random().toString(36).substr(2, 9),
-      timestamp: new Date().toISOString(),
-      auditName: active.name,
-      stage: active.currentPhase as any,
-      type: "Danışman",
-      officeId: entityId,
-      officeName: info.name,
-      recipient: info.ownerEmail || "destek@masterturk.com",
-      subject: mailTemplate.subject,
-      bodyHtml: mailTemplate.html,
-      status: dispatchResult.status,
-      errorDetails: dispatchResult.errorDetails
-    });
+    if (!active) {
+      return res.status(404).json({ error: "Aktif bir denetim dönemi bulunamadı." });
+    }
+
+    const { approvedDanismanIds = [], approvedIlanIds = [], detailsMap = {} } = req.body;
+    const offices = req.body.offices || db.offices;
+    const groups = req.body.groups || db.groups;
+    const config = req.body.config || db.config;
+    
+    // Combine all approved IDs to flag as problematic for this phase
+    const allApprovedIds = Array.from(new Set([...approvedDanismanIds, ...approvedIlanIds])) as string[];
+
+    const newEmails: EmailLog[] = [];
+
+    // Send e-mails for Danışman
+    for (const entityId of approvedDanismanIds) {
+      const info = getEntityInfo(entityId, offices, groups);
+      const detailText = detailsMap[entityId + "_danisman"] || "Yetkisiz / Kaçak Danışman tespiti yapılmıştır.";
+      
+      const mailTemplate = generateHTMLTemplate(
+        active.currentPhase as any,
+        "Danışman",
+        info.name,
+        info.ownerName,
+        detailText
+      );
+
+      const dispatchResult = await dispatchEmail(
+        config,
+        info.ownerEmail || "destek@masterturk.com",
+        mailTemplate.subject,
+        mailTemplate.html
+      );
+
+      newEmails.push({
+        id: "EML_" + Math.random().toString(36).substr(2, 9),
+        timestamp: new Date().toISOString(),
+        auditName: active.name,
+        stage: active.currentPhase as any,
+        type: "Danışman",
+        officeId: entityId,
+        officeName: info.name,
+        recipient: info.ownerEmail || "destek@masterturk.com",
+        subject: mailTemplate.subject,
+        bodyHtml: mailTemplate.html,
+        status: dispatchResult.status,
+        errorDetails: dispatchResult.errorDetails
+      });
+    }
+
+    // Send e-mails for İlan
+    for (const entityId of approvedIlanIds) {
+      const info = getEntityInfo(entityId, offices, groups);
+      const detailText = detailsMap[entityId + "_ilan"] || "İlan portföy sayıları limit fark toleransını aşmaktadır.";
+
+      const mailTemplate = generateHTMLTemplate(
+        active.currentPhase as any,
+        "İlan",
+        info.name,
+        info.ownerName,
+        detailText
+      );
+
+      const dispatchResult = await dispatchEmail(
+        config,
+        info.ownerEmail || "destek@masterturk.com",
+        mailTemplate.subject,
+        mailTemplate.html
+      );
+
+      newEmails.push({
+        id: "EML_" + Math.random().toString(36).substr(2, 9),
+        timestamp: new Date().toISOString(),
+        auditName: active.name,
+        stage: active.currentPhase as any,
+        type: "İlan",
+        officeId: entityId,
+        officeName: info.name,
+        recipient: info.ownerEmail || "destek@masterturk.com",
+        subject: mailTemplate.subject,
+        bodyHtml: mailTemplate.html,
+        status: dispatchResult.status,
+        errorDetails: dispatchResult.errorDetails
+      });
+    }
+
+    // Advance Phase on the active object
+    if (active.currentPhase === "Tespit") {
+      active.phase1ProblematicOffices = allApprovedIds;
+      active.phase1ApprovedOffices = allApprovedIds;
+      active.currentPhase = "Kontrol";
+    } else if (active.currentPhase === "Kontrol") {
+      active.phase2ProblematicOffices = allApprovedIds;
+      active.phase2ApprovedOffices = allApprovedIds;
+      active.currentPhase = "Ceza";
+    } else if (active.currentPhase === "Ceza") {
+      active.phase3ProblematicOffices = allApprovedIds;
+      active.phase3ApprovedOffices = allApprovedIds;
+    }
+    active.updatedAt = new Date().toISOString();
+
+    // If we are using server database state, write to db
+    if (!isClientState && activeIdx !== -1) {
+      db.emails = [...newEmails, ...db.emails];
+      db.audits[activeIdx] = active;
+      writeDB(db);
+    }
+
+    res.json({ active, sentEmails: newEmails });
+  } catch (err: any) {
+    console.error("Error in audits/active/advance handler:", err);
+    res.status(500).json({ error: "Faz ilerletilirken sunucu hatası oluştu: " + err.message });
   }
-
-  // Send e-mails for İlan
-  for (const entityId of approvedIlanIds) {
-    const info = getEntityInfo(entityId, offices, groups);
-    const detailText = detailsMap[entityId + "_ilan"] || "İlan portföy sayıları limit fark toleransını aşmaktadır.";
-
-    const mailTemplate = generateHTMLTemplate(
-      active.currentPhase as any,
-      "İlan",
-      info.name,
-      info.ownerName,
-      detailText
-    );
-
-    const dispatchResult = await dispatchEmail(
-      config,
-      info.ownerEmail || "destek@masterturk.com",
-      mailTemplate.subject,
-      mailTemplate.html
-    );
-
-    newEmails.push({
-      id: "EML_" + Math.random().toString(36).substr(2, 9),
-      timestamp: new Date().toISOString(),
-      auditName: active.name,
-      stage: active.currentPhase as any,
-      type: "İlan",
-      officeId: entityId,
-      officeName: info.name,
-      recipient: info.ownerEmail || "destek@masterturk.com",
-      subject: mailTemplate.subject,
-      bodyHtml: mailTemplate.html,
-      status: dispatchResult.status,
-      errorDetails: dispatchResult.errorDetails
-    });
-  }
-
-  // Advance Phase on the active object
-  if (active.currentPhase === "Tespit") {
-    active.phase1ProblematicOffices = allApprovedIds;
-    active.phase1ApprovedOffices = allApprovedIds;
-    active.currentPhase = "Kontrol";
-  } else if (active.currentPhase === "Kontrol") {
-    active.phase2ProblematicOffices = allApprovedIds;
-    active.phase2ApprovedOffices = allApprovedIds;
-    active.currentPhase = "Ceza";
-  } else if (active.currentPhase === "Ceza") {
-    active.phase3ProblematicOffices = allApprovedIds;
-    active.phase3ApprovedOffices = allApprovedIds;
-  }
-  active.updatedAt = new Date().toISOString();
-
-  // If we are using server database state, write to db
-  if (!isClientState && activeIdx !== -1) {
-    db.emails = [...newEmails, ...db.emails];
-    db.audits[activeIdx] = active;
-    writeDB(db);
-  }
-
-  res.json({ active, sentEmails: newEmails });
 });
 
 // Close Active Audit Period
@@ -816,6 +832,7 @@ app.get("/api/emails", (req, res) => {
 // --- VITE MIDDLEWARE SETUP AND STATIC SERVING ---
 async function startServer() {
   if (process.env.NODE_ENV !== "production") {
+    const { createServer: createViteServer } = await import("vite");
     const vite = await createViteServer({
       server: { middlewareMode: true },
       appType: "spa",

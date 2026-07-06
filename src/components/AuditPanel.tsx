@@ -375,10 +375,12 @@ export default function AuditPanel({ offices, groups, activeAudit, onRefresh, on
 
       if (res.ok) {
         const data = await res.json();
-        showMsg("success", `${data.sentEmailsCount} Adet E-Posta Gönderildi/Simüle Edildi. Aşama İlerletildi.`);
+        const emailCount = data.sentEmails ? data.sentEmails.length : 0;
+        showMsg("success", `${emailCount} Adet E-Posta Gönderildi/Simüle Edildi. Aşama İlerletildi.`);
         onRefresh();
       } else {
-        showMsg("error", "Faz ilerletilirken hata oluştu.");
+        const errData = await res.json().catch(() => ({}));
+        showMsg("error", errData.error || errData.message || "Faz ilerletilirken hata oluştu.");
       }
     } catch (err) {
       showMsg("error", "İletişim hatası.");
