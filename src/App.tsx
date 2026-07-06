@@ -76,14 +76,21 @@ export default function App() {
     }
   };
 
-  const handleSaveConfig = async (newCfg: AppConfig) => {
-    const res = await fetch("/api/config", {
-      method: "POST",
-      headers: { "Content-Type": "application/json" },
-      body: JSON.stringify(newCfg)
-    });
-    if (res.ok) {
-      setConfig(await res.json());
+  const handleSaveConfig = async (newCfg: AppConfig): Promise<boolean> => {
+    try {
+      const res = await fetch("/api/config", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify(newCfg)
+      });
+      if (res.ok) {
+        setConfig(await res.json());
+        return true;
+      }
+      return false;
+    } catch (err) {
+      console.error("Error saving config:", err);
+      return false;
     }
   };
 

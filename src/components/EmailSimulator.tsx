@@ -5,7 +5,7 @@ import { Mail, CheckCircle2, AlertTriangle, Play, HelpCircle, Eye, Settings, Ref
 interface EmailSimulatorProps {
   emails: EmailLog[];
   config: AppConfig;
-  onSaveConfig: (cfg: AppConfig) => void;
+  onSaveConfig: (cfg: AppConfig) => Promise<boolean>;
   onRefresh: () => void;
 }
 
@@ -24,6 +24,9 @@ export default function EmailSimulator({ emails, config, onSaveConfig, onRefresh
   const [smtpUser, setSmtpUser] = useState(config.smtpUser || "");
   const [smtpPass, setSmtpPass] = useState(config.smtpPass || "");
 
+  const [saving, setSaving] = useState(false);
+  const [saveStatus, setSaveStatus] = useState<{ success: boolean; message: string } | null>(null);
+
   useEffect(() => {
     setResendKey(config.resendApiKey || "");
     setBrevoKey(config.brevoApiKey || "");
@@ -36,19 +39,33 @@ export default function EmailSimulator({ emails, config, onSaveConfig, onRefresh
     setSmtpPass(config.smtpPass || "");
   }, [config]);
 
-  const handleSave = (e: React.FormEvent) => {
+  const handleSave = async (e: React.FormEvent) => {
     e.preventDefault();
-    onSaveConfig({
-      resendApiKey: resendKey.trim(),
-      brevoApiKey: brevoKey.trim(),
-      senderEmail: sender.trim(),
-      smtpEnabled,
-      smtpHost: smtpHost.trim(),
-      smtpPort: Number(smtpPort),
-      smtpSecure,
-      smtpUser: smtpUser.trim(),
-      smtpPass: smtpPass.trim()
-    });
+    setSaving(true);
+    setSaveStatus(null);
+    try {
+      const ok = await onSaveConfig({
+        resendApiKey: resendKey.trim(),
+        brevoApiKey: brevoKey.trim(),
+        senderEmail: sender.trim(),
+        smtpEnabled,
+        smtpHost: smtpHost.trim(),
+        smtpPort: Number(smtpPort),
+        smtpSecure,
+        smtpUser: smtpUser.trim(),
+        smtpPass: smtpPass.trim()
+      });
+      if (ok) {
+        setSaveStatus({ success: true, message: "Ayarlar başarıyla kaydedildi!" });
+        setTimeout(() => setSaveStatus(null), 4000);
+      } else {
+        setSaveStatus({ success: false, message: "Ayarlar kaydedilirken bir hata oluştu." });
+      }
+    } catch (err: any) {
+      setSaveStatus({ success: false, message: "Hata: " + err.message });
+    } finally {
+      setSaving(false);
+    }
   };
 
   const [testRecipient, setTestRecipient] = useState("");
@@ -307,11 +324,32 @@ export default function EmailSimulator({ emails, config, onSaveConfig, onRefresh
                   </div>
                 )}
 
+                {saveStatus && (
+                  <div className={`p-2.5 rounded text-xs leading-relaxed ${saveStatus.success ? "bg-emerald-50 text-emerald-800 border border-emerald-100" : "bg-red-50 text-red-800 border border-red-100"}`}>
+                    <div className="flex items-center gap-1.5 font-semibold">
+                      {saveStatus.success ? (
+                        <CheckCircle2 className="w-4 h-4 shrink-0" />
+                      ) : (
+                        <AlertTriangle className="w-4 h-4 shrink-0" />
+                      )}
+                      {saveStatus.message}
+                    </div>
+                  </div>
+                )}
+
                 <button
                   type="submit"
-                  className="w-full bg-blue-600 hover:bg-blue-700 text-white font-bold text-xs py-2 px-3 rounded shadow-xs transition duration-150 cursor-pointer"
+                  disabled={saving}
+                  className={`w-full font-bold text-xs py-2 px-3 rounded shadow-xs transition duration-150 cursor-pointer text-center flex items-center justify-center gap-1.5 ${
+                    saving ? "bg-slate-400 text-slate-100 cursor-not-allowed" : "bg-blue-600 hover:bg-blue-700 text-white"
+                  }`}
                 >
-                  Ayarları Kaydet
+                  {saving ? (
+                    <>
+                      <RefreshCw className="w-3.5 h-3.5 animate-spin" />
+                      Kaydediliyor...
+                    </>
+                  ) : "Ayarları Kaydet"}
                 </button>
               </form>
             </div>

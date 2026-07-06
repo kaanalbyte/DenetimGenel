@@ -406,7 +406,7 @@ app.post("/api/config/test-email", async (req, res) => {
     writeDB(db);
     res.json({ success: true, status: result.status });
   } else {
-    res.status(500).json({ success: false, status: result.status, errorDetails: result.errorDetails || "Bilinmeyen bir hata oluştu." });
+    res.json({ success: false, status: result.status, errorDetails: result.errorDetails || "Bilinmeyen bir hata oluştu." });
   }
 });
 
