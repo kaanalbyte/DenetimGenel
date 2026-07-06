@@ -5,7 +5,19 @@ import './index.css';
 
 // Dynamically determine the backend API URL (fallback, not strictly needed since Vercel serves on same origin)
 const getApiBaseUrl = (): string => {
-  return "";
+  const hostname = window.location.hostname;
+  // If running locally, or on our container preview, keep relative path
+  if (hostname === "localhost" || hostname === "127.0.0.1" || hostname.endsWith(".run.app")) {
+    return "";
+  }
+  
+  // Otherwise, default to the production preview deployment
+  const savedUrl = localStorage.getItem("BACKEND_API_URL");
+  if (savedUrl) {
+    return savedUrl.replace(/\/$/, ""); // strip trailing slash if any
+  }
+  
+  return "https://ais-pre-bfaall2bxd46msnkfxpvpc-98433837336.europe-west2.run.app";
 };
 
 // --- Local Storage Database Sync Helpers ---
@@ -314,7 +326,9 @@ window.fetch = function (input: RequestInfo | URL, init?: RequestInit) {
           config: getLocalConfig()
         };
         
-        return originalFetch(url, {
+        const apiBase = getApiBaseUrl();
+        const targetUrl = apiBase ? `${apiBase}${url}` : url;
+        return originalFetch(targetUrl, {
           ...init,
           body: JSON.stringify(payload)
         }).then(async (response) => {
@@ -348,7 +362,9 @@ window.fetch = function (input: RequestInfo | URL, init?: RequestInit) {
           activeAudit: activeAudit
         };
 
-        return originalFetch(url, {
+        const apiBase = getApiBaseUrl();
+        const targetUrl = apiBase ? `${apiBase}${url}` : url;
+        return originalFetch(targetUrl, {
           ...init,
           body: JSON.stringify(payload)
         }).then(async (response) => {
