@@ -61,4 +61,10 @@ export interface AppConfig {
   resendApiKey: string;
   brevoApiKey: string;
   senderEmail: string;
+  smtpEnabled?: boolean;
+  smtpHost?: string;
+  smtpPort?: number;
+  smtpSecure?: boolean;
+  smtpUser?: string;
+  smtpPass?: string;
 }

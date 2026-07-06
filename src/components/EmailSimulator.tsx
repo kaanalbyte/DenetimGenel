@@ -14,14 +14,26 @@ export default function EmailSimulator({ emails, config, onSaveConfig, onRefresh
   const [activeTab, setActiveTab] = useState<"history" | "settings">("history");
   
   // Settings edit state
-  const [resendKey, setResendKey] = useState(config.resendApiKey);
-  const [brevoKey, setBrevoKey] = useState(config.brevoApiKey);
-  const [sender, setSender] = useState(config.senderEmail);
+  const [resendKey, setResendKey] = useState(config.resendApiKey || "");
+  const [brevoKey, setBrevoKey] = useState(config.brevoApiKey || "");
+  const [sender, setSender] = useState(config.senderEmail || "denetim@masterturk.com");
+  const [smtpEnabled, setSmtpEnabled] = useState(config.smtpEnabled || false);
+  const [smtpHost, setSmtpHost] = useState(config.smtpHost || "smtp.gmail.com");
+  const [smtpPort, setSmtpPort] = useState(config.smtpPort || 465);
+  const [smtpSecure, setSmtpSecure] = useState(config.smtpSecure !== false);
+  const [smtpUser, setSmtpUser] = useState(config.smtpUser || "");
+  const [smtpPass, setSmtpPass] = useState(config.smtpPass || "");
 
   useEffect(() => {
-    setResendKey(config.resendApiKey);
-    setBrevoKey(config.brevoApiKey);
-    setSender(config.senderEmail);
+    setResendKey(config.resendApiKey || "");
+    setBrevoKey(config.brevoApiKey || "");
+    setSender(config.senderEmail || "denetim@masterturk.com");
+    setSmtpEnabled(config.smtpEnabled || false);
+    setSmtpHost(config.smtpHost || "smtp.gmail.com");
+    setSmtpPort(config.smtpPort || 465);
+    setSmtpSecure(config.smtpSecure !== false);
+    setSmtpUser(config.smtpUser || "");
+    setSmtpPass(config.smtpPass || "");
   }, [config]);
 
   const handleSave = (e: React.FormEvent) => {
@@ -29,7 +41,13 @@ export default function EmailSimulator({ emails, config, onSaveConfig, onRefresh
     onSaveConfig({
       resendApiKey: resendKey.trim(),
       brevoApiKey: brevoKey.trim(),
-      senderEmail: sender.trim()
+      senderEmail: sender.trim(),
+      smtpEnabled,
+      smtpHost: smtpHost.trim(),
+      smtpPort: Number(smtpPort),
+      smtpSecure,
+      smtpUser: smtpUser.trim(),
+      smtpPass: smtpPass.trim()
     });
   };
 
@@ -106,63 +124,188 @@ export default function EmailSimulator({ emails, config, onSaveConfig, onRefresh
             <div className="bg-white rounded-lg border border-slate-200 shadow-xs overflow-hidden">
               <div className="px-4 py-3 border-b border-slate-200 bg-slate-50/50">
                 <h3 className="text-xs font-bold text-slate-800 tracking-tight">
-                  SMTP / Servis Bağlantısı
+                  E-Posta Servis Modu
                 </h3>
                 <p className="text-[11px] text-slate-500 mt-0.5 leading-relaxed">
-                  Gerçek e-posta gönderimi için Resend ya da Brevo servislerinden birini bağlayabilirsiniz.
+                  Şirketinizin e-posta hesabı (Google Workspace) veya ücretsiz API servisleri ile gerçek gönderim yapabilirsiniz.
                 </p>
               </div>
+              <div className="p-4 border-b border-slate-100 bg-slate-50/30 flex gap-2">
+                <button
+                  type="button"
+                  onClick={() => setSmtpEnabled(true)}
+                  className={`flex-1 py-1.5 px-2 text-[11px] font-bold rounded border transition cursor-pointer text-center ${
+                    smtpEnabled
+                      ? "bg-slate-900 border-slate-900 text-white"
+                      : "bg-white border-slate-200 text-slate-600 hover:bg-slate-50"
+                  }`}
+                >
+                  Doğrudan SMTP (Workspace / Gmail)
+                </button>
+                <button
+                  type="button"
+                  onClick={() => setSmtpEnabled(false)}
+                  className={`flex-1 py-1.5 px-2 text-[11px] font-bold rounded border transition cursor-pointer text-center ${
+                    !smtpEnabled
+                      ? "bg-slate-900 border-slate-900 text-white"
+                      : "bg-white border-slate-200 text-slate-600 hover:bg-slate-50"
+                  }`}
+                >
+                  API Servisleri (Resend / Brevo)
+                </button>
+              </div>
+
               <form onSubmit={handleSave} className="p-4 space-y-3">
-                <div>
-                  <label className="block text-[10px] font-bold text-slate-400 uppercase mb-1">
-                    Resend API Key (İsteğe Bağlı)
-                  </label>
-                  <input
-                    type="password"
-                    placeholder="re_xxxxxxxxxxxxxxxx"
-                    value={resendKey}
-                    onChange={(e) => setResendKey(e.target.value)}
-                    className="w-full text-xs px-2.5 py-1.5 border border-slate-200 rounded focus:outline-none focus:ring-1 focus:ring-blue-500 bg-white font-mono"
-                  />
-                </div>
+                {smtpEnabled ? (
+                  /* SMTP Form */
+                  <div className="space-y-3">
+                    <div className="p-2.5 bg-blue-50 border border-blue-100 rounded text-[11px] text-blue-800 leading-relaxed mb-2">
+                      <strong>💡 Google Workspace İpucu:</strong> Gmail veya @masterturk.com.tr kurumsal e-posta hesabınızla <strong>tamamen ücretsiz</strong> mail göndermek için:
+                      <ol className="list-decimal ml-4 mt-1 space-y-0.5">
+                        <li>Google Hesabınızda 2 Adımlı Doğrulamayı açın.</li>
+                        <li><strong>Uygulama Şifreleri (App Passwords)</strong> bölümünden bu portal için bir şifre üretin.</li>
+                        <li>O şifreyi aşağıdaki "SMTP Şifre" kısmına girin.</li>
+                      </ol>
+                    </div>
 
-                <div className="relative my-2">
-                  <div className="absolute inset-0 flex items-center" aria-hidden="true">
-                    <div className="w-full border-t border-slate-100"></div>
+                    <div>
+                      <label className="block text-[10px] font-bold text-slate-400 uppercase mb-1">
+                        SMTP Sunucu Adresi (Host)
+                      </label>
+                      <input
+                        type="text"
+                        placeholder="smtp.gmail.com"
+                        value={smtpHost}
+                        onChange={(e) => setSmtpHost(e.target.value)}
+                        required
+                        className="w-full text-xs px-2.5 py-1.5 border border-slate-200 rounded focus:outline-none focus:ring-1 focus:ring-blue-500 bg-white font-mono"
+                      />
+                    </div>
+
+                    <div className="grid grid-cols-2 gap-2">
+                      <div>
+                        <label className="block text-[10px] font-bold text-slate-400 uppercase mb-1">
+                          Port
+                        </label>
+                        <input
+                          type="number"
+                          placeholder="465"
+                          value={smtpPort}
+                          onChange={(e) => setSmtpPort(Number(e.target.value))}
+                          required
+                          className="w-full text-xs px-2.5 py-1.5 border border-slate-200 rounded focus:outline-none focus:ring-1 focus:ring-blue-500 bg-white font-mono"
+                        />
+                      </div>
+                      <div className="flex items-end pb-1.5">
+                        <label className="flex items-center gap-1.5 text-xs text-slate-600 font-medium cursor-pointer">
+                          <input
+                            type="checkbox"
+                            checked={smtpSecure}
+                            onChange={(e) => setSmtpSecure(e.target.checked)}
+                            className="rounded text-blue-600 focus:ring-blue-500"
+                          />
+                          Güvenli Bağlantı (SSL)
+                        </label>
+                      </div>
+                    </div>
+
+                    <div>
+                      <label className="block text-[10px] font-bold text-slate-400 uppercase mb-1">
+                        SMTP Kullanıcı Adı (E-posta)
+                      </label>
+                      <input
+                        type="email"
+                        placeholder="kaan.albayrak@masterturk.com.tr"
+                        value={smtpUser}
+                        onChange={(e) => setSmtpUser(e.target.value)}
+                        required
+                        className="w-full text-xs px-2.5 py-1.5 border border-slate-200 rounded focus:outline-none focus:ring-1 focus:ring-blue-500 bg-white font-mono"
+                      />
+                    </div>
+
+                    <div>
+                      <label className="block text-[10px] font-bold text-slate-400 uppercase mb-1">
+                        SMTP Şifre (Uygulama Şifresi)
+                      </label>
+                      <input
+                        type="password"
+                        placeholder="xxxx xxxx xxxx xxxx"
+                        value={smtpPass}
+                        onChange={(e) => setSmtpPass(e.target.value)}
+                        required
+                        className="w-full text-xs px-2.5 py-1.5 border border-slate-200 rounded focus:outline-none focus:ring-1 focus:ring-blue-500 bg-white font-mono"
+                      />
+                    </div>
+
+                    <div>
+                      <label className="block text-[10px] font-bold text-slate-400 uppercase mb-1">
+                        Görünen Gönderici E-posta (Sender)
+                      </label>
+                      <input
+                        type="email"
+                        placeholder="kaan.albayrak@masterturk.com.tr"
+                        value={sender}
+                        onChange={(e) => setSender(e.target.value)}
+                        required
+                        className="w-full text-xs px-2.5 py-1.5 border border-slate-200 rounded focus:outline-none focus:ring-1 focus:ring-blue-500 bg-white"
+                      />
+                    </div>
                   </div>
-                  <div className="relative flex justify-center text-[10px]">
-                    <span className="bg-white px-2 text-slate-400 font-bold uppercase font-mono">veya</span>
+                ) : (
+                  /* API Keys Form */
+                  <div className="space-y-3">
+                    <div>
+                      <label className="block text-[10px] font-bold text-slate-400 uppercase mb-1">
+                        Resend API Key (İsteğe Bağlı)
+                      </label>
+                      <input
+                        type="password"
+                        placeholder="re_xxxxxxxxxxxxxxxx"
+                        value={resendKey}
+                        onChange={(e) => setResendKey(e.target.value)}
+                        className="w-full text-xs px-2.5 py-1.5 border border-slate-200 rounded focus:outline-none focus:ring-1 focus:ring-blue-500 bg-white font-mono"
+                      />
+                    </div>
+
+                    <div className="relative my-2">
+                      <div className="absolute inset-0 flex items-center" aria-hidden="true">
+                        <div className="w-full border-t border-slate-100"></div>
+                      </div>
+                      <div className="relative flex justify-center text-[10px]">
+                        <span className="bg-white px-2 text-slate-400 font-bold uppercase font-mono">veya</span>
+                      </div>
+                    </div>
+
+                    <div>
+                      <label className="block text-[10px] font-bold text-slate-400 uppercase mb-1">
+                        Brevo API Key (İsteğe Bağlı)
+                      </label>
+                      <input
+                        type="password"
+                        placeholder="xkeysib-xxxxxxxxxxxxxxxx"
+                        value={brevoKey}
+                        onChange={(e) => setBrevoKey(e.target.value)}
+                        className="w-full text-xs px-2.5 py-1.5 border border-slate-200 rounded focus:outline-none focus:ring-1 focus:ring-blue-500 bg-white font-mono"
+                      />
+                    </div>
+
+                    <div className="border-t border-slate-100 pt-3">
+                      <label className="block text-[10px] font-bold text-slate-400 uppercase mb-1">
+                        Gönderici E-posta Adresi (Sender)
+                      </label>
+                      <input
+                        type="email"
+                        placeholder="denetim@masterturk.com"
+                        value={sender}
+                        onChange={(e) => setSender(e.target.value)}
+                        className="w-full text-xs px-2.5 py-1.5 border border-slate-200 rounded focus:outline-none focus:ring-1 focus:ring-blue-500 bg-white"
+                      />
+                      <p className="text-[10px] text-slate-400 mt-1">
+                        Resend kullanıyorsanız, doğrulanmış alan adınıza ait bir e-posta girin. Boş bırakılırsa varsayılan test adresi kullanılır.
+                      </p>
+                    </div>
                   </div>
-                </div>
-
-                <div>
-                  <label className="block text-[10px] font-bold text-slate-400 uppercase mb-1">
-                    Brevo API Key (İsteğe Bağlı)
-                  </label>
-                  <input
-                    type="password"
-                    placeholder="xkeysib-xxxxxxxxxxxxxxxx"
-                    value={brevoKey}
-                    onChange={(e) => setBrevoKey(e.target.value)}
-                    className="w-full text-xs px-2.5 py-1.5 border border-slate-200 rounded focus:outline-none focus:ring-1 focus:ring-blue-500 bg-white font-mono"
-                  />
-                </div>
-
-                <div className="border-t border-slate-100 pt-3">
-                  <label className="block text-[10px] font-bold text-slate-400 uppercase mb-1">
-                    Gönderici E-posta Adresi (Sender)
-                  </label>
-                  <input
-                    type="email"
-                    placeholder="denetim@masterturk.com"
-                    value={sender}
-                    onChange={(e) => setSender(e.target.value)}
-                    className="w-full text-xs px-2.5 py-1.5 border border-slate-200 rounded focus:outline-none focus:ring-1 focus:ring-blue-500 bg-white"
-                  />
-                  <p className="text-[10px] text-slate-400 mt-1">
-                    Resend kullanıyorsanız, doğrulanmış alan adınıza ait bir e-posta girin. Boş bırakılırsa varsayılan test adresi kullanılır.
-                  </p>
-                </div>
+                )}
 
                 <button
                   type="submit"
@@ -197,7 +340,10 @@ export default function EmailSimulator({ emails, config, onSaveConfig, onRefresh
                     className="w-full text-xs px-2.5 py-1.5 border border-slate-200 rounded focus:outline-none focus:ring-1 focus:ring-blue-500 bg-white"
                   />
                   <p className="text-[10px] text-amber-600 mt-1 leading-normal">
-                    ⚠️ Resend sandbox modunda sadece hesabınıza bağlı e-posta adreslerine gönderim yapabilirsiniz.
+                    {smtpEnabled 
+                      ? "⚡ SMTP modunda dilediğiniz herhangi bir gerçek e-posta adresine doğrudan test gönderebilirsiniz."
+                      : "⚠️ Resend sandbox modunda sadece doğrulanmış alıcı e-posta adreslerinize gönderim yapabilirsiniz."
+                    }
                   </p>
                 </div>
 

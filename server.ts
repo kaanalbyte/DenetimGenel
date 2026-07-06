@@ -3,6 +3,7 @@ import path from "path";
 import fs from "fs";
 import { createServer as createViteServer } from "vite";
 import dotenv from "dotenv";
+import nodemailer from "nodemailer";
 
 dotenv.config();
 
@@ -77,6 +78,12 @@ interface AppConfig {
   resendApiKey: string;
   brevoApiKey: string;
   senderEmail: string;
+  smtpEnabled?: boolean;
+  smtpHost?: string;
+  smtpPort?: number;
+  smtpSecure?: boolean;
+  smtpUser?: string;
+  smtpPass?: string;
 }
 
 interface Database {
@@ -113,7 +120,13 @@ const DEFAULT_DB: Database = {
   config: {
     resendApiKey: "",
     brevoApiKey: "",
-    senderEmail: "denetim@masterturk.com"
+    senderEmail: "denetim@masterturk.com",
+    smtpEnabled: false,
+    smtpHost: "smtp.gmail.com",
+    smtpPort: 465,
+    smtpSecure: true,
+    smtpUser: "",
+    smtpPass: ""
   }
 };
 
@@ -150,6 +163,37 @@ async function dispatchEmail(
   subject: string,
   bodyHtml: string
 ): Promise<{ status: "Gönderildi" | "Simüle Edildi" | "Hata"; errorDetails?: string }> {
+  // If SMTP is enabled, send via SMTP
+  if (config.smtpEnabled && config.smtpHost && config.smtpUser) {
+    try {
+      const transporter = nodemailer.createTransport({
+        host: config.smtpHost,
+        port: Number(config.smtpPort || 465),
+        secure: config.smtpSecure !== false, // Default is true (e.g. SSL for 465)
+        auth: {
+          user: config.smtpUser,
+          pass: config.smtpPass || "",
+        },
+        tls: {
+          rejectUnauthorized: false // Avoid failing on custom or workspace self-signed certificates
+        }
+      });
+
+      const info = await transporter.sendMail({
+        from: config.senderEmail || config.smtpUser,
+        to: to,
+        subject: subject,
+        html: bodyHtml,
+      });
+
+      console.log("Email successfully sent via SMTP to: %s, Message ID: %s", to, info.messageId);
+      return { status: "Gönderildi" };
+    } catch (err: any) {
+      console.error("SMTP delivery failed:", err);
+      return { status: "Hata", errorDetails: `SMTP Hatası: ${err.message}` };
+    }
+  }
+
   // If API keys are configured, make a real call
   if (config.resendApiKey) {
     try {
