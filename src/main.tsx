@@ -11,13 +11,13 @@ const getApiBaseUrl = (): string => {
     return "";
   }
   
-  // Otherwise, default to the production preview deployment
+  // By default, Vercel supports serverless functions, so use relative path unless explicitly set
   const savedUrl = localStorage.getItem("BACKEND_API_URL");
   if (savedUrl) {
     return savedUrl.replace(/\/$/, ""); // strip trailing slash if any
   }
   
-  return "https://ais-pre-bfaall2bxd46msnkfxpvpc-98433837336.europe-west2.run.app";
+  return ""; // default to relative path so it hits the Vercel serverless function
 };
 
 // --- Local Storage Database Sync Helpers ---

@@ -300,15 +300,15 @@ export default function App() {
                 <strong>Harici Domain Modu (Vercel):</strong> Uygulama API isteklerini şu backend adresine gönderir:
               </span>
               <span className="bg-amber-100/80 border border-amber-200/50 text-amber-900 text-[10px] px-2 py-0.5 rounded font-mono font-semibold select-all break-all">
-                {localStorage.getItem("BACKEND_API_URL") || "https://ais-pre-bfaall2bxd46msnkfxpvpc-98433837336.europe-west2.run.app"}
+                {localStorage.getItem("BACKEND_API_URL") || "Yerel Vercel API Sunucusu (Önerilen / Varsayılan)"}
               </span>
             </div>
             <div className="flex items-center gap-2 shrink-0">
               <button
                 onClick={() => {
-                  const currentUrl = localStorage.getItem("BACKEND_API_URL") || "https://ais-pre-bfaall2bxd46msnkfxpvpc-98433837336.europe-west2.run.app";
+                  const currentUrl = localStorage.getItem("BACKEND_API_URL") || "";
                   const newUrl = prompt(
-                    "Lütfen backend API adresinizi girin (örnek: https://ais-pre-bfaall2bxd46msnkfxpvpc-98433837336.europe-west2.run.app):",
+                    "Lütfen harici bir backend API adresi girin (Boş bırakırsanız Vercel'in kendi sunucusunu kullanır):",
                     currentUrl
                   );
                   if (newUrl !== null) {
