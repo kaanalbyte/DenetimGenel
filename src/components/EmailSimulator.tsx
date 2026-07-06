@@ -85,7 +85,11 @@ export default function EmailSimulator({ emails, config, onSaveConfig, onRefresh
       });
       const data = await res.json();
       if (res.ok && data.success) {
-        setTestResult({ success: true, message: "Test e-postası başarıyla gönderildi! Gelen kutunuzu veya spam klasörünü kontrol edin." });
+        if (data.status === "Simüle Edildi") {
+          setTestResult({ success: true, message: "Test e-postası başarıyla simüle edildi! (E-posta servisiniz aktif olmadığı için giden kutusu arşivine eklendi.)" });
+        } else {
+          setTestResult({ success: true, message: "Test e-postası başarıyla gönderildi! Lütfen gelen kutunuzu ve spam klasörünüzü kontrol edin." });
+        }
         onRefresh();
       } else {
         setTestResult({ success: false, message: data.errorDetails || "Gönderim başarısız oldu. API anahtarını veya gönderici adresini kontrol edin." });

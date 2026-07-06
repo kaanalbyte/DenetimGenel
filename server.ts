@@ -12,6 +12,16 @@ const PORT = 3000;
 
 app.use(express.json({ limit: "50mb" }));
 
+app.use((req, res, next) => {
+  try {
+    const logMsg = `[${new Date().toISOString()}] ${req.method} ${req.url}\n`;
+    fs.appendFileSync(path.join(process.cwd(), "server.log"), logMsg, "utf8");
+  } catch (err) {
+    // Ignore log write errors
+  }
+  next();
+});
+
 // --- DATABASE PATH AND SCHEMA ---
 const DB_PATH = path.join(process.cwd(), "db.json");
 
@@ -389,7 +399,7 @@ app.post("/api/config/test-email", async (req, res) => {
   `;
 
   const result = await dispatchEmail(db.config, to, subject, bodyHtml);
-  if (result.status === "Gönderildi") {
+  if (result.status === "Gönderildi" || result.status === "Simüle Edildi") {
     db.emails.unshift({
       id: "EML_" + Math.random().toString(36).substr(2, 9),
       timestamp: new Date().toISOString(),
@@ -401,7 +411,7 @@ app.post("/api/config/test-email", async (req, res) => {
       recipient: to,
       subject: subject,
       bodyHtml: bodyHtml,
-      status: "Gönderildi"
+      status: result.status
     });
     writeDB(db);
     res.json({ success: true, status: result.status });

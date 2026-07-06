@@ -1,0 +1,102 @@
+{
+  "offices": [
+    {
+      "id": "OF1001",
+      "name": "Master İstanbul Merkez",
+      "ownerName": "Ahmet Yılmaz",
+      "ownerEmail": "ahmet@masteristanbul.com",
+      "groupId": "G1"
+    },
+    {
+      "id": "OF1002",
+      "name": "Master İstanbul Beşiktaş",
+      "ownerName": "Ahmet Yılmaz",
+      "ownerEmail": "ahmet@masteristanbul.com",
+      "groupId": "G1"
+    },
+    {
+      "id": "OF1003",
+      "name": "Master Ankara Çankaya",
+      "ownerName": "Mehmet Kaya",
+      "ownerEmail": "mehmet@masterankara.com",
+      "groupId": "G2"
+    },
+    {
+      "id": "OF1004",
+      "name": "Master Ankara Ümitköy",
+      "ownerName": "Mehmet Kaya",
+      "ownerEmail": "mehmet@masterankara.com",
+      "groupId": "G2"
+    },
+    {
+      "id": "OF1005",
+      "name": "Master İzmir Bornova",
+      "ownerName": "Can Demir",
+      "ownerEmail": "can@masterizmir.com",
+      "groupId": "G3"
+    },
+    {
+      "id": "OF1006",
+      "name": "Master İzmir Karşıyaka",
+      "ownerName": "Can Demir",
+      "ownerEmail": "can@masterizmir.com",
+      "groupId": "G3"
+    },
+    {
+      "id": "OF1007",
+      "name": "Master Antalya Konyaaltı",
+      "ownerName": "Elif Şahin",
+      "ownerEmail": "elif@masterantalya.com",
+      "groupId": null
+    },
+    {
+      "id": "OF1008",
+      "name": "Master Bursa Nilüfer",
+      "ownerName": "Mustafa Yıldız",
+      "ownerEmail": "mustafa@masterbursa.com",
+      "groupId": null
+    }
+  ],
+  "groups": [
+    {
+      "id": "G1",
+      "name": "İstanbul Kuzey Grubu",
+      "ownerName": "Ahmet Yılmaz",
+      "ownerEmail": "ahmet@masteristanbul.com"
+    },
+    {
+      "id": "G2",
+      "name": "Ankara Çankaya Grubu",
+      "ownerName": "Mehmet Kaya",
+      "ownerEmail": "mehmet@masterankara.com"
+    },
+    {
+      "id": "G3",
+      "name": "İzmir Körfez Grubu",
+      "ownerName": "Can Demir",
+      "ownerEmail": "can@masterizmir.com"
+    }
+  ],
+  "audits": [],
+  "emails": [
+    {
+      "id": "EML_se73jho1l",
+      "timestamp": "2026-07-06T13:43:10.780Z",
+      "auditName": "Sistem Testi",
+      "stage": "Tespit",
+      "type": "İlan",
+      "officeId": "TEST",
+      "officeName": "SMTP Test Ofisi",
+      "recipient": "test@example.com",
+      "subject": "MasterTurk Franchise Denetimi - SMTP Test E-postası",
+      "bodyHtml": "\n    <!DOCTYPE html>\n    <html>\n    <head>\n      <meta charset=\"utf-8\">\n    </head>\n    <body style=\"font-family: sans-serif; padding: 20px; background-color: #f3f4f6;\">\n      <div style=\"max-width: 600px; margin: 0 auto; border: 1px solid #e5e7eb; border-radius: 8px; overflow: hidden; background-color: #ffffff; box-shadow: 0 4px 6px -1px rgba(0,0,0,0.1);\">\n        <div style=\"background-color: #2563eb; color: white; padding: 20px; text-align: center;\">\n          <h1 style=\"margin: 0; font-size: 20px;\">Bağlantı Testi Başarılı!</h1>\n        </div>\n        <div style=\"padding: 25px; line-height: 1.6; color: #374151;\">\n          <p>Merhaba,</p>\n          <p>Bu e-posta, MasterTurk Franchise Denetim Portalı üzerinden yaptığınız SMTP/Servis bağlantı testi amacıyla gönderilmiştir.</p>\n          <p>Resend / Brevo API bağlantınız <strong>başarıyla kurulmuş</strong> ve sistem üzerinden gerçek e-posta gönderimi doğrulanmıştır.</p>\n          <div style=\"background-color: #f3f4f6; padding: 12px; border-radius: 6px; font-family: monospace; font-size: 13px; margin: 20px 0;\">\n            Tarih: 06.07.2026 13:43:10\n          </div>\n          <p>Artık denetim hunisi üzerinden franchise bayilerinize gerçek uyarı bildirimlerini güvenle gönderebilirsiniz.</p>\n        </div>\n        <div style=\"background-color: #f9fafb; padding: 15px; text-align: center; font-size: 12px; color: #6b7280; border-top: 1px solid #f3f4f6;\">\n          MasterTurk Franchise Denetim Direktörlüğü\n        </div>\n      </div>\n    </body>\n    </html>\n  ",
+      "status": "Simüle Edildi"
+    }
+  ],
+  "config": {
+    "resendApiKey": "",
+    "brevoApiKey": "",
+    "senderEmail": "denetim@masterturk.com",
+    "smtpEnabled": false
+  }
+}
