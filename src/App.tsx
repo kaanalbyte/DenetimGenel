@@ -291,6 +291,56 @@ export default function App() {
           </div>
         </header>
 
+        {/* Custom Domain Backend Connection Banner */}
+        {window.location.hostname !== "localhost" && !window.location.hostname.endsWith(".run.app") && (
+          <div className="bg-amber-50 border-b border-amber-200 px-6 py-3 text-xs text-amber-950 flex flex-wrap items-center justify-between gap-3 shadow-xs shrink-0">
+            <div className="flex items-center gap-2 font-medium flex-wrap">
+              <span className="inline-flex h-2 w-2 rounded-full bg-amber-500 animate-pulse shrink-0"></span>
+              <span>
+                <strong>Harici Domain Modu (Vercel):</strong> Uygulama API isteklerini şu backend adresine gönderir:
+              </span>
+              <span className="bg-amber-100/80 border border-amber-200/50 text-amber-900 text-[10px] px-2 py-0.5 rounded font-mono font-semibold select-all break-all">
+                {localStorage.getItem("BACKEND_API_URL") || "https://ais-pre-bfaall2bxd46msnkfxpvpc-98433837336.europe-west2.run.app"}
+              </span>
+            </div>
+            <div className="flex items-center gap-2 shrink-0">
+              <button
+                onClick={() => {
+                  const currentUrl = localStorage.getItem("BACKEND_API_URL") || "https://ais-pre-bfaall2bxd46msnkfxpvpc-98433837336.europe-west2.run.app";
+                  const newUrl = prompt(
+                    "Lütfen backend API adresinizi girin (örnek: https://ais-pre-bfaall2bxd46msnkfxpvpc-98433837336.europe-west2.run.app):",
+                    currentUrl
+                  );
+                  if (newUrl !== null) {
+                    let sanitizedUrl = newUrl.trim();
+                    if (sanitizedUrl && !sanitizedUrl.startsWith("http://") && !sanitizedUrl.startsWith("https://")) {
+                      sanitizedUrl = "https://" + sanitizedUrl;
+                    }
+                    if (sanitizedUrl) {
+                      localStorage.setItem("BACKEND_API_URL", sanitizedUrl);
+                    } else {
+                      localStorage.removeItem("BACKEND_API_URL");
+                    }
+                    window.location.reload();
+                  }
+                }}
+                className="px-3 py-1 bg-amber-600 hover:bg-amber-700 text-white rounded text-[11px] font-bold shadow-xs cursor-pointer transition"
+              >
+                Bağlantı Adresini Değiştir
+              </button>
+              <button
+                onClick={() => {
+                  localStorage.removeItem("BACKEND_API_URL");
+                  window.location.reload();
+                }}
+                className="px-2 py-1 bg-amber-200 hover:bg-amber-300 text-amber-900 rounded text-[11px] cursor-pointer transition font-medium"
+              >
+                Sıfırla (Varsayılan Yap)
+              </button>
+            </div>
+          </div>
+        )}
+
         {/* Scrollable Content Workspace */}
         <div className="flex-1 overflow-y-auto p-6 bg-slate-50 space-y-6">
           <AnimatePresence mode="wait">
