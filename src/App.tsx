@@ -76,7 +76,7 @@ export default function App() {
     }
   };
 
-  const handleSaveConfig = async (newCfg: AppConfig): Promise<boolean> => {
+  const handleSaveConfig = async (newCfg: AppConfig): Promise<{ success: boolean; message: string }> => {
     try {
       const res = await fetch("/api/config", {
         method: "POST",
@@ -84,13 +84,15 @@ export default function App() {
         body: JSON.stringify(newCfg)
       });
       if (res.ok) {
-        setConfig(await res.json());
-        return true;
+        const data = await res.json();
+        setConfig(data);
+        return { success: true, message: "Ayarlar başarıyla kaydedildi!" };
       }
-      return false;
-    } catch (err) {
+      const errText = await res.text().catch(() => "Detay alınamadı.");
+      return { success: false, message: `Sunucu hatası (${res.status}): ${errText.substring(0, 150)}` };
+    } catch (err: any) {
       console.error("Error saving config:", err);
-      return false;
+      return { success: false, message: `Bağlantı hatası: ${err.message}` };
     }
   };
 

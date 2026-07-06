@@ -5,7 +5,7 @@ import { Mail, CheckCircle2, AlertTriangle, Play, HelpCircle, Eye, Settings, Ref
 interface EmailSimulatorProps {
   emails: EmailLog[];
   config: AppConfig;
-  onSaveConfig: (cfg: AppConfig) => Promise<boolean>;
+  onSaveConfig: (cfg: AppConfig) => Promise<{ success: boolean; message: string }>;
   onRefresh: () => void;
 }
 
@@ -44,7 +44,7 @@ export default function EmailSimulator({ emails, config, onSaveConfig, onRefresh
     setSaving(true);
     setSaveStatus(null);
     try {
-      const ok = await onSaveConfig({
+      const result = await onSaveConfig({
         resendApiKey: resendKey.trim(),
         brevoApiKey: brevoKey.trim(),
         senderEmail: sender.trim(),
@@ -55,11 +55,11 @@ export default function EmailSimulator({ emails, config, onSaveConfig, onRefresh
         smtpUser: smtpUser.trim(),
         smtpPass: smtpPass.trim()
       });
-      if (ok) {
-        setSaveStatus({ success: true, message: "Ayarlar başarıyla kaydedildi!" });
+      if (result.success) {
+        setSaveStatus({ success: true, message: result.message });
         setTimeout(() => setSaveStatus(null), 4000);
       } else {
-        setSaveStatus({ success: false, message: "Ayarlar kaydedilirken bir hata oluştu." });
+        setSaveStatus({ success: false, message: result.message });
       }
     } catch (err: any) {
       setSaveStatus({ success: false, message: "Hata: " + err.message });
