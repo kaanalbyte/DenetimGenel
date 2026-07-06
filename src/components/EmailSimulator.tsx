@@ -83,11 +83,11 @@ export default function EmailSimulator({ emails, config, onSaveConfig, onRefresh
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({ to: testRecipient.trim() })
       });
+      const text = await res.text();
       let data;
       try {
-        data = await res.json();
+        data = text ? JSON.parse(text) : {};
       } catch (jsonErr) {
-        const text = await res.clone().text().catch(() => "");
         throw new Error(text || "Sunucu geçersiz veya boş bir yanıt döndürdü.");
       }
 
