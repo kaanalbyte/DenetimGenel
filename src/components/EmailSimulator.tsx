@@ -33,6 +33,35 @@ export default function EmailSimulator({ emails, config, onSaveConfig, onRefresh
     });
   };
 
+  const [testRecipient, setTestRecipient] = useState("");
+  const [testSending, setTestSending] = useState(false);
+  const [testResult, setTestResult] = useState<{ success: boolean; message: string } | null>(null);
+
+  const handleSendTestEmail = async (e: React.FormEvent) => {
+    e.preventDefault();
+    if (!testRecipient) return;
+    setTestSending(true);
+    setTestResult(null);
+    try {
+      const res = await fetch("/api/config/test-email", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ to: testRecipient.trim() })
+      });
+      const data = await res.json();
+      if (res.ok && data.success) {
+        setTestResult({ success: true, message: "Test e-postası başarıyla gönderildi! Gelen kutunuzu veya spam klasörünü kontrol edin." });
+        onRefresh();
+      } else {
+        setTestResult({ success: false, message: data.errorDetails || "Gönderim başarısız oldu. API anahtarını veya gönderici adresini kontrol edin." });
+      }
+    } catch (err: any) {
+      setTestResult({ success: false, message: "İstek hatası: " + err.message });
+    } finally {
+      setTestSending(false);
+    }
+  };
+
   // Set first email as selected by default if exists
   useEffect(() => {
     if (emails.length > 0 && !selectedEmail) {
@@ -73,74 +102,144 @@ export default function EmailSimulator({ emails, config, onSaveConfig, onRefresh
 
         {activeTab === "settings" ? (
           /* Email Integrations Settings */
-          <div className="bg-white rounded-lg border border-slate-200 shadow-xs overflow-hidden">
-            <div className="px-4 py-3 border-b border-slate-200 bg-slate-50/50">
-              <h3 className="text-xs font-bold text-slate-800 tracking-tight">
-                SMTP / Servis Bağlantısı
-              </h3>
-              <p className="text-[11px] text-slate-500 mt-0.5 leading-relaxed">
-                Gerçek e-posta gönderimi için Resend ya da Brevo servislerinden birini bağlayabilirsiniz.
-              </p>
-            </div>
-            <form onSubmit={handleSave} className="p-4 space-y-3">
-              <div>
-                <label className="block text-[10px] font-bold text-slate-400 uppercase mb-1">
-                  Resend API Key (İsteğe Bağlı)
-                </label>
-                <input
-                  type="password"
-                  placeholder="re_xxxxxxxxxxxxxxxx"
-                  value={resendKey}
-                  onChange={(e) => setResendKey(e.target.value)}
-                  className="w-full text-xs px-2.5 py-1.5 border border-slate-200 rounded focus:outline-none focus:ring-1 focus:ring-blue-500 bg-white font-mono"
-                />
-              </div>
-
-              <div className="relative my-2">
-                <div className="absolute inset-0 flex items-center" aria-hidden="true">
-                  <div className="w-full border-t border-slate-100"></div>
-                </div>
-                <div className="relative flex justify-center text-[10px]">
-                  <span className="bg-white px-2 text-slate-400 font-bold uppercase font-mono">veya</span>
-                </div>
-              </div>
-
-              <div>
-                <label className="block text-[10px] font-bold text-slate-400 uppercase mb-1">
-                  Brevo API Key (İsteğe Bağlı)
-                </label>
-                <input
-                  type="password"
-                  placeholder="xkeysib-xxxxxxxxxxxxxxxx"
-                  value={brevoKey}
-                  onChange={(e) => setBrevoKey(e.target.value)}
-                  className="w-full text-xs px-2.5 py-1.5 border border-slate-200 rounded focus:outline-none focus:ring-1 focus:ring-blue-500 bg-white font-mono"
-                />
-              </div>
-
-              <div className="border-t border-slate-100 pt-3">
-                <label className="block text-[10px] font-bold text-slate-400 uppercase mb-1">
-                  Gönderici E-posta Adresi (Sender)
-                </label>
-                <input
-                  type="email"
-                  placeholder="denetim@masterturk.com"
-                  value={sender}
-                  onChange={(e) => setSender(e.target.value)}
-                  className="w-full text-xs px-2.5 py-1.5 border border-slate-200 rounded focus:outline-none focus:ring-1 focus:ring-blue-500 bg-white"
-                />
-                <p className="text-[10px] text-slate-400 mt-1">
-                  Resend kullanıyorsanız, doğrulanmış alan adınıza ait bir e-posta girin. Boş bırakılırsa varsayılan test adresi kullanılır.
+          <div className="space-y-4">
+            <div className="bg-white rounded-lg border border-slate-200 shadow-xs overflow-hidden">
+              <div className="px-4 py-3 border-b border-slate-200 bg-slate-50/50">
+                <h3 className="text-xs font-bold text-slate-800 tracking-tight">
+                  SMTP / Servis Bağlantısı
+                </h3>
+                <p className="text-[11px] text-slate-500 mt-0.5 leading-relaxed">
+                  Gerçek e-posta gönderimi için Resend ya da Brevo servislerinden birini bağlayabilirsiniz.
                 </p>
               </div>
+              <form onSubmit={handleSave} className="p-4 space-y-3">
+                <div>
+                  <label className="block text-[10px] font-bold text-slate-400 uppercase mb-1">
+                    Resend API Key (İsteğe Bağlı)
+                  </label>
+                  <input
+                    type="password"
+                    placeholder="re_xxxxxxxxxxxxxxxx"
+                    value={resendKey}
+                    onChange={(e) => setResendKey(e.target.value)}
+                    className="w-full text-xs px-2.5 py-1.5 border border-slate-200 rounded focus:outline-none focus:ring-1 focus:ring-blue-500 bg-white font-mono"
+                  />
+                </div>
 
-              <button
-                type="submit"
-                className="w-full bg-blue-600 hover:bg-blue-700 text-white font-bold text-xs py-2 px-3 rounded shadow-xs transition duration-150 cursor-pointer"
-              >
-                Ayarları Kaydet
-              </button>
-            </form>
+                <div className="relative my-2">
+                  <div className="absolute inset-0 flex items-center" aria-hidden="true">
+                    <div className="w-full border-t border-slate-100"></div>
+                  </div>
+                  <div className="relative flex justify-center text-[10px]">
+                    <span className="bg-white px-2 text-slate-400 font-bold uppercase font-mono">veya</span>
+                  </div>
+                </div>
+
+                <div>
+                  <label className="block text-[10px] font-bold text-slate-400 uppercase mb-1">
+                    Brevo API Key (İsteğe Bağlı)
+                  </label>
+                  <input
+                    type="password"
+                    placeholder="xkeysib-xxxxxxxxxxxxxxxx"
+                    value={brevoKey}
+                    onChange={(e) => setBrevoKey(e.target.value)}
+                    className="w-full text-xs px-2.5 py-1.5 border border-slate-200 rounded focus:outline-none focus:ring-1 focus:ring-blue-500 bg-white font-mono"
+                  />
+                </div>
+
+                <div className="border-t border-slate-100 pt-3">
+                  <label className="block text-[10px] font-bold text-slate-400 uppercase mb-1">
+                    Gönderici E-posta Adresi (Sender)
+                  </label>
+                  <input
+                    type="email"
+                    placeholder="denetim@masterturk.com"
+                    value={sender}
+                    onChange={(e) => setSender(e.target.value)}
+                    className="w-full text-xs px-2.5 py-1.5 border border-slate-200 rounded focus:outline-none focus:ring-1 focus:ring-blue-500 bg-white"
+                  />
+                  <p className="text-[10px] text-slate-400 mt-1">
+                    Resend kullanıyorsanız, doğrulanmış alan adınıza ait bir e-posta girin. Boş bırakılırsa varsayılan test adresi kullanılır.
+                  </p>
+                </div>
+
+                <button
+                  type="submit"
+                  className="w-full bg-blue-600 hover:bg-blue-700 text-white font-bold text-xs py-2 px-3 rounded shadow-xs transition duration-150 cursor-pointer"
+                >
+                  Ayarları Kaydet
+                </button>
+              </form>
+            </div>
+
+            {/* Connection Test Form */}
+            <div className="bg-white rounded-lg border border-slate-200 shadow-xs overflow-hidden">
+              <div className="px-4 py-3 border-b border-slate-200 bg-slate-50/50">
+                <h3 className="text-xs font-bold text-slate-800 tracking-tight">
+                  Bağlantı ve Gönderim Testi
+                </h3>
+                <p className="text-[11px] text-slate-500 mt-0.5 leading-relaxed">
+                  Ayarlarınızı kaydettikten sonra, API bağlantısının çalıştığını doğrulamak için hızlıca bir test e-postası gönderebilirsiniz.
+                </p>
+              </div>
+              <form onSubmit={handleSendTestEmail} className="p-4 space-y-3">
+                <div>
+                  <label className="block text-[10px] font-bold text-slate-400 uppercase mb-1">
+                    Alıcı E-posta Adresi
+                  </label>
+                  <input
+                    type="email"
+                    placeholder="ornek@alanadi.com"
+                    value={testRecipient}
+                    onChange={(e) => setTestRecipient(e.target.value)}
+                    required
+                    className="w-full text-xs px-2.5 py-1.5 border border-slate-200 rounded focus:outline-none focus:ring-1 focus:ring-blue-500 bg-white"
+                  />
+                  <p className="text-[10px] text-amber-600 mt-1 leading-normal">
+                    ⚠️ Resend sandbox modunda sadece hesabınıza bağlı e-posta adreslerine gönderim yapabilirsiniz.
+                  </p>
+                </div>
+
+                <button
+                  type="submit"
+                  disabled={testSending}
+                  className={`w-full text-white font-bold text-xs py-2 px-3 rounded shadow-xs transition duration-150 flex items-center justify-center gap-1.5 cursor-pointer ${
+                    testSending ? "bg-slate-400 cursor-not-allowed" : "bg-emerald-600 hover:bg-emerald-700"
+                  }`}
+                >
+                  {testSending ? (
+                    <>
+                      <RefreshCw className="w-3.5 h-3.5 animate-spin" />
+                      Gönderiliyor...
+                    </>
+                  ) : (
+                    <>
+                      <Play className="w-3.5 h-3.5" />
+                      Test E-postası Gönder
+                    </>
+                  )}
+                </button>
+
+                {testResult && (
+                  <div className={`p-3 rounded text-[11px] font-medium leading-relaxed border ${
+                    testResult.success ? "bg-emerald-50 text-emerald-800 border-emerald-200" : "bg-rose-50 text-rose-800 border-rose-200"
+                  }`}>
+                    {testResult.success ? (
+                      <div className="flex items-start gap-1.5">
+                        <CheckCircle2 className="w-3.5 h-3.5 text-emerald-600 shrink-0 mt-0.5" />
+                        <span>{testResult.message}</span>
+                      </div>
+                    ) : (
+                      <div className="flex items-start gap-1.5">
+                        <AlertTriangle className="w-3.5 h-3.5 text-rose-600 shrink-0 mt-0.5" />
+                        <span className="font-mono text-[10px]">{testResult.message}</span>
+                      </div>
+                    )}
+                  </div>
+                )}
+              </form>
+            </div>
           </div>
         ) : (
           /* Email Outbox List */

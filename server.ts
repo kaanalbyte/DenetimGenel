@@ -308,6 +308,64 @@ app.post("/api/config", (req, res) => {
   res.json(db.config);
 });
 
+app.post("/api/config/test-email", async (req, res) => {
+  const db = readDB();
+  const { to } = req.body;
+  if (!to) {
+    return res.status(400).json({ error: "Alıcı e-posta adresi zorunludur." });
+  }
+
+  const subject = "MasterTurk Franchise Denetimi - SMTP Test E-postası";
+  const bodyHtml = `
+    <!DOCTYPE html>
+    <html>
+    <head>
+      <meta charset="utf-8">
+    </head>
+    <body style="font-family: sans-serif; padding: 20px; background-color: #f3f4f6;">
+      <div style="max-width: 600px; margin: 0 auto; border: 1px solid #e5e7eb; border-radius: 8px; overflow: hidden; background-color: #ffffff; box-shadow: 0 4px 6px -1px rgba(0,0,0,0.1);">
+        <div style="background-color: #2563eb; color: white; padding: 20px; text-align: center;">
+          <h1 style="margin: 0; font-size: 20px;">Bağlantı Testi Başarılı!</h1>
+        </div>
+        <div style="padding: 25px; line-height: 1.6; color: #374151;">
+          <p>Merhaba,</p>
+          <p>Bu e-posta, MasterTurk Franchise Denetim Portalı üzerinden yaptığınız SMTP/Servis bağlantı testi amacıyla gönderilmiştir.</p>
+          <p>Resend / Brevo API bağlantınız <strong>başarıyla kurulmuş</strong> ve sistem üzerinden gerçek e-posta gönderimi doğrulanmıştır.</p>
+          <div style="background-color: #f3f4f6; padding: 12px; border-radius: 6px; font-family: monospace; font-size: 13px; margin: 20px 0;">
+            Tarih: ${new Date().toLocaleString("tr-TR")}
+          </div>
+          <p>Artık denetim hunisi üzerinden franchise bayilerinize gerçek uyarı bildirimlerini güvenle gönderebilirsiniz.</p>
+        </div>
+        <div style="background-color: #f9fafb; padding: 15px; text-align: center; font-size: 12px; color: #6b7280; border-top: 1px solid #f3f4f6;">
+          MasterTurk Franchise Denetim Direktörlüğü
+        </div>
+      </div>
+    </body>
+    </html>
+  `;
+
+  const result = await dispatchEmail(db.config, to, subject, bodyHtml);
+  if (result.status === "Gönderildi") {
+    db.emails.unshift({
+      id: "EML_" + Math.random().toString(36).substr(2, 9),
+      timestamp: new Date().toISOString(),
+      auditName: "Sistem Testi",
+      stage: "Tespit",
+      type: "İlan",
+      officeId: "TEST",
+      officeName: "SMTP Test Ofisi",
+      recipient: to,
+      subject: subject,
+      bodyHtml: bodyHtml,
+      status: "Gönderildi"
+    });
+    writeDB(db);
+    res.json({ success: true, status: result.status });
+  } else {
+    res.status(500).json({ success: false, status: result.status, errorDetails: result.errorDetails || "Bilinmeyen bir hata oluştu." });
+  }
+});
+
 // 4. Audit Management API
 app.get("/api/audits", (req, res) => {
   const db = readDB();
