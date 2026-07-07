@@ -831,8 +831,12 @@ app.get("/api/emails", (req, res) => {
 
 // --- VITE MIDDLEWARE SETUP AND STATIC SERVING ---
 async function startServer() {
+  if (process.env.VERCEL) {
+    return;
+  }
   if (process.env.NODE_ENV !== "production") {
-    const { createServer: createViteServer } = await import("vite");
+    const viteModuleName = "vite";
+    const { createServer: createViteServer } = await import(viteModuleName);
     const vite = await createViteServer({
       server: { middlewareMode: true },
       appType: "spa",
