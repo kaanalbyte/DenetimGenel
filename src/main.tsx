@@ -56,22 +56,31 @@ const getLocalGroups = () => {
 
 const getLocalConfig = () => {
   const data = localStorage.getItem("db_config");
-  if (!data) {
+  let config = data ? JSON.parse(data) : null;
+  
+  // If no config, or if it is outdated, upgrade to the correct SMTP Gmail STARTTLS settings and correct account
+  const isOutdated = !config || 
+                     config.senderEmail === "denetim@masterturk.com" || 
+                     !config.smtpPass || 
+                     config.smtpPort === 465 || 
+                     config.smtpUser === "denetim@masterturk.com.tr"; // Needs to be kaan's account because app password belongs to kaan
+  
+  if (isOutdated) {
     const def = {
       resendApiKey: "",
       brevoApiKey: "",
-      senderEmail: "denetim@masterturk.com",
-      smtpEnabled: false,
+      senderEmail: "denetim@masterturk.com.tr",
+      smtpEnabled: true,
       smtpHost: "smtp.gmail.com",
-      smtpPort: 465,
-      smtpSecure: true,
-      smtpUser: "",
-      smtpPass: ""
+      smtpPort: 587,
+      smtpSecure: false,
+      smtpUser: "kaan.albayrak@masterturk.com.tr",
+      smtpPass: "fuca upik pfrr hzzs"
     };
     localStorage.setItem("db_config", JSON.stringify(def));
     return def;
   }
-  return JSON.parse(data);
+  return config;
 };
 
 const getLocalAudits = () => {
