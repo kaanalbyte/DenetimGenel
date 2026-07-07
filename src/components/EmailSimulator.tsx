@@ -68,7 +68,7 @@ export default function EmailSimulator({ emails, config, onSaveConfig, onRefresh
     }
   };
 
-  const [testRecipient, setTestRecipient] = useState("kaan.albayrak@masterturk.com.tr");
+  const [testRecipient, setTestRecipient] = useState("denetim@masterturk.com.tr");
   const [testSending, setTestSending] = useState(false);
   const [testResult, setTestResult] = useState<{ success: boolean; message: string } | null>(null);
 
