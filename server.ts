@@ -25,7 +25,8 @@ app.use(express.json({ limit: "50mb" }));
 app.use((req, res, next) => {
   try {
     const logMsg = `[${new Date().toISOString()}] ${req.method} ${req.url}\n`;
-    fs.appendFileSync(path.join(process.cwd(), "server.log"), logMsg, "utf8");
+    const logPath = process.env.VERCEL ? "/tmp/server.log" : path.join(process.cwd(), "server.log");
+    fs.appendFileSync(logPath, logMsg, "utf8");
   } catch (err) {
     // Ignore log write errors
   }
@@ -33,7 +34,9 @@ app.use((req, res, next) => {
 });
 
 // --- DATABASE PATH AND SCHEMA ---
-const DB_PATH = path.join(process.cwd(), "db.json");
+const DB_PATH = process.env.VERCEL
+  ? "/tmp/db.json"
+  : path.join(process.cwd(), "db.json");
 
 interface Office {
   id: string; // Office code, e.g., OF1001
@@ -153,7 +156,20 @@ const DEFAULT_DB: Database = {
 // --- DB READ/WRITE HELPERS ---
 function readDB(): Database {
   try {
-    if (!fs.existsSync(DB_PATH)) {
+    if (process.env.VERCEL && !fs.existsSync(DB_PATH)) {
+      const packagedDbPath = path.join(process.cwd(), "db.json");
+      if (fs.existsSync(packagedDbPath)) {
+        try {
+          const content = fs.readFileSync(packagedDbPath, "utf8");
+          fs.writeFileSync(DB_PATH, content, "utf8");
+        } catch (copyErr) {
+          console.error("Failed to copy packaged db.json to /tmp:", copyErr);
+          fs.writeFileSync(DB_PATH, JSON.stringify(DEFAULT_DB, null, 2), "utf8");
+        }
+      } else {
+        fs.writeFileSync(DB_PATH, JSON.stringify(DEFAULT_DB, null, 2), "utf8");
+      }
+    } else if (!fs.existsSync(DB_PATH)) {
       fs.writeFileSync(DB_PATH, JSON.stringify(DEFAULT_DB, null, 2), "utf8");
       return DEFAULT_DB;
     }
