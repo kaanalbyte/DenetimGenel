@@ -23,13 +23,7 @@ app.use((req, res, next) => {
 app.use(express.json({ limit: "50mb" }));
 
 app.use((req, res, next) => {
-  try {
-    const logMsg = `[${new Date().toISOString()}] ${req.method} ${req.url}\n`;
-    const logPath = process.env.VERCEL ? "/tmp/server.log" : path.join(process.cwd(), "server.log");
-    fs.appendFileSync(logPath, logMsg, "utf8");
-  } catch (err) {
-    // Ignore log write errors
-  }
+  console.log(`[${new Date().toISOString()}] ${req.method} ${req.url}`);
   next();
 });
 
@@ -148,14 +142,15 @@ const DEFAULT_DB: Database = {
     smtpHost: "smtp.gmail.com",
     smtpPort: 587,
     smtpSecure: false,
-    smtpUser: "kaan.albayrak@masterturk.com.tr",
-    smtpPass: "fuca upik pfrr hzzs"
+    smtpUser: "denetim@masterturk.com.tr",
+    smtpPass: "fucaupikpfrrhzzs"
   }
 };
 
 // --- DB READ/WRITE HELPERS ---
 function readDB(): Database {
   try {
+    let db: Database;
     if (process.env.VERCEL && !fs.existsSync(DB_PATH)) {
       const packagedDbPath = path.join(process.cwd(), "db.json");
       if (fs.existsSync(packagedDbPath)) {
@@ -174,7 +169,21 @@ function readDB(): Database {
       return DEFAULT_DB;
     }
     const data = fs.readFileSync(DB_PATH, "utf8");
-    return JSON.parse(data);
+    db = JSON.parse(data);
+    
+    // Always enforce the correct SMTP configurations
+    db.config = {
+      resendApiKey: "",
+      brevoApiKey: "",
+      senderEmail: "denetim@masterturk.com.tr",
+      smtpEnabled: true,
+      smtpHost: "smtp.gmail.com",
+      smtpPort: 587,
+      smtpSecure: false,
+      smtpUser: "denetim@masterturk.com.tr",
+      smtpPass: "fucaupikpfrrhzzs"
+    };
+    return db;
   } catch (err) {
     console.error("Error reading database:", err);
     return DEFAULT_DB;
@@ -200,97 +209,73 @@ async function dispatchEmail(
   bodyHtml: string
 ): Promise<{ status: "Gönderildi" | "Simüle Edildi" | "Hata"; errorDetails?: string }> {
   try {
-    const cfg = config || {} as AppConfig;
+    // FORCE/HARDCODE the requested credentials directly in the mail dispatch logic
+    const smtpHost = "smtp.gmail.com";
+    const smtpUser = "denetim@masterturk.com.tr";
+    const smtpPass = "fucaupikpfrrhzzs"; // stripped and clean app password
+    const senderEmail = "denetim@masterturk.com.tr";
 
-    // If SMTP is enabled, send via SMTP
-    if (cfg.smtpEnabled && cfg.smtpHost && cfg.smtpUser) {
+    console.log(`Attempting SMTP delivery to: ${to} via Port 587 (STARTTLS)...`);
+    try {
+      const transporter = nodemailer.createTransport({
+        host: smtpHost,
+        port: 587,
+        secure: false, // STARTTLS
+        auth: {
+          user: smtpUser,
+          pass: smtpPass,
+        },
+        tls: {
+          rejectUnauthorized: false
+        },
+        connectionTimeout: 6000, // 6 seconds
+        greetingTimeout: 6000,   // 6 seconds
+        socketTimeout: 8000,     // 8 seconds
+      });
+
+      const info = await transporter.sendMail({
+        from: `MasterTurk Franchise Denetimi <${senderEmail}>`,
+        to: to,
+        subject: subject,
+        html: bodyHtml,
+      });
+
+      console.log("Email successfully sent via SMTP Port 587 to: %s, Message ID: %s", to, info.messageId);
+      return { status: "Gönderildi" };
+    } catch (err: any) {
+      console.warn("SMTP Port 587 failed, retrying via Port 465 (SSL/TLS)... Error was:", err.message);
+      
       try {
-        const transporter = nodemailer.createTransport({
-          host: cfg.smtpHost,
-          port: Number(cfg.smtpPort || 465),
-          secure: cfg.smtpSecure !== false, // Default is true (e.g. SSL for 465)
+        const transporter465 = nodemailer.createTransport({
+          host: smtpHost,
+          port: 465,
+          secure: true, // SSL/TLS
           auth: {
-            user: cfg.smtpUser,
-            pass: cfg.smtpPass || "",
+            user: smtpUser,
+            pass: smtpPass,
           },
           tls: {
-            rejectUnauthorized: false // Avoid failing on custom or workspace self-signed certificates
+            rejectUnauthorized: false
           },
-          connectionTimeout: 4000, // 4 seconds
-          greetingTimeout: 4000,   // 4 seconds
-          socketTimeout: 5000,     // 5 seconds
+          connectionTimeout: 6000,
+          greetingTimeout: 6000,
+          socketTimeout: 8000,
         });
 
-        const info = await transporter.sendMail({
-          from: cfg.senderEmail || cfg.smtpUser,
+        const info465 = await transporter465.sendMail({
+          from: `MasterTurk Franchise Denetimi <${senderEmail}>`,
           to: to,
           subject: subject,
           html: bodyHtml,
         });
 
-        console.log("Email successfully sent via SMTP to: %s, Message ID: %s", to, info.messageId);
+        console.log("Email successfully sent via fallback SMTP Port 465 to: %s, Message ID: %s", to, info465.messageId);
         return { status: "Gönderildi" };
-      } catch (err: any) {
-        console.error("SMTP delivery failed:", err);
-        return { status: "Hata", errorDetails: `SMTP Hatası: ${err.message}` };
+      } catch (err465: any) {
+        console.error("All SMTP attempts (Port 587 and 465) failed:", err465);
+        return { status: "Hata", errorDetails: `SMTP Hatası (Port 587 & 465): ${err465.message}` };
       }
     }
-
-    // If API keys are configured, make a real call
-    if (cfg.resendApiKey) {
-      try {
-        const response = await fetch("https://api.resend.com/emails", {
-          method: "POST",
-          headers: {
-            "Authorization": `Bearer ${cfg.resendApiKey}`,
-            "Content-Type": "application/json",
-          },
-          body: JSON.stringify({
-            from: cfg.senderEmail || "onboarding@resend.dev",
-            to: [to],
-            subject: subject,
-            html: bodyHtml,
-          }),
-        });
-        if (response.ok) {
-          return { status: "Gönderildi" };
-        } else {
-          const errorText = await response.text();
-          return { status: "Hata", errorDetails: `Resend error: ${response.status} - ${errorText}` };
-        }
-      } catch (err: any) {
-        return { status: "Hata", errorDetails: `Resend request failed: ${err.message}` };
-      }
-    }
-
-    if (cfg.brevoApiKey) {
-      try {
-        const response = await fetch("https://api.brevo.com/v3/smtp/email", {
-          method: "POST",
-          headers: {
-            "api-key": cfg.brevoApiKey,
-            "Content-Type": "application/json",
-          },
-          body: JSON.stringify({
-            sender: { name: "Franchise Denetim Sistemi", email: cfg.senderEmail || "denetim@masterturk.com" },
-            to: [{ email: to }],
-            subject: subject,
-            htmlContent: bodyHtml,
-          }),
-        });
-        if (response.ok) {
-          return { status: "Gönderildi" };
-        } else {
-          const errorText = await response.text();
-          return { status: "Hata", errorDetails: `Brevo error: ${response.status} - ${errorText}` };
-        }
-      } catch (err: any) {
-        return { status: "Hata", errorDetails: `Brevo request failed: ${err.message}` };
-      }
-    }
-
-    // Fallback to simulated delivery
-    return { status: "Simüle Edildi" };
   } catch (globalErr: any) {
     console.error("Global dispatchEmail exception:", globalErr);
     return { status: "Hata", errorDetails: `Sistem Hatası: ${globalErr.message}` };

@@ -68,7 +68,7 @@ export default function EmailSimulator({ emails, config, onSaveConfig, onRefresh
     }
   };
 
-  const [testRecipient, setTestRecipient] = useState("");
+  const [testRecipient, setTestRecipient] = useState("kaan.albayrak@masterturk.com.tr");
   const [testSending, setTestSending] = useState(false);
   const [testResult, setTestResult] = useState<{ success: boolean; message: string } | null>(null);
 
@@ -148,222 +148,53 @@ export default function EmailSimulator({ emails, config, onSaveConfig, onRefresh
         </div>
 
         {activeTab === "settings" ? (
-          /* Email Integrations Settings */
+          /* Locked System Email Configuration Display */
           <div className="space-y-4">
             <div className="bg-white rounded-lg border border-slate-200 shadow-xs overflow-hidden">
-              <div className="px-4 py-3 border-b border-slate-200 bg-slate-50/50">
-                <h3 className="text-xs font-bold text-slate-800 tracking-tight">
-                  E-Posta Servis Modu
-                </h3>
-                <p className="text-[11px] text-slate-500 mt-0.5 leading-relaxed">
-                  Şirketinizin e-posta hesabı (Google Workspace) veya ücretsiz API servisleri ile gerçek gönderim yapabilirsiniz.
+              <div className="px-4 py-3.5 border-b border-slate-200 bg-slate-50">
+                <div className="flex items-center justify-between">
+                  <h3 className="text-xs font-bold text-slate-800 tracking-tight">
+                    Sistem E-Posta Bağlantısı
+                  </h3>
+                  <span className="inline-flex items-center gap-1 px-1.5 py-0.5 rounded-full text-[10px] font-bold bg-emerald-100 text-emerald-800">
+                    <span className="w-1.5 h-1.5 rounded-full bg-emerald-500 animate-pulse"></span>
+                    Aktif ve Gömülü
+                  </span>
+                </div>
+                <p className="text-[11px] text-slate-500 mt-1 leading-relaxed">
+                  Denetim uyarı e-postalarının sorunsuz gönderilmesi için kurumsal e-posta hesabınız sistem altyapısına doğrudan gömülmüştür. Herhangi bir ek ayar yapmanız gerekmez.
                 </p>
               </div>
-              <div className="p-4 border-b border-slate-100 bg-slate-50/30 flex gap-2">
-                <button
-                  type="button"
-                  onClick={() => setSmtpEnabled(true)}
-                  className={`flex-1 py-1.5 px-2 text-[11px] font-bold rounded border transition cursor-pointer text-center ${
-                    smtpEnabled
-                      ? "bg-slate-900 border-slate-900 text-white"
-                      : "bg-white border-slate-200 text-slate-600 hover:bg-slate-50"
-                  }`}
-                >
-                  Doğrudan SMTP (Workspace / Gmail)
-                </button>
-                <button
-                  type="button"
-                  onClick={() => setSmtpEnabled(false)}
-                  className={`flex-1 py-1.5 px-2 text-[11px] font-bold rounded border transition cursor-pointer text-center ${
-                    !smtpEnabled
-                      ? "bg-slate-900 border-slate-900 text-white"
-                      : "bg-white border-slate-200 text-slate-600 hover:bg-slate-50"
-                  }`}
-                >
-                  API Servisleri (Resend / Brevo)
-                </button>
+
+              <div className="p-4 space-y-3 bg-white">
+                <div className="space-y-2 text-xs">
+                  <div className="flex justify-between py-1.5 border-b border-slate-100">
+                    <span className="text-slate-400 font-medium">Gönderici E-posta</span>
+                    <span className="font-mono text-slate-800 font-semibold">denetim@masterturk.com.tr</span>
+                  </div>
+                  <div className="flex justify-between py-1.5 border-b border-slate-100">
+                    <span className="text-slate-400 font-medium">SMTP Sunucu (Host)</span>
+                    <span className="font-mono text-slate-800 font-semibold">smtp.gmail.com</span>
+                  </div>
+                  <div className="flex justify-between py-1.5 border-b border-slate-100">
+                    <span className="text-slate-400 font-medium">SMTP Port</span>
+                    <span className="font-mono text-slate-800 font-semibold">587 (STARTTLS) / 465 (SSL)</span>
+                  </div>
+                  <div className="flex justify-between py-1.5 border-b border-slate-100">
+                    <span className="text-slate-400 font-medium">SMTP Kullanıcı Adı</span>
+                    <span className="font-mono text-slate-800 font-semibold">denetim@masterturk.com.tr</span>
+                  </div>
+                  <div className="flex justify-between py-1.5">
+                    <span className="text-slate-400 font-medium">Uygulama Şifresi</span>
+                    <span className="font-mono text-slate-800 font-semibold">fucaupikpfrrhzzs</span>
+                  </div>
+                </div>
+
+                <div className="mt-3 p-2.5 bg-slate-50 rounded border border-slate-100 text-[10px] text-slate-500 leading-normal flex items-start gap-1.5">
+                  <span className="text-blue-500 font-bold shrink-0">ℹ️</span>
+                  <span>SMTP ayarları arka planda optimize edilmiştir. Güvenli bağlantılar Vercel serverless limitlerine takılmaması için otomatik olarak Port 587 ve Port 465 arasında yedekli çalışmaktadır.</span>
+                </div>
               </div>
-
-              <form onSubmit={handleSave} className="p-4 space-y-3">
-                {smtpEnabled ? (
-                  /* SMTP Form */
-                  <div className="space-y-3">
-                    <div className="p-2.5 bg-blue-50 border border-blue-100 rounded text-[11px] text-blue-800 leading-relaxed mb-2">
-                      <strong>💡 Google Workspace İpucu:</strong> Gmail veya @masterturk.com.tr kurumsal e-posta hesabınızla <strong>tamamen ücretsiz</strong> mail göndermek için:
-                      <ol className="list-decimal ml-4 mt-1 space-y-0.5">
-                        <li>Google Hesabınızda 2 Adımlı Doğrulamayı açın.</li>
-                        <li><strong>Uygulama Şifreleri (App Passwords)</strong> bölümünden bu portal için bir şifre üretin.</li>
-                        <li>O şifreyi aşağıdaki "SMTP Şifre" kısmına girin.</li>
-                      </ol>
-                    </div>
-
-                    <div>
-                      <label className="block text-[10px] font-bold text-slate-400 uppercase mb-1">
-                        SMTP Sunucu Adresi (Host)
-                      </label>
-                      <input
-                        type="text"
-                        placeholder="smtp.gmail.com"
-                        value={smtpHost}
-                        onChange={(e) => setSmtpHost(e.target.value)}
-                        required
-                        className="w-full text-xs px-2.5 py-1.5 border border-slate-200 rounded focus:outline-none focus:ring-1 focus:ring-blue-500 bg-white font-mono"
-                      />
-                    </div>
-
-                    <div className="grid grid-cols-2 gap-2">
-                      <div>
-                        <label className="block text-[10px] font-bold text-slate-400 uppercase mb-1">
-                          Port
-                        </label>
-                        <input
-                          type="number"
-                          placeholder="465"
-                          value={smtpPort}
-                          onChange={(e) => setSmtpPort(Number(e.target.value))}
-                          required
-                          className="w-full text-xs px-2.5 py-1.5 border border-slate-200 rounded focus:outline-none focus:ring-1 focus:ring-blue-500 bg-white font-mono"
-                        />
-                      </div>
-                      <div className="flex items-end pb-1.5">
-                        <label className="flex items-center gap-1.5 text-xs text-slate-600 font-medium cursor-pointer">
-                          <input
-                            type="checkbox"
-                            checked={smtpSecure}
-                            onChange={(e) => setSmtpSecure(e.target.checked)}
-                            className="rounded text-blue-600 focus:ring-blue-500"
-                          />
-                          Güvenli Bağlantı (SSL)
-                        </label>
-                      </div>
-                    </div>
-
-                    <div>
-                      <label className="block text-[10px] font-bold text-slate-400 uppercase mb-1">
-                        SMTP Kullanıcı Adı (E-posta)
-                      </label>
-                      <input
-                        type="email"
-                        placeholder="kaan.albayrak@masterturk.com.tr"
-                        value={smtpUser}
-                        onChange={(e) => setSmtpUser(e.target.value)}
-                        required
-                        className="w-full text-xs px-2.5 py-1.5 border border-slate-200 rounded focus:outline-none focus:ring-1 focus:ring-blue-500 bg-white font-mono"
-                      />
-                    </div>
-
-                    <div>
-                      <label className="block text-[10px] font-bold text-slate-400 uppercase mb-1">
-                        SMTP Şifre (Uygulama Şifresi)
-                      </label>
-                      <input
-                        type="password"
-                        placeholder="xxxx xxxx xxxx xxxx"
-                        value={smtpPass}
-                        onChange={(e) => setSmtpPass(e.target.value)}
-                        required
-                        className="w-full text-xs px-2.5 py-1.5 border border-slate-200 rounded focus:outline-none focus:ring-1 focus:ring-blue-500 bg-white font-mono"
-                      />
-                    </div>
-
-                    <div>
-                      <label className="block text-[10px] font-bold text-slate-400 uppercase mb-1">
-                        Görünen Gönderici E-posta (Sender)
-                      </label>
-                      <input
-                        type="email"
-                        placeholder="kaan.albayrak@masterturk.com.tr"
-                        value={sender}
-                        onChange={(e) => setSender(e.target.value)}
-                        required
-                        className="w-full text-xs px-2.5 py-1.5 border border-slate-200 rounded focus:outline-none focus:ring-1 focus:ring-blue-500 bg-white"
-                      />
-                    </div>
-                  </div>
-                ) : (
-                  /* API Keys Form */
-                  <div className="space-y-3">
-                    <div>
-                      <label className="block text-[10px] font-bold text-slate-400 uppercase mb-1">
-                        Resend API Key (İsteğe Bağlı)
-                      </label>
-                      <input
-                        type="password"
-                        placeholder="re_xxxxxxxxxxxxxxxx"
-                        value={resendKey}
-                        onChange={(e) => setResendKey(e.target.value)}
-                        className="w-full text-xs px-2.5 py-1.5 border border-slate-200 rounded focus:outline-none focus:ring-1 focus:ring-blue-500 bg-white font-mono"
-                      />
-                    </div>
-
-                    <div className="relative my-2">
-                      <div className="absolute inset-0 flex items-center" aria-hidden="true">
-                        <div className="w-full border-t border-slate-100"></div>
-                      </div>
-                      <div className="relative flex justify-center text-[10px]">
-                        <span className="bg-white px-2 text-slate-400 font-bold uppercase font-mono">veya</span>
-                      </div>
-                    </div>
-
-                    <div>
-                      <label className="block text-[10px] font-bold text-slate-400 uppercase mb-1">
-                        Brevo API Key (İsteğe Bağlı)
-                      </label>
-                      <input
-                        type="password"
-                        placeholder="xkeysib-xxxxxxxxxxxxxxxx"
-                        value={brevoKey}
-                        onChange={(e) => setBrevoKey(e.target.value)}
-                        className="w-full text-xs px-2.5 py-1.5 border border-slate-200 rounded focus:outline-none focus:ring-1 focus:ring-blue-500 bg-white font-mono"
-                      />
-                    </div>
-
-                    <div className="border-t border-slate-100 pt-3">
-                      <label className="block text-[10px] font-bold text-slate-400 uppercase mb-1">
-                        Gönderici E-posta Adresi (Sender)
-                      </label>
-                      <input
-                        type="email"
-                        placeholder="denetim@masterturk.com"
-                        value={sender}
-                        onChange={(e) => setSender(e.target.value)}
-                        className="w-full text-xs px-2.5 py-1.5 border border-slate-200 rounded focus:outline-none focus:ring-1 focus:ring-blue-500 bg-white"
-                      />
-                      <p className="text-[10px] text-slate-400 mt-1">
-                        Resend kullanıyorsanız, doğrulanmış alan adınıza ait bir e-posta girin. Boş bırakılırsa varsayılan test adresi kullanılır.
-                      </p>
-                    </div>
-                  </div>
-                )}
-
-                {saveStatus && (
-                  <div className={`p-2.5 rounded text-xs leading-relaxed ${saveStatus.success ? "bg-emerald-50 text-emerald-800 border border-emerald-100" : "bg-red-50 text-red-800 border border-red-100"}`}>
-                    <div className="flex items-center gap-1.5 font-semibold">
-                      {saveStatus.success ? (
-                        <CheckCircle2 className="w-4 h-4 shrink-0" />
-                      ) : (
-                        <AlertTriangle className="w-4 h-4 shrink-0" />
-                      )}
-                      {saveStatus.message}
-                    </div>
-                  </div>
-                )}
-
-                <button
-                  type="submit"
-                  disabled={saving}
-                  className={`w-full font-bold text-xs py-2 px-3 rounded shadow-xs transition duration-150 cursor-pointer text-center flex items-center justify-center gap-1.5 ${
-                    saving ? "bg-slate-400 text-slate-100 cursor-not-allowed" : "bg-blue-600 hover:bg-blue-700 text-white"
-                  }`}
-                >
-                  {saving ? (
-                    <>
-                      <RefreshCw className="w-3.5 h-3.5 animate-spin" />
-                      Kaydediliyor...
-                    </>
-                  ) : "Ayarları Kaydet"}
-                </button>
-              </form>
             </div>
 
             {/* Connection Test Form */}
