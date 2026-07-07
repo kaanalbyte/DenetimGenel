@@ -3,8 +3,18 @@ import path from "path";
 import fs from "fs";
 import dotenv from "dotenv";
 import nodemailer from "nodemailer";
+import { Redis } from "@upstash/redis";
 
 dotenv.config();
+
+// --- PERSISTENT STORAGE (Upstash Redis) ---
+// Vercel serverless functions have a read-only filesystem (except /tmp, which is
+// wiped between invocations/containers), so a fs-based db.json cannot survive in
+// production. When the Upstash Redis integration is installed on Vercel, these
+// env vars are injected automatically and we use Redis as the real database.
+const hasRedis = !!(process.env.UPSTASH_REDIS_REST_URL && process.env.UPSTASH_REDIS_REST_TOKEN);
+const redis = hasRedis ? Redis.fromEnv() : null;
+const REDIS_DB_KEY = "masterturk:db";
 
 const app = express();
 const PORT = 3000;
@@ -22,21 +32,18 @@ app.use((req, res, next) => {
 
 app.use(express.json({ limit: "50mb" }));
 
+// Simple request logging to stdout (visible in Vercel's Function Logs).
+// We intentionally do NOT write log files to disk: Vercel's filesystem is
+// read-only outside of /tmp, and /tmp itself is ephemeral and not shared
+// across invocations or concurrent instances, so a log file there provides
+// no real persistence and only adds a chance of failure.
 app.use((req, res, next) => {
-  try {
-    const logMsg = `[${new Date().toISOString()}] ${req.method} ${req.url}\n`;
-    const logPath = process.env.VERCEL ? "/tmp/server.log" : path.join(process.cwd(), "server.log");
-    fs.appendFileSync(logPath, logMsg, "utf8");
-  } catch (err) {
-    // Ignore log write errors
-  }
+  console.log(`[${new Date().toISOString()}] ${req.method} ${req.url}`);
   next();
 });
 
-// --- DATABASE PATH AND SCHEMA ---
-const DB_PATH = process.env.VERCEL
-  ? "/tmp/db.json"
-  : path.join(process.cwd(), "db.json");
+// --- DATABASE PATH (local dev only) ---
+const DB_PATH = path.join(process.cwd(), "db.json");
 
 interface Office {
   id: string; // Office code, e.g., OF1001
@@ -154,22 +161,26 @@ const DEFAULT_DB: Database = {
 };
 
 // --- DB READ/WRITE HELPERS ---
-function readDB(): Database {
+// Local development (no Redis configured): read/write db.json on disk, same as before.
+// Production on Vercel (Redis configured): read/write a single JSON blob in Redis.
+// This keeps the exact same "one big Database object" shape the rest of the file
+// already expects, so no other endpoint code needs to change its data model.
+async function readDB(): Promise<Database> {
+  if (redis) {
+    try {
+      const data = await redis.get<Database>(REDIS_DB_KEY);
+      if (data) return data;
+      // First run: seed Redis with the default dataset.
+      await redis.set(REDIS_DB_KEY, DEFAULT_DB);
+      return DEFAULT_DB;
+    } catch (err) {
+      console.error("Redis read error:", err);
+      return DEFAULT_DB;
+    }
+  }
+
   try {
-    if (process.env.VERCEL && !fs.existsSync(DB_PATH)) {
-      const packagedDbPath = path.join(process.cwd(), "db.json");
-      if (fs.existsSync(packagedDbPath)) {
-        try {
-          const content = fs.readFileSync(packagedDbPath, "utf8");
-          fs.writeFileSync(DB_PATH, content, "utf8");
-        } catch (copyErr) {
-          console.error("Failed to copy packaged db.json to /tmp:", copyErr);
-          fs.writeFileSync(DB_PATH, JSON.stringify(DEFAULT_DB, null, 2), "utf8");
-        }
-      } else {
-        fs.writeFileSync(DB_PATH, JSON.stringify(DEFAULT_DB, null, 2), "utf8");
-      }
-    } else if (!fs.existsSync(DB_PATH)) {
+    if (!fs.existsSync(DB_PATH)) {
       fs.writeFileSync(DB_PATH, JSON.stringify(DEFAULT_DB, null, 2), "utf8");
       return DEFAULT_DB;
     }
@@ -181,16 +192,22 @@ function readDB(): Database {
   }
 }
 
-function writeDB(data: Database) {
+async function writeDB(data: Database): Promise<void> {
+  if (redis) {
+    try {
+      await redis.set(REDIS_DB_KEY, data);
+    } catch (err) {
+      console.error("Redis write error:", err);
+    }
+    return;
+  }
+
   try {
     fs.writeFileSync(DB_PATH, JSON.stringify(data, null, 2), "utf8");
   } catch (err) {
     console.error("Error writing database:", err);
   }
 }
-
-// Ensure database is initialized
-readDB();
 
 // --- EMAIL DISPATCH COMPONENT (REAL AND SIMULATED) ---
 async function dispatchEmail(
@@ -297,13 +314,13 @@ async function dispatchEmail(
 // --- API ENDPOINTS ---
 
 // 1. Office Management API
-app.get("/api/offices", (req, res) => {
-  const db = readDB();
+app.get("/api/offices", async (req, res) => {
+  const db = await readDB();
   res.json(db.offices);
 });
 
-app.post("/api/offices", (req, res) => {
-  const db = readDB();
+app.post("/api/offices", async (req, res) => {
+  const db = await readDB();
   const office: Office = req.body;
   if (!office.id || !office.name) {
     return res.status(400).json({ error: "Ofis kodu ve adı zorunludur." });
@@ -315,26 +332,26 @@ app.post("/api/offices", (req, res) => {
   } else {
     db.offices.push(office);
   }
-  writeDB(db);
+  await writeDB(db);
   res.json(office);
 });
 
-app.delete("/api/offices/:id", (req, res) => {
-  const db = readDB();
+app.delete("/api/offices/:id", async (req, res) => {
+  const db = await readDB();
   const id = req.params.id;
   db.offices = db.offices.filter((o) => o.id !== id);
-  writeDB(db);
+  await writeDB(db);
   res.json({ success: true });
 });
 
 // 2. Group Management API
-app.get("/api/groups", (req, res) => {
-  const db = readDB();
+app.get("/api/groups", async (req, res) => {
+  const db = await readDB();
   res.json(db.groups);
 });
 
-app.post("/api/groups", (req, res) => {
-  const db = readDB();
+app.post("/api/groups", async (req, res) => {
+  const db = await readDB();
   const { group, officeIds } = req.body; // { group: { id, name, ownerName, ownerEmail }, officeIds: string[] }
   
   if (!group || !group.id || !group.name) {
@@ -364,12 +381,12 @@ app.post("/api/groups", (req, res) => {
     return off;
   });
 
-  writeDB(db);
+  await writeDB(db);
   res.json({ group, officeIds });
 });
 
-app.delete("/api/groups/:id", (req, res) => {
-  const db = readDB();
+app.delete("/api/groups/:id", async (req, res) => {
+  const db = await readDB();
   const id = req.params.id;
   db.groups = db.groups.filter((g) => g.id !== id);
   db.offices = db.offices.map((off) => {
@@ -378,26 +395,26 @@ app.delete("/api/groups/:id", (req, res) => {
     }
     return off;
   });
-  writeDB(db);
+  await writeDB(db);
   res.json({ success: true });
 });
 
 // 3. Configuration API
-app.get("/api/config", (req, res) => {
-  const db = readDB();
+app.get("/api/config", async (req, res) => {
+  const db = await readDB();
   res.json(db.config);
 });
 
-app.post("/api/config", (req, res) => {
-  const db = readDB();
+app.post("/api/config", async (req, res) => {
+  const db = await readDB();
   db.config = { ...db.config, ...req.body };
-  writeDB(db);
+  await writeDB(db);
   res.json(db.config);
 });
 
 app.post("/api/config/test-email", async (req, res) => {
   try {
-    const db = readDB();
+    const db = await readDB();
     const { to, config: clientConfig } = req.body;
     if (!to) {
       return res.status(400).json({ error: "Alıcı e-posta adresi zorunludur." });
@@ -452,7 +469,7 @@ app.post("/api/config/test-email", async (req, res) => {
       // Only write to DB if we are using server state
       if (!clientConfig) {
         db.emails.unshift(newLog);
-        writeDB(db);
+        await writeDB(db);
       }
       res.json({ success: true, status: result.status, newLog });
     } else {
@@ -465,21 +482,21 @@ app.post("/api/config/test-email", async (req, res) => {
 });
 
 // 4. Audit Management API
-app.get("/api/audits", (req, res) => {
-  const db = readDB();
+app.get("/api/audits", async (req, res) => {
+  const db = await readDB();
   res.json(db.audits);
 });
 
 // Get currently active audit period
-app.get("/api/audits/active", (req, res) => {
-  const db = readDB();
+app.get("/api/audits/active", async (req, res) => {
+  const db = await readDB();
   const active = db.audits.find((a) => a.status === "Aktif");
   res.json(active || null);
 });
 
 // Create a new audit period
-app.post("/api/audits", (req, res) => {
-  const db = readDB();
+app.post("/api/audits", async (req, res) => {
+  const db = await readDB();
   const { name } = req.body;
   if (!name) {
     return res.status(400).json({ error: "Denetim dönem adı gereklidir." });
@@ -517,13 +534,13 @@ app.post("/api/audits", (req, res) => {
   };
 
   db.audits.push(newAudit);
-  writeDB(db);
+  await writeDB(db);
   res.json(newAudit);
 });
 
 // Upload CSV/Excel data for the active phase
-app.post("/api/audits/active/upload", (req, res) => {
-  const db = readDB();
+app.post("/api/audits/active/upload", async (req, res) => {
+  const db = await readDB();
   const activeIdx = db.audits.findIndex((a) => a.status === "Aktif");
   if (activeIdx === -1) {
     return res.status(404).json({ error: "Aktif bir denetim dönemi bulunamadı." });
@@ -549,13 +566,13 @@ app.post("/api/audits/active/upload", (req, res) => {
 
   active.updatedAt = new Date().toISOString();
   db.audits[activeIdx] = active;
-  writeDB(db);
+  await writeDB(db);
   res.json(active);
 });
 
 // Update problematic state of active audit phase without advancing
-app.post("/api/audits/active/problematic", (req, res) => {
-  const db = readDB();
+app.post("/api/audits/active/problematic", async (req, res) => {
+  const db = await readDB();
   const activeIdx = db.audits.findIndex((a) => a.status === "Aktif");
   if (activeIdx === -1) {
     return res.status(404).json({ error: "Aktif bir denetim dönemi bulunamadı." });
@@ -577,7 +594,7 @@ app.post("/api/audits/active/problematic", (req, res) => {
 
   active.updatedAt = new Date().toISOString();
   db.audits[activeIdx] = active;
-  writeDB(db);
+  await writeDB(db);
   res.json(active);
 });
 
@@ -689,7 +706,7 @@ function generateHTMLTemplate(
 // 5. Advance Active Audit Period & Dispatch Mails
 app.post("/api/audits/active/advance", async (req, res) => {
   try {
-    const db = readDB();
+    const db = await readDB();
     
     // Use passed in client state if present, otherwise read from server db
     let active: any = null;
@@ -810,7 +827,7 @@ app.post("/api/audits/active/advance", async (req, res) => {
     if (!isClientState && activeIdx !== -1) {
       db.emails = [...newEmails, ...db.emails];
       db.audits[activeIdx] = active;
-      writeDB(db);
+      await writeDB(db);
     }
 
     res.json({ active, sentEmails: newEmails });
@@ -821,8 +838,8 @@ app.post("/api/audits/active/advance", async (req, res) => {
 });
 
 // Close Active Audit Period
-app.post("/api/audits/active/close", (req, res) => {
-  const db = readDB();
+app.post("/api/audits/active/close", async (req, res) => {
+  const db = await readDB();
   const activeIdx = db.audits.findIndex((a) => a.status === "Aktif");
   if (activeIdx === -1) {
     return res.status(404).json({ error: "Aktif bir denetim dönemi bulunamadı." });
@@ -834,13 +851,13 @@ app.post("/api/audits/active/close", (req, res) => {
   active.updatedAt = new Date().toISOString();
 
   db.audits[activeIdx] = active;
-  writeDB(db);
+  await writeDB(db);
   res.json(active);
 });
 
 // 6. Sent Emails Log API
-app.get("/api/emails", (req, res) => {
-  const db = readDB();
+app.get("/api/emails", async (req, res) => {
+  const db = await readDB();
   res.json(db.emails);
 });
 
