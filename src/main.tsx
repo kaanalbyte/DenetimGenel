@@ -331,18 +331,18 @@ window.fetch = function (input: RequestInfo | URL, init?: RequestInit) {
         return originalFetch(targetUrl, {
           ...init,
           body: JSON.stringify(payload)
-        }).then(async (response) => {
+        }).then((response) => {
           if (response.ok) {
-            try {
-              const data = await response.clone().json();
+            const clonedResponse = response.clone();
+            clonedResponse.json().then((data) => {
               if (data.success && data.newLog) {
                 const emails = getLocalEmails();
                 emails.unshift(data.newLog);
                 localStorage.setItem("db_emails", JSON.stringify(emails));
               }
-            } catch (e) {
+            }).catch((e) => {
               console.error("Error logging test email locally:", e);
-            }
+            });
           }
           return response;
         });
@@ -367,10 +367,10 @@ window.fetch = function (input: RequestInfo | URL, init?: RequestInit) {
         return originalFetch(targetUrl, {
           ...init,
           body: JSON.stringify(payload)
-        }).then(async (response) => {
+        }).then((response) => {
           if (response.ok) {
-            try {
-              const data = await response.clone().json();
+            const clonedResponse = response.clone();
+            clonedResponse.json().then((data) => {
               if (data.active) {
                 const updatedAudits = getLocalAudits().map((a: any) => {
                   if (a.id === data.active.id) return data.active;
@@ -383,9 +383,9 @@ window.fetch = function (input: RequestInfo | URL, init?: RequestInit) {
                   localStorage.setItem("db_emails", JSON.stringify([...data.sentEmails, ...emails]));
                 }
               }
-            } catch (e) {
+            }).catch((e) => {
               console.error("Error updating local active audit after advance:", e);
-            }
+            });
           }
           return response;
         });
