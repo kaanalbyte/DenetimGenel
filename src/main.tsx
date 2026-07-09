@@ -97,7 +97,7 @@ Object.defineProperty(window, 'fetch', {
   const hostname = window.location.hostname;
   const isLocalMode = hostname !== "localhost" && hostname !== "127.0.0.1" && !hostname.endsWith(".run.app");
 
-  if (isLocalMode && typeof input === "string" && input.startsWith("/api/")) {
+  if (isLocalMode && typeof input === "string" && input.startsWith("/api/") && input !== "/api/db/sync-from-client") {
     const url = input;
     const method = (init?.method || "GET").toUpperCase();
 

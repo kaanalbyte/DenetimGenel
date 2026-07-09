@@ -1,7 +1,7 @@
 import React, { useState, useRef } from "react";
 import { Office, Group } from "../types";
 import * as xlsx from "xlsx";
-import { Plus, Users, Trash2, Building, Mail, User, Search, RefreshCw, ChevronRight, Upload, X, FileSpreadsheet, CheckCircle, AlertCircle } from "lucide-react";
+import { Plus, Users, Trash2, Building, Mail, User, Search, RefreshCw, ChevronRight, Upload, X, FileSpreadsheet, CheckCircle, AlertCircle, Cloud } from "lucide-react";
 
 
 interface OfficeGroupManagerProps {
@@ -142,6 +142,40 @@ export default function OfficeGroupManager({ offices, groups, onRefresh }: Offic
   const showMsg = (type: "success" | "error", text: string) => {
     setMsg({ type, text });
     setTimeout(() => setMsg(null), 4000);
+  };
+
+  const handleCloudSync = async () => {
+    setLoading(true);
+    try {
+      const localOffices = localStorage.getItem("db_offices") ? JSON.parse(localStorage.getItem("db_offices")!) : offices;
+      const localGroups = localStorage.getItem("db_groups") ? JSON.parse(localStorage.getItem("db_groups")!) : groups;
+      const localAudits = localStorage.getItem("db_audits") ? JSON.parse(localStorage.getItem("db_audits")!) : [];
+      const localEmails = localStorage.getItem("db_emails") ? JSON.parse(localStorage.getItem("db_emails")!) : [];
+      const localConfig = localStorage.getItem("db_config") ? JSON.parse(localStorage.getItem("db_config")!) : null;
+
+      const res = await fetch("/api/db/sync-from-client", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({
+          offices: localOffices,
+          groups: localGroups,
+          audits: localAudits,
+          emails: localEmails,
+          config: localConfig
+        })
+      });
+
+      if (res.ok) {
+        showMsg("success", "Tüm lokal veriler başarıyla buluta (Firebase Firestore) senkronize edildi!");
+        onRefresh();
+      } else {
+        showMsg("error", "Buluta senkronizasyon sırasında bir hata oluştu.");
+      }
+    } catch (err) {
+      showMsg("error", "Bağlantı hatası: Bulut veritabanına erişilemedi.");
+    } finally {
+      setLoading(false);
+    }
   };
 
   const handleDeleteOffice = async (id: string, brand: string) => {
@@ -378,6 +412,16 @@ export default function OfficeGroupManager({ offices, groups, onRefresh }: Offic
           </p>
         </div>
         <div className="flex flex-wrap gap-3 items-center">
+          <button
+            type="button"
+            onClick={handleCloudSync}
+            disabled={loading}
+            className="px-3.5 py-2 bg-blue-600 hover:bg-blue-700 text-white rounded font-bold text-xs transition duration-150 flex items-center gap-1.5 cursor-pointer shadow-xs"
+            title="Lokal tarayıcıdaki tüm verileri Firebase Firestore bulut veritabanına kaydeder."
+          >
+            <Cloud className="w-4 h-4 text-white" />
+            Buluta Eşitle (Firebase)
+          </button>
           <button
             type="button"
             onClick={async () => {

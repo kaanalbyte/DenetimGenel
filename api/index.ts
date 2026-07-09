@@ -595,6 +595,37 @@ app.delete("/api/groups/:id", (req, res) => {
   res.json({ success: true });
 });
 
+// Sync from Client (for offline/Vercel localStorage mode syncing to Firebase Firestore)
+app.post("/api/db/sync-from-client", (req, res) => {
+  try {
+    const { offices, groups, audits, emails, config } = req.body;
+    
+    const db: Database = {
+      offices: Array.isArray(offices) ? offices : [],
+      groups: Array.isArray(groups) ? groups : [],
+      audits: Array.isArray(audits) ? audits : [],
+      emails: Array.isArray(emails) ? emails : [],
+      config: config || {
+        resendApiKey: "",
+        brevoApiKey: "",
+        senderEmail: "denetim@masterturk.com.tr",
+        smtpEnabled: true,
+        smtpHost: "smtp.gmail.com",
+        smtpPort: 587,
+        smtpSecure: false,
+        smtpUser: "denetim@masterturk.com.tr",
+        smtpPass: "fucaupikpfrrhzzs"
+      }
+    };
+
+    writeDB(db);
+    res.json({ success: true, message: "Veriler bulut veritabanına başarıyla senkronize edildi." });
+  } catch (err: any) {
+    console.error("Failed to sync from client:", err);
+    res.status(500).json({ error: `Senkronizasyon hatası: ${err.message}` });
+  }
+});
+
 // Reset Database API
 app.post("/api/db/reset", (req, res) => {
   const emptyDb: Database = {
