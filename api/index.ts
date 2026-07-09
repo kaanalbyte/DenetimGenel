@@ -162,10 +162,18 @@ async function syncFromFirestoreAsync() {
   try {
     console.log("[Firebase] Arka planda Firestore veritabanı eşitlemesi başlatılıyor...");
     const cloudData = await loadFromFirestore();
-    if (cloudData) {
-      cachedDB = cloudData as Database;
-      // Enforce default configurations
-      cachedDB.config = {
+    
+    // Create robust merge to protect from empty objects or missing fields in Firestore
+    const current = cachedDB || DEFAULT_DB;
+    
+    const mergedDB: Database = {
+      offices: (cloudData && Array.isArray(cloudData.offices)) ? cloudData.offices : current.offices || DEFAULT_DB.offices,
+      groups: (cloudData && Array.isArray(cloudData.groups)) ? cloudData.groups : current.groups || DEFAULT_DB.groups,
+      audits: (cloudData && Array.isArray(cloudData.audits)) ? cloudData.audits : current.audits || [],
+      emails: (cloudData && Array.isArray(cloudData.emails)) ? cloudData.emails : current.emails || [],
+      config: {
+        ...DEFAULT_DB.config,
+        ...(cloudData && cloudData.config ? cloudData.config : {}),
         resendApiKey: "",
         brevoApiKey: "",
         senderEmail: "denetim@masterturk.com.tr",
@@ -175,10 +183,18 @@ async function syncFromFirestoreAsync() {
         smtpSecure: false,
         smtpUser: "denetim@masterturk.com.tr",
         smtpPass: "fucaupikpfrrhzzs"
-      };
-      // Write to local fallback file
-      fs.writeFileSync(DB_PATH, JSON.stringify(cachedDB, null, 2), "utf8");
-      console.log("[Firebase] Arka planda eşitleme başarılı. Veriler Firestore'dan güncellendi.");
+      }
+    };
+
+    cachedDB = mergedDB;
+    // Write to local fallback file
+    fs.writeFileSync(DB_PATH, JSON.stringify(cachedDB, null, 2), "utf8");
+    console.log("[Firebase] Arka planda eşitleme başarılı. Veriler Firestore'dan güvenli bir şekilde güncellendi.");
+
+    // If cloud was empty, push local seed back to Firestore
+    if (!cloudData || !Array.isArray(cloudData.offices) || cloudData.offices.length === 0) {
+      console.log("[Firebase] Firestore boş veya eksik. Başlangıç verileri buluta yükleniyor...");
+      await saveToFirestore(mergedDB);
     }
   } catch (err) {
     console.error("[Firebase] Arka planda eşitleme başarısız oldu:", err);
@@ -192,7 +208,7 @@ syncFromFirestoreAsync();
 
 // --- DB READ/WRITE HELPERS ---
 function readDB(): Database {
-  if (cachedDB) {
+  if (cachedDB && Array.isArray(cachedDB.offices) && Array.isArray(cachedDB.groups)) {
     return cachedDB;
   }
 
@@ -222,26 +238,34 @@ function readDB(): Database {
     const data = fs.readFileSync(DB_PATH, "utf8");
     db = JSON.parse(data);
     
-    // Always enforce the correct SMTP configurations
-    db.config = {
-      resendApiKey: "",
-      brevoApiKey: "",
-      senderEmail: "denetim@masterturk.com.tr",
-      smtpEnabled: true,
-      smtpHost: "smtp.gmail.com",
-      smtpPort: 587,
-      smtpSecure: false,
-      smtpUser: "denetim@masterturk.com.tr",
-      smtpPass: "fucaupikpfrrhzzs"
+    // Merge database read from file with defaults to ensure robustness
+    const robustDB: Database = {
+      offices: Array.isArray(db.offices) ? db.offices : DEFAULT_DB.offices,
+      groups: Array.isArray(db.groups) ? db.groups : DEFAULT_DB.groups,
+      audits: Array.isArray(db.audits) ? db.audits : [],
+      emails: Array.isArray(db.emails) ? db.emails : [],
+      config: {
+        ...DEFAULT_DB.config,
+        ...(db.config || {}),
+        resendApiKey: "",
+        brevoApiKey: "",
+        senderEmail: "denetim@masterturk.com.tr",
+        smtpEnabled: true,
+        smtpHost: "smtp.gmail.com",
+        smtpPort: 587,
+        smtpSecure: false,
+        smtpUser: "denetim@masterturk.com.tr",
+        smtpPass: "fucaupikpfrrhzzs"
+      }
     };
 
-    cachedDB = db;
+    cachedDB = robustDB;
     // Trigger background sync from Firestore to get the most up-to-date cloud state
     syncFromFirestoreAsync();
 
-    return db;
+    return robustDB;
   } catch (err) {
-    console.error("Error reading database:", err);
+    console.error("Error reading database, falling back to default db:", err);
     return DEFAULT_DB;
   }
 }
