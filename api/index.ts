@@ -79,6 +79,7 @@ interface AuditPeriod {
   phase1DanismanRaw: any[];
   phase1IlanPanelRaw: any[];
   phase1IlanSahibindenRaw: any[];
+  phase1KacakDanismanRaw?: any[];
   phase1ProblematicOffices: string[]; // List of problematic office/group IDs
   phase1ApprovedOffices: string[]; // List of offices/groups user approved to send mails
   
@@ -87,6 +88,7 @@ interface AuditPeriod {
   phase2DanismanRaw: any[];
   phase2IlanPanelRaw: any[];
   phase2IlanSahibindenRaw: any[];
+  phase2KacakDanismanRaw?: any[];
   phase2ProblematicOffices: string[]; // Problematic in control
   phase2ApprovedOffices: string[]; // List of offices/groups user approved in Phase 2
   
@@ -788,6 +790,56 @@ app.post("/api/audits", (req, res) => {
   res.json(newAudit);
 });
 
+// Helper to merge incoming rows with existing ones based on office code resiliently
+function mergeByOfficeCode(existing: any[], incoming: any[]) {
+  if (!Array.isArray(existing)) existing = [];
+  if (!Array.isArray(incoming)) incoming = [];
+
+  const existingMap = new Map<string, any>();
+  existing.forEach(row => {
+    const key = getNormalizedValue(row, ["ofiskodu", "ofis kodu", "id", "kod"]).toUpperCase().trim();
+    if (key) {
+      existingMap.set(key, row);
+    }
+  });
+
+  incoming.forEach(row => {
+    const key = getNormalizedValue(row, ["ofiskodu", "ofis kodu", "id", "kod"]).toUpperCase().trim();
+    if (key) {
+      existingMap.set(key, row); // Overwrite existing or add new
+    }
+  });
+
+  return Array.from(existingMap.values());
+}
+
+// Helper to merge Kacak Danisman rows based on compound key (Ofis Kodu + Danışman Adı Soyadı)
+function mergeKacakDanisman(existing: any[], incoming: any[]) {
+  if (!Array.isArray(existing)) existing = [];
+  if (!Array.isArray(incoming)) incoming = [];
+
+  const existingMap = new Map<string, any>();
+  existing.forEach(row => {
+    const offId = getNormalizedValue(row, ["ofiskodu", "ofis kodu", "id", "kod"]).toUpperCase().trim();
+    const name = getNormalizedValue(row, ["danismanadi", "danisman adi", "danisman adisoyadi", "danisman adi soyadi", "adsoyad", "ad soyad", "danismanadisoyadi"]).toUpperCase().trim();
+    const key = `${offId}:::${name}`;
+    if (offId && name) {
+      existingMap.set(key, row);
+    }
+  });
+
+  incoming.forEach(row => {
+    const offId = getNormalizedValue(row, ["ofiskodu", "ofis kodu", "id", "kod"]).toUpperCase().trim();
+    const name = getNormalizedValue(row, ["danismanadi", "danisman adi", "danisman adisoyadi", "danisman adi soyadi", "adsoyad", "ad soyad", "danismanadisoyadi"]).toUpperCase().trim();
+    const key = `${offId}:::${name}`;
+    if (offId && name) {
+      existingMap.set(key, row); // Overwrite or add
+    }
+  });
+
+  return Array.from(existingMap.values());
+}
+
 // Upload CSV/Excel data for the active phase
 app.post("/api/audits/active/upload", (req, res) => {
   const db = readDB();
@@ -796,20 +848,37 @@ app.post("/api/audits/active/upload", (req, res) => {
     return res.status(404).json({ error: "Aktif bir denetim dönemi bulunamadı." });
   }
 
-  const { type, data } = req.body; // type: 'danisman' | 'ilan_panel' | 'ilan_sahibinden'
+  const { type, data, secondaryData } = req.body; // type: 'danisman' | 'ilan_panel' | 'ilan_sahibinden'
   const active = db.audits[activeIdx];
 
   if (active.currentPhase === "Tespit") {
-    if (type === "danisman") active.phase1DanismanRaw = data;
-    if (type === "ilan_panel") active.phase1IlanPanelRaw = data;
-    if (type === "ilan_sahibinden") active.phase1IlanSahibindenRaw = data;
+    if (type === "danisman") {
+      active.phase1DanismanRaw = mergeByOfficeCode(active.phase1DanismanRaw, data);
+    }
+    if (type === "ilan_panel") {
+      active.phase1IlanPanelRaw = mergeByOfficeCode(active.phase1IlanPanelRaw, data);
+    }
+    if (type === "ilan_sahibinden") {
+      active.phase1IlanSahibindenRaw = mergeByOfficeCode(active.phase1IlanSahibindenRaw, data);
+      if (Array.isArray(secondaryData)) {
+        active.phase1KacakDanismanRaw = mergeKacakDanisman(active.phase1KacakDanismanRaw || [], secondaryData);
+      }
+    }
     
-    // If all required data for Phase 1 is loaded, or if they are loaded individually, update status
     active.phase1Uploaded = true;
   } else if (active.currentPhase === "Kontrol") {
-    if (type === "danisman") active.phase2DanismanRaw = data;
-    if (type === "ilan_panel") active.phase2IlanPanelRaw = data;
-    if (type === "ilan_sahibinden") active.phase2IlanSahibindenRaw = data;
+    if (type === "danisman") {
+      active.phase2DanismanRaw = mergeByOfficeCode(active.phase2DanismanRaw, data);
+    }
+    if (type === "ilan_panel") {
+      active.phase2IlanPanelRaw = mergeByOfficeCode(active.phase2IlanPanelRaw, data);
+    }
+    if (type === "ilan_sahibinden") {
+      active.phase2IlanSahibindenRaw = mergeByOfficeCode(active.phase2IlanSahibindenRaw, data);
+      if (Array.isArray(secondaryData)) {
+        active.phase2KacakDanismanRaw = mergeKacakDanisman(active.phase2KacakDanismanRaw || [], secondaryData);
+      }
+    }
     
     active.phase2Uploaded = true;
   }

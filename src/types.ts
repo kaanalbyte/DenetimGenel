@@ -44,6 +44,7 @@ export interface AuditPeriod {
   phase1DanismanRaw: any[];
   phase1IlanPanelRaw: any[];
   phase1IlanSahibindenRaw: any[];
+  phase1KacakDanismanRaw?: any[];
   phase1ProblematicOffices: string[];
   phase1ApprovedOffices: string[];
   
@@ -52,6 +53,7 @@ export interface AuditPeriod {
   phase2DanismanRaw: any[];
   phase2IlanPanelRaw: any[];
   phase2IlanSahibindenRaw: any[];
+  phase2KacakDanismanRaw?: any[];
   phase2ProblematicOffices: string[];
   phase2ApprovedOffices: string[];
   

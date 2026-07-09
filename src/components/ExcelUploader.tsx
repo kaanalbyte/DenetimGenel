@@ -8,7 +8,7 @@ export interface ExcelFileType {
 }
 
 interface ExcelUploaderProps {
-  onDataLoaded: (type: string, data: any[]) => void;
+  onDataLoaded: (type: string, data: any[], secondaryData?: any[]) => void;
   isLoading: boolean;
   fileTypes: ExcelFileType[];
   title?: string;
@@ -35,21 +35,49 @@ export const ExcelUploader: React.FC<ExcelUploaderProps> = ({
   const processExcel = async () => {
     if (selectedFiles.length === 0) return;
 
-    let allData: any[] = [];
+    let allPrimaryData: any[] = [];
+    let allSecondaryData: any[] = [];
+    let isMultiSheet = false;
     
     for (const file of selectedFiles) {
-      const data = await new Promise<any[]>((resolve, reject) => {
+      const result = await new Promise<{ primary: any[]; secondary: any[]; hasTwo: boolean }>((resolve, reject) => {
         const reader = new FileReader();
         reader.onload = (e) => {
           try {
             const data = e.target?.result;
             const workbook = xlsx.read(data, { type: "array" });
-            const firstSheetName = workbook.SheetNames[0];
-            const worksheet = workbook.Sheets[firstSheetName];
-            const jsonData = xlsx.utils.sheet_to_json(worksheet, { defval: "" });
-            // Optionally add filename to each row to identify brand if needed
-            const enrichedData = jsonData.map((row: any) => ({ ...row, _sourceFile: file.name }));
-            resolve(enrichedData);
+            
+            // Helper for resilient sheet names (e.g. Sahibinden_Danismanlar vs Sahibinden Danismanlar)
+            const findSheet = (searchNames: string[]) => {
+              const normalizedSearch = searchNames.map(s => s.toLowerCase().replace(/[\s\-_]+/g, ""));
+              for (const name of workbook.SheetNames) {
+                const normName = name.toLowerCase().replace(/[\s\-_]+/g, "");
+                if (normalizedSearch.includes(normName)) {
+                  return workbook.Sheets[name];
+                }
+              }
+              return null;
+            };
+
+            const sheet1 = findSheet(["Sahibinden_Danismanlar", "SahibindenDanismanlar", "Sahibinden_Danisman", "Sahibinden"]);
+            const sheet2 = findSheet(["Kacak_Sahibinden", "KacakSahibinden", "Kacak_Sahibinden_Danisman", "Kacak"]);
+
+            if (sheet1 || sheet2) {
+              const primaryRows = sheet1 ? xlsx.utils.sheet_to_json(sheet1, { defval: "" }) : [];
+              const secondaryRows = sheet2 ? xlsx.utils.sheet_to_json(sheet2, { defval: "" }) : [];
+              
+              const enrichedPrimary = primaryRows.map((row: any) => ({ ...row, _sourceFile: file.name }));
+              const enrichedSecondary = secondaryRows.map((row: any) => ({ ...row, _sourceFile: file.name }));
+
+              resolve({ primary: enrichedPrimary, secondary: enrichedSecondary, hasTwo: true });
+            } else {
+              // Standard single sheet
+              const firstSheetName = workbook.SheetNames[0];
+              const worksheet = workbook.Sheets[firstSheetName];
+              const jsonData = xlsx.utils.sheet_to_json(worksheet, { defval: "" });
+              const enrichedData = jsonData.map((row: any) => ({ ...row, _sourceFile: file.name }));
+              resolve({ primary: enrichedData, secondary: [], hasTwo: false });
+            }
           } catch (error) {
             console.error("Excel parse error:", error);
             reject(error);
@@ -58,10 +86,19 @@ export const ExcelUploader: React.FC<ExcelUploaderProps> = ({
         reader.onerror = reject;
         reader.readAsArrayBuffer(file);
       });
-      allData = [...allData, ...data];
+
+      allPrimaryData = [...allPrimaryData, ...result.primary];
+      if (result.hasTwo) {
+        allSecondaryData = [...allSecondaryData, ...result.secondary];
+        isMultiSheet = true;
+      }
     }
     
-    onDataLoaded(fileType, allData);
+    if (isMultiSheet) {
+      onDataLoaded(fileType, allPrimaryData, allSecondaryData);
+    } else {
+      onDataLoaded(fileType, allPrimaryData);
+    }
     
     setSelectedFiles([]);
     if (fileInputRef.current) fileInputRef.current.value = "";

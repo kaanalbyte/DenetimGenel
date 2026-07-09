@@ -18,6 +18,38 @@ import {
   FileCheck2
 } from "lucide-react";
 
+function getNormalizedValue(row: any, searchKeys: string[]): string {
+  if (!row || typeof row !== "object") return "";
+  
+  const normSearchKeys = searchKeys.map(k => 
+    k.toLowerCase()
+     .replace(/[\s\-_]+/g, "")
+     .replace(/ı/g, "i")
+     .replace(/ğ/g, "g")
+     .replace(/ü/g, "u")
+     .replace(/ş/g, "s")
+     .replace(/ö/g, "o")
+     .replace(/ç/g, "c")
+  );
+
+  for (const rowKey of Object.keys(row)) {
+    const normRowKey = rowKey.trim()
+      .toLowerCase()
+      .replace(/[\s\-_]+/g, "")
+      .replace(/ı/g, "i")
+      .replace(/ğ/g, "g")
+      .replace(/ü/g, "u")
+      .replace(/ş/g, "s")
+      .replace(/ö/g, "o")
+      .replace(/ç/g, "c");
+
+    if (normSearchKeys.includes(normRowKey)) {
+      return String(row[rowKey] ?? "").trim();
+    }
+  }
+  return "";
+}
+
 interface AuditPanelProps {
   offices: Office[];
   groups: Group[];
@@ -61,6 +93,7 @@ export default function AuditPanel({ offices, groups, activeAudit, onRefresh, on
     const danismanRaw = (currentPhase === "Tespit" ? activeAudit.phase1DanismanRaw : activeAudit.phase2DanismanRaw) || [];
     const ilanPanelRaw = (currentPhase === "Tespit" ? activeAudit.phase1IlanPanelRaw : activeAudit.phase2IlanPanelRaw) || [];
     const ilanSahibindenRaw = (currentPhase === "Tespit" ? activeAudit.phase1IlanSahibindenRaw : activeAudit.phase2IlanSahibindenRaw) || [];
+    const kacakDanismanRaw = (currentPhase === "Tespit" ? activeAudit.phase1KacakDanismanRaw : activeAudit.phase2KacakDanismanRaw) || [];
 
     // Determine target entities:
     // If in Phase 2 (Kontrol), we ONLY evaluate entities that were problematic in Phase 1 (activeAudit.phase1ProblematicOffices)
@@ -68,17 +101,33 @@ export default function AuditPanel({ offices, groups, activeAudit, onRefresh, on
     const phase1Problematic = activeAudit.phase1ProblematicOffices || [];
 
     // --- 1. DANİŞMAN DENETİMİ RAPORU HESAPLAMA ---
-    const danismanMap: { [entityId: string]: { code: string; name: string; ownerName: string; countSahibinden: number; countPanel: number; names: string[]; status: "Sorunlu" | "Uyumlu" } } = {};
+    const danismanMap: { 
+      [entityId: string]: { 
+        code: string; 
+        name: string; 
+        ownerName: string; 
+        countOwner: number; 
+        countBroker: number; 
+        countDanisman: number; 
+        countOfficialTotal: number; 
+        countKacak: number; 
+        names: string[]; 
+        status: "Sorunlu" | "Uyumlu" 
+      } 
+    } = {};
 
     // Initialize map with all offices/groups
-    const initializeEntityInMap = (id: string, name: string, ownerName: string) => {
+    const initializeDanismanMap = (id: string, name: string, ownerName: string) => {
       if (!danismanMap[id]) {
         danismanMap[id] = {
           code: id,
           name,
           ownerName,
-          countSahibinden: 0,
-          countPanel: 0,
+          countOwner: 0,
+          countBroker: 0,
+          countDanisman: 0,
+          countOfficialTotal: 0,
+          countKacak: 0,
           names: [],
           status: "Uyumlu"
         };
@@ -91,38 +140,58 @@ export default function AuditPanel({ offices, groups, activeAudit, onRefresh, on
       
       if (o.groupId) {
         const group = groups.find(g => g.id === o.groupId);
-        if (group) initializeEntityInMap(group.id, `${group.name} (Grup)`, group.ownerName);
+        if (group) initializeDanismanMap(group.id, `${group.name} (Grup)`, group.ownerName);
       } else {
-        initializeEntityInMap(o.id, o.name, o.ownerName);
+        initializeDanismanMap(o.id, o.name, o.ownerName);
       }
     });
 
-    // Process raw Kaçak Danışman Upload rows
-    // Schema of raw rows: { ofisKodu, danismanAdi, unvan, sahibindenSayisi, panelSayisi }
+    // Populate official panel advisor numbers from danismanRaw (Kullanıcı Raporu)
     danismanRaw.forEach(row => {
-      const officeId = row.ofisKodu || row["Ofis Kodu"];
+      const officeId = getNormalizedValue(row, ["ofiskodu", "ofis kodu", "id", "kod"]).toUpperCase().trim();
       if (!officeId) return;
 
-      const rowBrand = String(row.marka || row["Marka"] || row.brand || row["Brand"] || "").trim().toLowerCase();
-      let office = offices.find(o => o.id === officeId && (rowBrand ? o.brand.toLowerCase().includes(rowBrand) : true));
-      if (!office) {
-        office = offices.find(o => o.id === officeId);
-      }
+      const office = offices.find(o => o.id === officeId);
       if (!office) return;
 
       const entityId = office.groupId || office.id;
-      // If phase 2, verify if it was problematic
       if (isPhase2 && !phase1Problematic.includes(entityId)) return;
 
       const entity = danismanMap[entityId];
       if (entity) {
-        entity.countSahibinden += Number(row.sahibindenSayisi || row["Sahibinden Danışman Sayısı"] || 1);
-        entity.countPanel += Number(row.panelSayisi || row["Panel Danışman Sayısı"] || 0);
-        const name = row.danismanAdi || row["Ad Soyad"] || "Bilinmeyen Danışman";
-        if (name && !entity.names.includes(name)) {
-          entity.names.push(name);
+        const ownerVal = Number(getNormalizedValue(row, ["owner", "sahip", "ofissahibi"]) || 0);
+        const brokerVal = Number(getNormalizedValue(row, ["broker"]) || 0);
+        const danismanVal = Number(getNormalizedValue(row, ["danisman", "danismanlar", "danismantoplami", "advisor", "agent"]) || 0);
+
+        entity.countOwner += ownerVal;
+        entity.countBroker += brokerVal;
+        entity.countDanisman += danismanVal;
+        entity.countOfficialTotal += (ownerVal + brokerVal + danismanVal);
+      }
+    });
+
+    // Populate Kaçak Danışman from kacakDanismanRaw (Kaçak Sahibinden Raporu)
+    kacakDanismanRaw.forEach(row => {
+      const officeId = getNormalizedValue(row, ["ofiskodu", "ofis kodu", "id", "kod"]).toUpperCase().trim();
+      if (!officeId) return;
+
+      const office = offices.find(o => o.id === officeId);
+      if (!office) return;
+
+      const entityId = office.groupId || office.id;
+      if (isPhase2 && !phase1Problematic.includes(entityId)) return;
+
+      const entity = danismanMap[entityId];
+      if (entity) {
+        const name = getNormalizedValue(row, ["danismanadi", "danisman adi", "danisman adisoyadi", "danisman adi soyadi", "adsoyad", "ad soyad", "danismanadisoyadi", "danismanadisoyadi"]) || "Bilinmeyen Danışman";
+        const portfolio = Number(getNormalizedValue(row, ["portfoysayisi", "portfoy", "ilansayisi", "ilan sayisi"]) || 1);
+        
+        const displayLabel = `${name} (${portfolio} Portföy)`;
+        if (name && !entity.names.includes(displayLabel)) {
+          entity.names.push(displayLabel);
+          entity.countKacak += 1;
+          entity.status = "Sorunlu";
         }
-        entity.status = "Sorunlu";
       }
     });
 
@@ -130,7 +199,19 @@ export default function AuditPanel({ offices, groups, activeAudit, onRefresh, on
     setDanismanReport(danismanArr);
 
     // --- 2. İLAN DENETİMİ RAPORU HESAPLAMA ---
-    const ilanMap: { [entityId: string]: { code: string; name: string; ownerName: string; countSahibinden: number; countPanel: number; difference: number; status: "Sorunlu" | "Uyumlu" } } = {};
+    const ilanMap: { 
+      [entityId: string]: { 
+        code: string; 
+        name: string; 
+        ownerName: string; 
+        countSatilik: number; 
+        countKiralik: number; 
+        countPanelTotal: number; 
+        countSahibinden: number; 
+        difference: number; 
+        status: "Sorunlu" | "Uyumlu" 
+      } 
+    } = {};
 
     offices.forEach(o => {
       const targetId = o.groupId || o.id;
@@ -143,8 +224,10 @@ export default function AuditPanel({ offices, groups, activeAudit, onRefresh, on
             code: targetId,
             name: group ? `${group.name} (Grup)` : "Grup Ofis",
             ownerName: group ? group.ownerName : o.ownerName,
+            countSatilik: 0,
+            countKiralik: 0,
+            countPanelTotal: 0,
             countSahibinden: 0,
-            countPanel: 0,
             difference: 0,
             status: "Uyumlu"
           };
@@ -153,8 +236,10 @@ export default function AuditPanel({ offices, groups, activeAudit, onRefresh, on
             code: targetId,
             name: o.name,
             ownerName: o.ownerName,
+            countSatilik: 0,
+            countKiralik: 0,
+            countPanelTotal: 0,
             countSahibinden: 0,
-            countPanel: 0,
             difference: 0,
             status: "Uyumlu"
           };
@@ -162,37 +247,37 @@ export default function AuditPanel({ offices, groups, activeAudit, onRefresh, on
       }
     });
 
-    // Populate Panel Counts
+    // Populate Panel Counts (Satılık, Kiralık)
     ilanPanelRaw.forEach(row => {
-      const officeId = row.ofisKodu || row["Ofis Kodu"];
-      const count = Number(row.ilanSayisi || row["İlan Sayısı"] || 0);
-      const rowBrand = String(row.marka || row["Marka"] || row.brand || row["Brand"] || "").trim().toLowerCase();
-      let office = offices.find(o => o.id === officeId && (rowBrand ? o.brand.toLowerCase().includes(rowBrand) : true));
-      if (!office) {
-        office = offices.find(o => o.id === officeId);
-      }
+      const officeId = getNormalizedValue(row, ["ofiskodu", "ofis kodu", "id", "kod"]).toUpperCase().trim();
+      if (!officeId) return;
+
+      const office = offices.find(o => o.id === officeId);
       if (!office) return;
 
       const targetId = office.groupId || office.id;
       if (ilanMap[targetId]) {
-        ilanMap[targetId].countPanel += count;
+        const satilik = Number(getNormalizedValue(row, ["satilik", "satılık", "sale"]) || 0);
+        const kiralik = Number(getNormalizedValue(row, ["kiralik", "kiralık", "rent"]) || 0);
+        
+        ilanMap[targetId].countSatilik += satilik;
+        ilanMap[targetId].countKiralik += kiralik;
+        ilanMap[targetId].countPanelTotal += (satilik + kiralik);
       }
     });
 
-    // Populate Sahibinden Counts
+    // Populate Sahibinden Counts (Consolidated Portföy Sayısı)
     ilanSahibindenRaw.forEach(row => {
-      const officeId = row.ofisKodu || row["Ofis Kodu"];
-      const count = Number(row.ilanSayisi || row["İlan Sayısı"] || 0);
-      const rowBrand = String(row.marka || row["Marka"] || row.brand || row["Brand"] || "").trim().toLowerCase();
-      let office = offices.find(o => o.id === officeId && (rowBrand ? o.brand.toLowerCase().includes(rowBrand) : true));
-      if (!office) {
-        office = offices.find(o => o.id === officeId);
-      }
+      const officeId = getNormalizedValue(row, ["ofiskodu", "ofis kodu", "id", "kod"]).toUpperCase().trim();
+      if (!officeId) return;
+
+      const office = offices.find(o => o.id === officeId);
       if (!office) return;
 
       const targetId = office.groupId || office.id;
       if (ilanMap[targetId]) {
-        ilanMap[targetId].countSahibinden += count;
+        const portfoy = Number(getNormalizedValue(row, ["portfoysayisi", "portfoy", "ilansayisi", "ilan sayisi"]) || 0);
+        ilanMap[targetId].countSahibinden += portfoy;
       }
     });
 
@@ -200,7 +285,7 @@ export default function AuditPanel({ offices, groups, activeAudit, onRefresh, on
     Object.keys(ilanMap).forEach(key => {
       const item = ilanMap[key];
       const s = item.countSahibinden;
-      const p = item.countPanel;
+      const p = item.countPanelTotal;
       const diff = s - p; // Excess on Sahibinden portal
       item.difference = diff;
 
@@ -244,14 +329,14 @@ export default function AuditPanel({ offices, groups, activeAudit, onRefresh, on
     }
   };
 
-  const handleRealDataLoad = async (type: "danisman" | "ilan_panel" | "ilan_sahibinden", data: any[]) => {
+  const handleRealDataLoad = async (type: string, data: any[], secondaryData?: any[]) => {
     if (!activeAudit) return;
     setLoading(true);
     try {
       const res = await fetch("/api/audits/active/upload", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ type, data })
+        body: JSON.stringify({ type, data, secondaryData })
       });
       if (res.ok) {
         showMsg("success", "Gerçek veri başarıyla yüklendi!");
@@ -275,92 +360,105 @@ export default function AuditPanel({ offices, groups, activeAudit, onRefresh, on
     let danismanMock: any[] = [];
     let panelIlanMock: any[] = [];
     let sahibindenIlanMock: any[] = [];
+    let kacakDanismanMock: any[] = [];
 
     if (activeAudit.currentPhase === "Tespit") {
       // PHASE 1 SAMPLE DATA
-      // Let's create realistic discrepancies
       danismanMock = [
-        { ofisKodu: "OF1001", danismanAdi: "Kaan Arslan", unvan: "Danışman", sahibindenSayisi: 1, panelSayisi: 0 },
-        { ofisKodu: "OF1001", danismanAdi: "Zeynep Tekin", unvan: "Lüks Konut", sahibindenSayisi: 1, panelSayisi: 0 },
-        { ofisKodu: "OF1003", danismanAdi: "Mert Demir", unvan: "Danışman", sahibindenSayisi: 1, panelSayisi: 0 },
-        { ofisKodu: "OF1007", danismanAdi: "Selin Bakır", unvan: "Arsa Uzmanı", sahibindenSayisi: 1, panelSayisi: 0 }
+        { "Ofis Kodu": "OF1001", "Owner": 1, "Broker": 1, "Danışman": 10 },
+        { "Ofis Kodu": "OF1002", "Owner": 1, "Broker": 0, "Danışman": 5 },
+        { "Ofis Kodu": "OF1003", "Owner": 0, "Broker": 1, "Danışman": 8 },
+        { "Ofis Kodu": "OF1004", "Owner": 1, "Broker": 1, "Danışman": 15 },
+        { "Ofis Kodu": "OF1005", "Owner": 1, "Broker": 0, "Danışman": 6 },
+        { "Ofis Kodu": "OF1006", "Owner": 1, "Broker": 1, "Danışman": 7 },
+        { "Ofis Kodu": "OF1007", "Owner": 1, "Broker": 0, "Danışman": 4 },
+        { "Ofis Kodu": "OF1008", "Owner": 1, "Broker": 1, "Danışman": 9 }
       ];
 
       panelIlanMock = [
-        { ofisKodu: "OF1001", ilanSayisi: 80 },
-        { ofisKodu: "OF1002", ilanSayisi: 40 }, // Group G1 Panel Total = 120
-        { ofisKodu: "OF1003", ilanSayisi: 45 },
-        { ofisKodu: "OF1004", ilanSayisi: 50 }, // Group G2 Panel Total = 95
-        { ofisKodu: "OF1005", ilanSayisi: 30 },
-        { ofisKodu: "OF1006", ilanSayisi: 35 }, // Group G3 Panel Total = 65
-        { ofisKodu: "OF1007", ilanSayisi: 25 },
-        { ofisKodu: "OF1008", ilanSayisi: 50 }
+        { "Ofis Kodu": "OF1001", "Satılık": 50, "Kiralık": 30 },
+        { "Ofis Kodu": "OF1002", "Satılık": 25, "Kiralık": 15 },
+        { "Ofis Kodu": "OF1003", "Satılık": 30, "Kiralık": 15 },
+        { "Ofis Kodu": "OF1004", "Satılık": 35, "Kiralık": 15 },
+        { "Ofis Kodu": "OF1005", "Satılık": 20, "Kiralık": 10 },
+        { "Ofis Kodu": "OF1006", "Satılık": 20, "Kiralık": 15 },
+        { "Ofis Kodu": "OF1007", "Satılık": 15, "Kiralık": 10 },
+        { "Ofis Kodu": "OF1008", "Satılık": 30, "Kiralık": 20 }
       ];
 
-      // G1 Sahibinden Total = 95 + 35 = 130. Panel Total = 120. Diff = 10 (S > 100, Tolerance 10% = 12. 10 <= 12 COMPLIANT!)
-      // G2 Sahibinden Total = 60 + 55 = 115. Panel Total = 95. Diff = 20 (S > 100, Tolerance 10% = 9.5. 20 > 9.5 PROBLEMATIC!)
-      // G3 Sahibinden Total = 40 + 38 = 78. Panel Total = 65. Diff = 13 (S <= 100, Tolerance = 10. 13 > 10 PROBLEMATIC!)
-      // OF1007 (Independent) Sahibinden = 40. Panel = 25. Diff = 15 (S <= 100, Tolerance = 10. 15 > 10 PROBLEMATIC!)
-      // OF1008 (Independent) Sahibinden = 55. Panel = 50. Diff = 5 (S <= 100, Tolerance = 10. 5 <= 10 COMPLIANT!)
       sahibindenIlanMock = [
-        { ofisKodu: "OF1001", ilanSayisi: 95 },
-        { ofisKodu: "OF1002", ilanSayisi: 35 },
-        { ofisKodu: "OF1003", ilanSayisi: 60 },
-        { ofisKodu: "OF1004", ilanSayisi: 55 },
-        { ofisKodu: "OF1005", ilanSayisi: 40 },
-        { ofisKodu: "OF1006", ilanSayisi: 38 },
-        { ofisKodu: "OF1007", ilanSayisi: 40 },
-        { ofisKodu: "OF1008", ilanSayisi: 55 }
+        { "Ofis Kodu": "OF1001", "Portföy Sayısı": 95 },
+        { "Ofis Kodu": "OF1002", "Portföy Sayısı": 35 },
+        { "Ofis Kodu": "OF1003", "Portföy Sayısı": 60 },
+        { "Ofis Kodu": "OF1004", "Portföy Sayısı": 55 },
+        { "Ofis Kodu": "OF1005", "Portföy Sayısı": 40 },
+        { "Ofis Kodu": "OF1006", "Portföy Sayısı": 38 },
+        { "Ofis Kodu": "OF1007", "Portföy Sayısı": 40 },
+        { "Ofis Kodu": "OF1008", "Portföy Sayısı": 55 }
+      ];
+
+      kacakDanismanMock = [
+        { "Ofis Kodu": "OF1001", "Danışman Adı Soyadı": "Kaan Arslan", "Portföy Sayısı": 1 },
+        { "Ofis Kodu": "OF1001", "Danışman Adı Soyadı": "Zeynep Tekin", "Portföy Sayısı": 2 },
+        { "Ofis Kodu": "OF1003", "Danışman Adı Soyadı": "Mert Demir", "Portföy Sayısı": 1 },
+        { "Ofis Kodu": "OF1007", "Danışman Adı Soyadı": "Selin Bakır", "Portföy Sayısı": 3 }
       ];
     } else if (activeAudit.currentPhase === "Kontrol") {
-      // PHASE 2 SAMPLE DATA: Let's assume some offices corrected their issues!
-      // G2 (Kaya) corrected Sahibinden listings, G3 (Demir) and OF1007 still fail.
-      // OF1001 (Part of G1) corrected their illegal consultants, G2 resolved, but G3 and OF1007 still have unresolved Kaçak.
+      // PHASE 2 SAMPLE DATA
       danismanMock = [
-        { ofisKodu: "OF1003", danismanAdi: "Mert Demir", unvan: "Danışman", sahibindenSayisi: 1, panelSayisi: 0 } // G2 corrected (no kaçak), G3 (Demir) still has 1
+        { "Ofis Kodu": "OF1001", "Owner": 1, "Broker": 1, "Danışman": 10 },
+        { "Ofis Kodu": "OF1002", "Owner": 1, "Broker": 0, "Danışman": 5 },
+        { "Ofis Kodu": "OF1003", "Owner": 0, "Broker": 1, "Danışman": 8 },
+        { "Ofis Kodu": "OF1004", "Owner": 1, "Broker": 1, "Danışman": 15 },
+        { "Ofis Kodu": "OF1005", "Owner": 1, "Broker": 0, "Danışman": 6 },
+        { "Ofis Kodu": "OF1006", "Owner": 1, "Broker": 1, "Danışman": 7 },
+        { "Ofis Kodu": "OF1007", "Owner": 1, "Broker": 0, "Danışman": 4 },
+        { "Ofis Kodu": "OF1008", "Owner": 1, "Broker": 1, "Danışman": 9 }
       ];
 
       panelIlanMock = [
-        { ofisKodu: "OF1001", ilanSayisi: 80 },
-        { ofisKodu: "OF1002", ilanSayisi: 40 },
-        { ofisKodu: "OF1003", ilanSayisi: 45 },
-        { ofisKodu: "OF1004", ilanSayisi: 50 }, // G2 Panel = 95
-        { ofisKodu: "OF1005", ilanSayisi: 30 },
-        { ofisKodu: "OF1006", ilanSayisi: 35 }, // G3 Panel = 65
-        { ofisKodu: "OF1007", ilanSayisi: 25 },
-        { ofisKodu: "OF1008", ilanSayisi: 50 }
+        { "Ofis Kodu": "OF1001", "Satılık": 50, "Kiralık": 30 },
+        { "Ofis Kodu": "OF1002", "Satılık": 25, "Kiralık": 15 },
+        { "Ofis Kodu": "OF1003", "Satılık": 30, "Kiralık": 15 },
+        { "Ofis Kodu": "OF1004", "Satılık": 35, "Kiralık": 15 },
+        { "Ofis Kodu": "OF1005", "Satılık": 20, "Kiralık": 10 },
+        { "Ofis Kodu": "OF1006", "Satılık": 20, "Kiralık": 15 },
+        { "Ofis Kodu": "OF1007", "Satılık": 15, "Kiralık": 10 },
+        { "Ofis Kodu": "OF1008", "Satılık": 30, "Kiralık": 20 }
       ];
 
       sahibindenIlanMock = [
-        { ofisKodu: "OF1001", ilanSayisi: 90 },
-        { ofisKodu: "OF1002", ilanSayisi: 35 },
-        { ofisKodu: "OF1003", ilanSayisi: 50 },
-        { ofisKodu: "OF1004", ilanSayisi: 50 }, // G2 Sahibinden Total = 100. Panel = 95. Diff = 5 (Compliant! They fixed it!)
-        { ofisKodu: "OF1005", ilanSayisi: 42 },
-        { ofisKodu: "OF1006", ilanSayisi: 40 }, // G3 Sahibinden Total = 82. Panel = 65. Diff = 17 (Failed again!)
-        { ofisKodu: "OF1007", ilanSayisi: 41 }, // OF1007 Sahibinden = 41. Panel = 25. Diff = 16 (Failed again!)
-        { ofisKodu: "OF1008", ilanSayisi: 50 }
+        { "Ofis Kodu": "OF1001", "Portföy Sayısı": 95 },
+        { "Ofis Kodu": "OF1002", "Portföy Sayısı": 35 },
+        { "Ofis Kodu": "OF1003", "Portföy Sayısı": 60 },
+        { "Ofis Kodu": "OF1004", "Portföy Sayısı": 55 },
+        { "Ofis Kodu": "OF1005", "Portföy Sayısı": 40 },
+        { "Ofis Kodu": "OF1006", "Portföy Sayısı": 38 },
+        { "Ofis Kodu": "OF1007", "Portföy Sayısı": 40 },
+        { "Ofis Kodu": "OF1008", "Portföy Sayısı": 55 }
+      ];
+
+      kacakDanismanMock = [
+        { "Ofis Kodu": "OF1003", "Danışman Adı Soyadı": "Mert Demir", "Portföy Sayısı": 1 },
+        { "Ofis Kodu": "OF1007", "Danışman Adı Soyadı": "Selin Bakır", "Portföy Sayısı": 3 }
       ];
     }
 
     try {
-      // Save danisman
       await fetch("/api/audits/active/upload", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({ type: "danisman", data: danismanMock })
       });
-      // Save panel
       await fetch("/api/audits/active/upload", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({ type: "ilan_panel", data: panelIlanMock })
       });
-      // Save sahibinden
       const res = await fetch("/api/audits/active/upload", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ type: "ilan_sahibinden", data: sahibindenIlanMock })
+        body: JSON.stringify({ type: "ilan_sahibinden", data: sahibindenIlanMock, secondaryData: kacakDanismanMock })
       });
 
       if (res.ok) {
@@ -384,7 +482,7 @@ export default function AuditPanel({ offices, groups, activeAudit, onRefresh, on
 
     danismanReport.forEach(item => {
       if (selectedDanismanIds.includes(item.code)) {
-        detailsMap[item.code + "_danisman"] = `Portallerde yapılan eşleştirmelerde, ofisiniz bünyesinde çalışan ancak resmi panelde kaydı bulunmayan yetkisiz (kaçak) danışmanlar tespit edilmiştir:\n\nKaçak Danışman Listesi: ${item.names.join(", ")}\n\nSahibinden Danışman Sayısı: ${item.countSahibinden}\nPanel Danışman Sayısı: ${item.countPanel}`;
+        detailsMap[item.code + "_danisman"] = `Portallerde yapılan eşleştirmelerde, ofisiniz bünyesinde çalışan ancak resmi panelde kaydı bulunmayan yetkisiz (kaçak) danışmanlar tespit edilmiştir:\n\nKaçak Danışman Listesi: ${item.names.join(", ")}\n\nResmi Kadro Sayısı: ${item.countOfficialTotal} (Owner: ${item.countOwner}, Broker: ${item.countBroker}, Danışman: ${item.countDanisman})`;
       }
     });
 
@@ -392,9 +490,9 @@ export default function AuditPanel({ offices, groups, activeAudit, onRefresh, on
       if (selectedIlanIds.includes(item.code)) {
         const thresholdText = item.countSahibinden <= 100 
           ? "Sahibinden ilan sayısı <= 100 olduğu için en fazla 10 adet ilan farkı toleransı mevcuttur." 
-          : "Sahibinden ilan sayısı > 100 olduğu için en fazla %10 fazla ilan toleransı mevcuttur.";
+          : `Sahibinden ilan sayısı > 100 olduğu için en fazla %10 fazla ilan toleransı mevcuttur (Limit: ${Math.floor(item.countPanelTotal * 0.10)} ilan).`;
 
-        detailsMap[item.code + "_ilan"] = `Yapılan ilan denetimlerinde, resmi paneliniz ile Sahibinden.com portalındaki ilan adetlerinizin uyumsuz olduğu tespit edilmiştir.\n\nSahibinden Toplam İlan Sayısı: ${item.countSahibinden}\nPanel Toplam İlan Sayısı: ${item.countPanel}\nFark: +${item.difference}\n\nAçıklama: ${thresholdText}`;
+        detailsMap[item.code + "_ilan"] = `Yapılan ilan denetimlerinde, resmi paneliniz ile Sahibinden.com portalındaki ilan adetlerinizin uyumsuz olduğu tespit edilmiştir.\n\nSahibinden Toplam İlan Sayısı: ${item.countSahibinden}\nPanel Toplam İlan Sayısı: ${item.countPanelTotal} (Satılık: ${item.countSatilik}, Kiralık: ${item.countKiralik})\nFark: +${item.difference}\n\nAçıklama: ${thresholdText}`;
       }
     });
 
@@ -639,17 +737,21 @@ export default function AuditPanel({ offices, groups, activeAudit, onRefresh, on
               <ExcelUploader 
                 onDataLoaded={handleRealDataLoad} 
                 isLoading={loading} 
-                title="Denetim Verisi Yükleme"
+                title="Dönem Denetim Verisi Yükleme"
                 fileTypes={[
-                  { id: "danisman", label: "Kaçak Danışman Listesi" },
-                  { id: "ilan_panel", label: "MasterTürk Panel İlan Raporu" },
-                  { id: "ilan_sahibinden", label: "Sahibinden.com İlan Raporu" }
+                  { id: "danisman", label: "1. Kullanıcı Raporu (Resmi Kadro)" },
+                  { id: "ilan_panel", label: "2. İlan Raporu (Resmi Portföy)" },
+                  { id: "ilan_sahibinden", label: "3. Sahibinden İlan & Kaçak Danışman (Çift Sayfalı)" }
                 ]}
                 hints={
-                  <>
-                    <p><strong>Danışman Listesi:</strong> <em>ofisKodu, danismanAdi, unvan, sahibindenSayisi, panelSayisi</em> kolonlarını içermelidir.</p>
-                    <p><strong>İlan Raporları:</strong> <em>ofisKodu, ilanSayisi</em> kolonlarını içermelidir.</p>
-                  </>
+                  <div className="space-y-1.5 text-slate-500 text-[11px]">
+                    <p><strong>1. Kullanıcı Raporu:</strong> <em>Ofis Kodu, Owner, Broker, Danışman</em> kolonlarını içermelidir (Resmi kadro toplamını bulur).</p>
+                    <p><strong>2. İlan Raporu:</strong> <em>Ofis Kodu, Satılık, Kiralık</em> kolonlarını içermelidir (Resmi ilan toplamını bulur).</p>
+                    <p><strong>3. Sahibinden Raporu (Çift Sayfalı):</strong> 
+                      <span className="block pl-3 mt-0.5">• <strong>Sahibinden_Danismanlar</strong> sayfası: <em>Ofis Kodu, Portföy Sayısı</em> (Aynı ofis kodları toplanır).</span>
+                      <span className="block pl-3 mt-0.5">• <strong>Kacak_Sahibinden</strong> sayfası: <em>Ofis Kodu, Danışman Adı Soyadı, Portföy Sayısı</em> (Kaçak yetkisiz portföyleri listeler).</span>
+                    </p>
+                  </div>
                 }
               />
 
@@ -684,7 +786,7 @@ export default function AuditPanel({ offices, groups, activeAudit, onRefresh, on
                         <div className="flex items-center justify-between">
                           <h3 className="text-xs font-bold text-slate-800 tracking-tight flex items-center gap-2">
                             <span className="bg-slate-800 text-white text-[10px] px-1.5 py-0.5 rounded font-bold font-mono">BAŞLIK A</span>
-                            Danışman Denetimi (Kaçak Danışman Havuzu)
+                            Danışman Denetimi (Kaçak Danışman Tespiti)
                           </h3>
                         </div>
                       </div>
@@ -695,9 +797,9 @@ export default function AuditPanel({ offices, groups, activeAudit, onRefresh, on
                             <tr>
                               <th className="px-3 py-2 w-10">Seç</th>
                               <th className="px-3 py-2">Ofis/Grup Kodu & Adı</th>
+                              <th className="px-3 py-2 text-center">Resmi Kadro (Panel)</th>
                               <th className="px-3 py-2">Durumu</th>
-                              <th className="px-3 py-2 text-center">Sahibinden / Panel</th>
-                              <th className="px-3 py-2">Kaçak Danışmanlar</th>
+                              <th className="px-3 py-2">Kaçak Danışmanlar (Portföylü)</th>
                             </tr>
                           </thead>
                           <tbody className="divide-y divide-slate-100">
@@ -721,20 +823,33 @@ export default function AuditPanel({ offices, groups, activeAudit, onRefresh, on
                                     <div className="font-semibold text-slate-850">{item.name}</div>
                                     <div className="text-[10px] text-slate-400 font-mono mt-0.5">{item.code} - {item.ownerName}</div>
                                   </td>
+                                  <td className="px-3 py-2 text-center">
+                                    <div className="font-mono text-xs text-slate-700 font-semibold">
+                                      Toplam: {item.countOfficialTotal}
+                                    </div>
+                                    <div className="text-[9px] text-slate-400 font-mono">
+                                      Owner: {item.countOwner} | Broker: {item.countBroker} | Dan: {item.countDanisman}
+                                    </div>
+                                  </td>
                                   <td className="px-3 py-2">
                                     <span className={`inline-block px-1.5 py-0.5 rounded font-bold text-[9px] uppercase ${
                                       item.status === "Sorunlu" ? "bg-rose-100 text-rose-800" : "bg-emerald-100 text-emerald-800"
                                     }`}>
-                                      {item.status === "Sorunlu" ? "KAÇAK VAR" : "UYUMLU"}
+                                      {item.status === "Sorunlu" ? `${item.countKacak} KAÇAK VAR` : "UYUMLU"}
                                     </span>
                                   </td>
-                                  <td className="px-3 py-2 text-center font-mono font-medium text-slate-700">
-                                    <span className="text-slate-900">{item.countSahibinden}</span>
-                                    <span className="text-slate-300 mx-1">/</span>
-                                    <span className="text-slate-500">{item.countPanel}</span>
-                                  </td>
-                                  <td className="px-3 py-2 text-rose-700 font-semibold max-w-[150px] truncate">
-                                    {item.names.length > 0 ? item.names.join(", ") : "-"}
+                                  <td className="px-3 py-2 text-rose-700 font-medium">
+                                    {item.names.length > 0 ? (
+                                      <div className="flex flex-wrap gap-1">
+                                        {item.names.map((n: string, i: number) => (
+                                          <span key={i} className="bg-rose-50 border border-rose-100 text-[10px] px-1.5 py-0.5 rounded text-rose-800 font-mono">
+                                            {n}
+                                          </span>
+                                        ))}
+                                      </div>
+                                    ) : (
+                                      <span className="text-slate-400 font-mono text-[11px]">-</span>
+                                    )}
                                   </td>
                                 </tr>
                               ))
@@ -761,15 +876,16 @@ export default function AuditPanel({ offices, groups, activeAudit, onRefresh, on
                             <tr>
                               <th className="px-3 py-2 w-10">Seç</th>
                               <th className="px-3 py-2">Ofis/Grup Kodu & Adı</th>
-                              <th className="px-3 py-2">Durumu</th>
-                              <th className="px-3 py-2 text-center">Sahibinden / Panel</th>
+                              <th className="px-3 py-2 text-center">Resmi Panel (Portföy)</th>
+                              <th className="px-3 py-2 text-center">Sahibinden</th>
                               <th className="px-3 py-2 text-center">Fark</th>
+                              <th className="px-3 py-2">Durumu</th>
                             </tr>
                           </thead>
                           <tbody className="divide-y divide-slate-100">
                             {ilanReport.length === 0 ? (
                               <tr>
-                                <td colSpan={5} className="text-center py-6 text-slate-400">Uyumsuz ilan sayısı tespiti bulunmuyor.</td>
+                                <td colSpan={6} className="text-center py-6 text-slate-400">Uyumsuz ilan sayısı tespiti bulunmuyor.</td>
                               </tr>
                             ) : (
                               ilanReport.map((item) => (
@@ -787,21 +903,27 @@ export default function AuditPanel({ offices, groups, activeAudit, onRefresh, on
                                     <div className="font-semibold text-slate-850">{item.name}</div>
                                     <div className="text-[10px] text-slate-400 font-mono mt-0.5">{item.code} - {item.ownerName}</div>
                                   </td>
+                                  <td className="px-3 py-2 text-center">
+                                    <div className="font-mono text-xs text-slate-700 font-semibold">
+                                      Toplam: {item.countPanelTotal}
+                                    </div>
+                                    <div className="text-[9px] text-slate-400 font-mono">
+                                      Satılık: {item.countSatilik} | Kiralık: {item.countKiralik}
+                                    </div>
+                                  </td>
+                                  <td className="px-3 py-2 text-center font-mono font-bold text-slate-800 text-xs">
+                                    {item.countSahibinden}
+                                  </td>
+                                  <td className="px-3 py-2 text-center font-semibold font-mono text-xs">
+                                    <span className={item.difference > 0 ? "text-rose-600" : "text-emerald-600"}>
+                                      {item.difference > 0 ? `+${item.difference}` : item.difference}
+                                    </span>
+                                  </td>
                                   <td className="px-3 py-2">
                                     <span className={`inline-block px-1.5 py-0.5 rounded font-bold text-[9px] uppercase ${
                                       item.status === "Sorunlu" ? "bg-rose-100 text-rose-800" : "bg-emerald-100 text-emerald-800"
                                     }`}>
                                       {item.status === "Sorunlu" ? "LİMİT AŞILDI" : "UYUMLU"}
-                                    </span>
-                                  </td>
-                                  <td className="px-3 py-2 text-center font-mono font-medium text-slate-700">
-                                    <span className="text-slate-900">{item.countSahibinden}</span>
-                                    <span className="text-slate-300 mx-1">/</span>
-                                    <span className="text-slate-500">{item.countPanel}</span>
-                                  </td>
-                                  <td className="px-3 py-2 text-center font-semibold font-mono">
-                                    <span className={item.difference > 0 ? "text-rose-600" : "text-emerald-600"}>
-                                      {item.difference > 0 ? `+${item.difference}` : item.difference}
                                     </span>
                                   </td>
                                 </tr>
