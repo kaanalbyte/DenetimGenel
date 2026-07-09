@@ -38,6 +38,9 @@ interface Office {
   ownerName: string;
   ownerEmail: string;
   groupId: string | null; // Belongs to a group office
+  status?: string; // Durum
+  responsibleUser?: string; // Sorumlu Sistem Kullanıcısı
+  brand?: string; // Marka
 }
 
 interface Group {
@@ -312,7 +315,7 @@ function getNormalizedValue(row: any, searchKeys: string[]): string {
   
   const normSearchKeys = searchKeys.map(k => 
     k.toLowerCase()
-     .replace(/\s+/g, "")
+     .replace(/[\s\-_]+/g, "")
      .replace(/ı/g, "i")
      .replace(/ğ/g, "g")
      .replace(/ü/g, "u")
@@ -324,7 +327,7 @@ function getNormalizedValue(row: any, searchKeys: string[]): string {
   for (const rowKey of Object.keys(row)) {
     const normRowKey = rowKey.trim()
       .toLowerCase()
-      .replace(/\s+/g, "")
+      .replace(/[\s\-_]+/g, "")
       .replace(/ı/g, "i")
       .replace(/ğ/g, "g")
       .replace(/ü/g, "u")
@@ -352,23 +355,11 @@ app.post("/api/offices/upload", (req, res) => {
 
   for (const row of offices) {
     // Map Excel row fields resiliently using normalized key search
-    const rawId = getNormalizedValue(row, ["ofiskodu", "ofis kodu", "id", "kod", "officecode", "office code"]);
-    const rawStatus = getNormalizedValue(row, ["durum", "status", "aktif", "active", "ofisdurumu", "ofis durumu"]);
-    const rawName = getNormalizedValue(row, ["ad", "adi", "ofisadi", "ofis adi", "name", "officename", "ofis name"]);
-    const rawOwnerEmail = getNormalizedValue(row, ["e-posta", "eposta", "email", "mail", "ofis eposta", "ofis e-posta", "owneremail"]);
-    const rawResponsible = getNormalizedValue(row, [
-      "sorumlu sistem kullanicisi", 
-      "sorumlusistemkullanicisi", 
-      "sorumlu", 
-      "sahacisi", 
-      "sahaci", 
-      "ofis sahibi/yetkilisi", 
-      "yetkili", 
-      "ofissahibi", 
-      "ofis sahibi", 
-      "sahacicisi", 
-      "saha kullanicisi"
-    ]);
+    const rawId = getNormalizedValue(row, ["ofiskodu", "ofis kodu", "id", "kod"]);
+    const rawStatus = getNormalizedValue(row, ["durum", "status", "ofisdurumu"]);
+    const rawName = getNormalizedValue(row, ["ad", "adi", "ofisadi", "ofis adi", "name"]);
+    const rawOwnerEmail = getNormalizedValue(row, ["e-posta", "eposta", "email", "mail"]);
+    const rawResponsible = getNormalizedValue(row, ["sorumlu sistem kullanicisi", "sorumlusistemkullanicisi"]);
     const rawBrand = getNormalizedValue(row, ["marka", "brand"]);
 
     const id = String(rawId).toUpperCase().trim();
@@ -378,26 +369,14 @@ app.post("/api/offices/upload", (req, res) => {
     const ownerEmail = String(rawOwnerEmail).trim();
     const status = String(rawStatus).trim();
     const responsibleUser = String(rawResponsible).trim();
-    const ownerName = responsibleUser || "Bilinmiyor"; // Default ownerName to responsible user if not present
+    const ownerName = responsibleUser || "Bilinmiyor"; // Default ownerName to responsible user
 
     let brand = String(rawBrand).trim();
     if (!brand && defaultBrand) {
       brand = defaultBrand;
     }
-    
-    // Intelligently guess brand from file name if row has a source file property
-    if (!brand && row._sourceFile) {
-      const sourceFile = String(row._sourceFile).toLowerCase();
-      if (sourceFile.includes("cb") || sourceFile.includes("coldwell")) {
-        brand = "Coldwell Banker";
-      } else if (sourceFile.includes("c21") || sourceFile.includes("century")) {
-        brand = "Century 21";
-      } else if (sourceFile.includes("era")) {
-        brand = "ERA";
-      }
-    }
 
-    // Default brand guess from office ID code prefix
+    // Default brand guess from office ID code prefix if still not present
     if (!brand) {
       if (id.startsWith("CB")) brand = "Coldwell Banker";
       else if (id.startsWith("C21") || id.startsWith("CENTURY") || id.startsWith("CE")) brand = "Century 21";

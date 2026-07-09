@@ -43,7 +43,7 @@ export const ExcelUploader: React.FC<ExcelUploaderProps> = ({
         reader.onload = (e) => {
           try {
             const data = e.target?.result;
-            const workbook = xlsx.read(data, { type: "binary" });
+            const workbook = xlsx.read(data, { type: "array" });
             const firstSheetName = workbook.SheetNames[0];
             const worksheet = workbook.Sheets[firstSheetName];
             const jsonData = xlsx.utils.sheet_to_json(worksheet, { defval: "" });
@@ -56,7 +56,7 @@ export const ExcelUploader: React.FC<ExcelUploaderProps> = ({
           }
         };
         reader.onerror = reject;
-        reader.readAsBinaryString(file);
+        reader.readAsArrayBuffer(file);
       });
       allData = [...allData, ...data];
     }

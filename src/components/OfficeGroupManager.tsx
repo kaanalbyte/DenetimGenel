@@ -1,7 +1,7 @@
-import React, { useState } from "react";
+import React, { useState, useRef } from "react";
 import { Office, Group } from "../types";
-import { ExcelUploader } from "./ExcelUploader";
-import { Plus, Users, Trash2, Building, Mail, User, Search, RefreshCw, ChevronRight } from "lucide-react";
+import * as xlsx from "xlsx";
+import { Plus, Users, Trash2, Building, Mail, User, Search, RefreshCw, ChevronRight, Upload, X, FileSpreadsheet, CheckCircle, AlertCircle } from "lucide-react";
 
 
 interface OfficeGroupManagerProps {
@@ -27,6 +27,93 @@ export default function OfficeGroupManager({ offices, groups, onRefresh }: Offic
   const [searchQuery, setSearchQuery] = useState("");
   const [selectedGroupId, setSelectedGroupId] = useState<string | null>(null);
   const [selectedBrand, setSelectedBrand] = useState<string>("ALL");
+
+  // Multi-brand Excel Slots State
+  const [cbFile, setCbFile] = useState<File | null>(null);
+  const [c21File, setC21File] = useState<File | null>(null);
+  const [eraFile, setEraFile] = useState<File | null>(null);
+
+  const cbInputRef = useRef<HTMLInputElement>(null);
+  const c21InputRef = useRef<HTMLInputElement>(null);
+  const eraInputRef = useRef<HTMLInputElement>(null);
+
+  const parseExcelFile = async (file: File): Promise<any[]> => {
+    return new Promise<any[]>((resolve, reject) => {
+      const reader = new FileReader();
+      reader.onload = (e) => {
+        try {
+          const data = e.target?.result;
+          const workbook = xlsx.read(data, { type: "array" });
+          const firstSheetName = workbook.SheetNames[0];
+          const worksheet = workbook.Sheets[firstSheetName];
+          const jsonData = xlsx.utils.sheet_to_json(worksheet, { defval: "" });
+          resolve(jsonData);
+        } catch (error) {
+          console.error("Excel parse error:", error);
+          reject(error);
+        }
+      };
+      reader.onerror = reject;
+      reader.readAsArrayBuffer(file);
+    });
+  };
+
+  const handleBulkBrandUpload = async () => {
+    setLoading(true);
+    try {
+      let combinedOffices: any[] = [];
+      
+      if (cbFile) {
+        const rows = await parseExcelFile(cbFile);
+        const mapped = rows.map(r => ({ ...r, marka: "Coldwell Banker" }));
+        combinedOffices = [...combinedOffices, ...mapped];
+      }
+      
+      if (c21File) {
+        const rows = await parseExcelFile(c21File);
+        const mapped = rows.map(r => ({ ...r, marka: "Century 21" }));
+        combinedOffices = [...combinedOffices, ...mapped];
+      }
+      
+      if (eraFile) {
+        const rows = await parseExcelFile(eraFile);
+        const mapped = rows.map(r => ({ ...r, marka: "ERA" }));
+        combinedOffices = [...combinedOffices, ...mapped];
+      }
+
+      if (combinedOffices.length === 0) {
+        showMsg("error", "Lütfen yüklemek için en az bir marka Excel dosyası seçin.");
+        setLoading(false);
+        return;
+      }
+
+      const res = await fetch("/api/offices/upload", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ offices: combinedOffices })
+      });
+
+      if (res.ok) {
+        const result = await res.json();
+        showMsg("success", `Excel Yükleme Başarılı! ${result.added} yeni ofis eklendi, ${result.updated} ofis güncellendi.`);
+        // Reset state
+        setCbFile(null);
+        setC21File(null);
+        setEraFile(null);
+        if (cbInputRef.current) cbInputRef.current.value = "";
+        if (c21InputRef.current) c21InputRef.current.value = "";
+        if (eraInputRef.current) eraInputRef.current.value = "";
+        onRefresh();
+      } else {
+        showMsg("error", "Sunucuya yüklenirken bir hata oluştu.");
+      }
+    } catch (err) {
+      console.error(err);
+      showMsg("error", "Dosyalar çözümlenirken hata oluştu. Kolonları kontrol edin.");
+    } finally {
+      setLoading(false);
+    }
+  };
 
   const [loading, setLoading] = useState(false);
   const [msg, setMsg] = useState<{ type: "success" | "error"; text: string } | null>(null);
@@ -497,25 +584,200 @@ export default function OfficeGroupManager({ offices, groups, onRefresh }: Offic
             </form>
           </div>
 
-          {/* Office Excel Upload */}
-          <ExcelUploader 
-            onDataLoaded={handleOfficeExcelLoad} 
-            isLoading={loading} 
-            title="Ofis Listesi Yükle (Century 21, Coldwell Banker, ERA)"
-            fileTypes={[
-              { id: "ALL", label: "Tüm Markalar (Otomatik Algıla / Excel Sütunu)" },
-              { id: "Coldwell Banker", label: "Coldwell Banker (Yüklenenleri CB olarak işaretle)" },
-              { id: "Century 21", label: "Century 21 (Yüklenenleri C21 olarak işaretle)" },
-              { id: "ERA", label: "ERA (Yüklenenleri ERA olarak işaretle)" }
-            ]}
-            hints={
-              <div className="space-y-1">
-                <p><strong>Zorunlu Sütun Başlıkları:</strong> <em>Ofis Kodu, Durum, Ad, E-Posta, Sorumlu Sistem Kullanıcısı</em></p>
-                <p><strong>Seçmeli Sütun Başlığı:</strong> <em>Marka</em> (Eğer "Tüm Markalar" seçilirse ve Excel'de Marka sütunu yoksa, sistem Ofis Kodunun başındaki harflerden (CB, C21, ERA) otomatik eşleştirir).</p>
-                <p className="text-blue-600 font-semibold">⚠️ Bilgi: Excel güncellendiğinde sistemdeki grup-ofis ilişkilendirmeleri asla zarar görmez, sadece ofis bilgileri güncellenir.</p>
+          {/* Custom Multi-Brand Multi-File Excel Upload Interface */}
+          <div className="bg-white rounded-lg border border-slate-200 shadow-sm p-5 space-y-4">
+            <div className="border-b border-slate-100 pb-3">
+              <h3 className="text-xs font-bold text-slate-800 tracking-tight flex items-center gap-2">
+                <FileSpreadsheet className="w-4 h-4 text-blue-600" />
+                Ofis Listesi Yükleme Paneli (Aynı Anda 3 Marka)
+              </h3>
+              <p className="text-[11px] text-slate-500 mt-1">
+                İlgili markanın Excel dosyasını kendi slotuna yerleştirerek 3 markayı aynı anda toplu olarak yükleyebilirsiniz.
+              </p>
+            </div>
+
+            <div className="grid grid-cols-1 md:grid-cols-3 gap-3">
+              {/* Coldwell Banker Slot */}
+              <div className="border border-slate-200/80 rounded-lg p-3 bg-slate-50/50 flex flex-col justify-between">
+                <div>
+                  <div className="flex items-center justify-between mb-2">
+                    <span className="text-[11px] font-extrabold text-blue-800 uppercase tracking-wider font-mono">Coldwell Banker</span>
+                    <span className="w-2 h-2 rounded-full bg-blue-600 animate-pulse"></span>
+                  </div>
+                  <p className="text-[10px] text-slate-400 mb-3">CB ofislerini içeren Excel dosyası</p>
+                </div>
+                
+                <input
+                  type="file"
+                  accept=".xlsx, .xls, .csv"
+                  className="hidden"
+                  ref={cbInputRef}
+                  onChange={(e) => {
+                    if (e.target.files && e.target.files[0]) {
+                      setCbFile(e.target.files[0]);
+                    }
+                  }}
+                  disabled={loading}
+                />
+
+                {cbFile ? (
+                  <div className="flex items-center justify-between bg-blue-50/50 border border-blue-200 rounded p-1.5 text-xs text-blue-800">
+                    <span className="truncate max-w-[120px] font-medium text-[11px]" title={cbFile.name}>{cbFile.name}</span>
+                    <button
+                      type="button"
+                      onClick={() => {
+                        setCbFile(null);
+                        if (cbInputRef.current) cbInputRef.current.value = "";
+                      }}
+                      className="text-blue-500 hover:text-red-500 transition-colors p-1"
+                    >
+                      <X className="w-3.5 h-3.5" />
+                    </button>
+                  </div>
+                ) : (
+                  <button
+                    type="button"
+                    onClick={() => cbInputRef.current?.click()}
+                    className="w-full bg-white border border-slate-300 text-slate-700 hover:bg-slate-50 text-xs py-2 px-3 rounded font-medium flex items-center justify-center gap-1.5 transition-colors cursor-pointer"
+                    disabled={loading}
+                  >
+                    <Upload className="w-3.5 h-3.5 text-slate-400" />
+                    Dosya Seç...
+                  </button>
+                )}
               </div>
-            }
-          />
+
+              {/* Century 21 Slot */}
+              <div className="border border-slate-200/80 rounded-lg p-3 bg-slate-50/50 flex flex-col justify-between">
+                <div>
+                  <div className="flex items-center justify-between mb-2">
+                    <span className="text-[11px] font-extrabold text-amber-800 uppercase tracking-wider font-mono font-bold">Century 21</span>
+                    <span className="w-2 h-2 rounded-full bg-amber-600 animate-pulse"></span>
+                  </div>
+                  <p className="text-[10px] text-slate-400 mb-3">C21 ofislerini içeren Excel dosyası</p>
+                </div>
+
+                <input
+                  type="file"
+                  accept=".xlsx, .xls, .csv"
+                  className="hidden"
+                  ref={c21InputRef}
+                  onChange={(e) => {
+                    if (e.target.files && e.target.files[0]) {
+                      setC21File(e.target.files[0]);
+                    }
+                  }}
+                  disabled={loading}
+                />
+
+                {c21File ? (
+                  <div className="flex items-center justify-between bg-amber-50/50 border border-amber-200 rounded p-1.5 text-xs text-amber-800">
+                    <span className="truncate max-w-[120px] font-medium text-[11px]" title={c21File.name}>{c21File.name}</span>
+                    <button
+                      type="button"
+                      onClick={() => {
+                        setC21File(null);
+                        if (c21InputRef.current) c21InputRef.current.value = "";
+                      }}
+                      className="text-amber-500 hover:text-red-500 transition-colors p-1"
+                    >
+                      <X className="w-3.5 h-3.5" />
+                    </button>
+                  </div>
+                ) : (
+                  <button
+                    type="button"
+                    onClick={() => c21InputRef.current?.click()}
+                    className="w-full bg-white border border-slate-300 text-slate-700 hover:bg-slate-50 text-xs py-2 px-3 rounded font-medium flex items-center justify-center gap-1.5 transition-colors cursor-pointer"
+                    disabled={loading}
+                  >
+                    <Upload className="w-3.5 h-3.5 text-slate-400" />
+                    Dosya Seç...
+                  </button>
+                )}
+              </div>
+
+              {/* ERA Slot */}
+              <div className="border border-slate-200/80 rounded-lg p-3 bg-slate-50/50 flex flex-col justify-between">
+                <div>
+                  <div className="flex items-center justify-between mb-2">
+                    <span className="text-[11px] font-extrabold text-rose-800 uppercase tracking-wider font-mono font-bold">ERA Real Estate</span>
+                    <span className="w-2 h-2 rounded-full bg-rose-600 animate-pulse"></span>
+                  </div>
+                  <p className="text-[10px] text-slate-400 mb-3">ERA ofislerini içeren Excel dosyası</p>
+                </div>
+
+                <input
+                  type="file"
+                  accept=".xlsx, .xls, .csv"
+                  className="hidden"
+                  ref={eraInputRef}
+                  onChange={(e) => {
+                    if (e.target.files && e.target.files[0]) {
+                      setEraFile(e.target.files[0]);
+                    }
+                  }}
+                  disabled={loading}
+                />
+
+                {eraFile ? (
+                  <div className="flex items-center justify-between bg-rose-50/50 border border-rose-200 rounded p-1.5 text-xs text-rose-800">
+                    <span className="truncate max-w-[120px] font-medium text-[11px]" title={eraFile.name}>{eraFile.name}</span>
+                    <button
+                      type="button"
+                      onClick={() => {
+                        setEraFile(null);
+                        if (eraInputRef.current) eraInputRef.current.value = "";
+                      }}
+                      className="text-rose-500 hover:text-red-500 transition-colors p-1"
+                    >
+                      <X className="w-3.5 h-3.5" />
+                    </button>
+                  </div>
+                ) : (
+                  <button
+                    type="button"
+                    onClick={() => eraInputRef.current?.click()}
+                    className="w-full bg-white border border-slate-300 text-slate-700 hover:bg-slate-50 text-xs py-2 px-3 rounded font-medium flex items-center justify-center gap-1.5 transition-colors cursor-pointer"
+                    disabled={loading}
+                  >
+                    <Upload className="w-3.5 h-3.5 text-slate-400" />
+                    Dosya Seç...
+                  </button>
+                )}
+              </div>
+            </div>
+
+            {/* Action and hints */}
+            <div className="pt-2 border-t border-slate-100 flex flex-col sm:flex-row items-center justify-between gap-4">
+              <div className="text-[11px] text-slate-500 space-y-0.5">
+                <div className="flex items-center gap-1">
+                  <span className="w-1.5 h-1.5 rounded-full bg-slate-400"></span>
+                  <span><strong>Zorunlu Sütun Başlıkları:</strong> <em>Ofis Kodu, Durum, Ad, E-Posta, Sorumlu Sistem Kullanıcısı</em></span>
+                </div>
+                <div className="flex items-center gap-1">
+                  <span className="w-1.5 h-1.5 rounded-full bg-slate-400"></span>
+                  <span>Türkçe karakterlerin tamamı ve başlık boşlukları otomatik olarak çözümlenir.</span>
+                </div>
+              </div>
+
+              {(cbFile || c21File || eraFile) && (
+                <button
+                  type="button"
+                  onClick={handleBulkBrandUpload}
+                  disabled={loading}
+                  className="bg-blue-600 hover:bg-blue-700 text-white font-bold text-xs py-2.5 px-5 rounded shadow-xs transition duration-150 flex items-center justify-center gap-2 cursor-pointer w-full sm:w-auto"
+                >
+                  {loading ? (
+                    <span className="animate-spin w-4 h-4 border-2 border-white border-t-transparent rounded-full" />
+                  ) : (
+                    <CheckCircle className="w-4 h-4" />
+                  )}
+                  Seçilen Dosyaları Yükle ve İşle
+                </button>
+              )}
+            </div>
+          </div>
 
           {/* Office Directory & Assignment */}
           <div className="bg-white rounded-lg border border-slate-200 shadow-xs overflow-hidden">
