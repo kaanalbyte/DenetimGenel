@@ -1,5 +1,6 @@
 import React, { useState, useEffect } from "react";
 import { Office, Group, AuditPeriod } from "../types";
+import { ExcelUploader } from "./ExcelUploader";
 import {
   ShieldAlert,
   Play,
@@ -226,6 +227,29 @@ export default function AuditPanel({ offices, groups, activeAudit, onRefresh, on
       showMsg("success", "Denetim dönemi başarıyla başlatıldı!");
     } catch (err) {
       showMsg("error", "Dönem başlatılırken hata oluştu.");
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  const handleRealDataLoad = async (type: "danisman" | "ilan_panel" | "ilan_sahibinden", data: any[]) => {
+    if (!activeAudit) return;
+    setLoading(true);
+    try {
+      const res = await fetch("/api/audits/active/upload", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ type, data })
+      });
+      if (res.ok) {
+        showMsg("success", "Gerçek veri başarıyla yüklendi!");
+        onRefresh();
+      } else {
+        const err = await res.json();
+        showMsg("error", "Hata: " + err.error);
+      }
+    } catch (err) {
+      showMsg("error", "Sunucuya bağlanılamadı.");
     } finally {
       setLoading(false);
     }
@@ -599,6 +623,8 @@ export default function AuditPanel({ offices, groups, activeAudit, onRefresh, on
                   </button>
                 </div>
               </div>
+
+              <ExcelUploader onDataLoaded={handleRealDataLoad} isLoading={loading} />
 
               {/* REPORT DISPLAY TABLES */}
               {((activeAudit.currentPhase === "Tespit" && activeAudit.phase1Uploaded) ||
