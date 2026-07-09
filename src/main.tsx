@@ -90,7 +90,10 @@ const getLocalEmails = () => {
 
 // Global Fetch Interceptor to handle offline/Vercel serverless database operations
 const originalFetch = window.fetch;
-window.fetch = function (input: RequestInfo | URL, init?: RequestInit) {
+Object.defineProperty(window, 'fetch', {
+  writable: true,
+  configurable: true,
+  value: function (input: RequestInfo | URL, init?: RequestInit) {
   const hostname = window.location.hostname;
   const isLocalMode = hostname !== "localhost" && hostname !== "127.0.0.1" && !hostname.endsWith(".run.app");
 
@@ -400,8 +403,9 @@ window.fetch = function (input: RequestInfo | URL, init?: RequestInit) {
     }
   }
   return originalFetch(finalInput, init);
-};
+}});
 
+window.addEventListener('error', (e) => { document.body.innerHTML += '<div style="color:red;padding:20px;z-index:9999;position:relative;background:white"><h3>Error:</h3><pre>' + e.error?.message + '\n' + e.error?.stack + '</pre></div>'; }); window.addEventListener('unhandledrejection', (e) => { document.body.innerHTML += '<div style="color:red;padding:20px;z-index:9999;position:relative;background:white"><h3>Unhandled Promise:</h3><pre>' + e.reason + '</pre></div>'; });
 createRoot(document.getElementById('root')!).render(
   <StrictMode>
     <App />

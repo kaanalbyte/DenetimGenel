@@ -18,7 +18,7 @@ import {
   HelpCircle,
   Building
 } from "lucide-react";
-import { motion, AnimatePresence } from "motion/react";
+
 
 export default function App() {
   const [offices, setOffices] = useState<Office[]>([]);
@@ -111,9 +111,9 @@ export default function App() {
       activePhase = activeAudit.currentPhase;
       
       const currentPhase = activeAudit.currentPhase;
-      const danismanRaw = currentPhase === "Tespit" ? activeAudit.phase1DanismanRaw : activeAudit.phase2DanismanRaw;
-      const ilanPanelRaw = currentPhase === "Tespit" ? activeAudit.phase1IlanPanelRaw : activeAudit.phase2IlanPanelRaw;
-      const ilanSahibindenRaw = currentPhase === "Tespit" ? activeAudit.phase1IlanSahibindenRaw : activeAudit.phase2IlanSahibindenRaw;
+      const danismanRaw = (currentPhase === "Tespit" ? activeAudit.phase1DanismanRaw : activeAudit.phase2DanismanRaw) || [];
+      const ilanPanelRaw = (currentPhase === "Tespit" ? activeAudit.phase1IlanPanelRaw : activeAudit.phase2IlanPanelRaw) || [];
+      const ilanSahibindenRaw = (currentPhase === "Tespit" ? activeAudit.phase1IlanSahibindenRaw : activeAudit.phase2IlanSahibindenRaw) || [];
 
       // Group IDs mapping
       const groupedOfficeIds = offices.filter(o => o.groupId).map(o => o.id);
@@ -343,14 +343,14 @@ export default function App() {
 
         {/* Scrollable Content Workspace */}
         <div className="flex-1 overflow-y-auto p-6 bg-slate-50 space-y-6">
-          <AnimatePresence mode="wait">
+          <> 
             {activeTab === "dashboard" && (
-              <motion.div
+              <div
                 key="dashboard"
-                initial={{ opacity: 0, y: 10 }}
-                animate={{ opacity: 1, y: 0 }}
-                exit={{ opacity: 0, y: -10 }}
-                transition={{ duration: 0.15 }}
+                
+                
+                
+                
                 className="space-y-6"
                 id="dashboard-tab"
               >
@@ -529,16 +529,16 @@ export default function App() {
                   </div>
 
                 </div>
-              </motion.div>
+              </div>
             )}
 
             {activeTab === "funnel" && (
-              <motion.div
+              <div
                 key="funnel"
-                initial={{ opacity: 0, y: 10 }}
-                animate={{ opacity: 1, y: 0 }}
-                exit={{ opacity: 0, y: -10 }}
-                transition={{ duration: 0.15 }}
+                
+                
+                
+                
               >
                 <AuditPanel
                   offices={offices}
@@ -547,32 +547,32 @@ export default function App() {
                   onRefresh={refreshData}
                   onStartAudit={handleStartAudit}
                 />
-              </motion.div>
+              </div>
             )}
 
             {activeTab === "groups" && (
-              <motion.div
+              <div
                 key="groups"
-                initial={{ opacity: 0, y: 10 }}
-                animate={{ opacity: 1, y: 0 }}
-                exit={{ opacity: 0, y: -10 }}
-                transition={{ duration: 0.15 }}
+                
+                
+                
+                
               >
                 <OfficeGroupManager
                   offices={offices}
                   groups={groups}
                   onRefresh={refreshData}
                 />
-              </motion.div>
+              </div>
             )}
 
             {activeTab === "emails" && (
-              <motion.div
+              <div
                 key="emails"
-                initial={{ opacity: 0, y: 10 }}
-                animate={{ opacity: 1, y: 0 }}
-                exit={{ opacity: 0, y: -10 }}
-                transition={{ duration: 0.15 }}
+                
+                
+                
+                
               >
                 <EmailSimulator
                   emails={emails}
@@ -580,16 +580,16 @@ export default function App() {
                   onSaveConfig={handleSaveConfig}
                   onRefresh={refreshData}
                 />
-              </motion.div>
+              </div>
             )}
 
             {activeTab === "archive" && (
-              <motion.div
+              <div
                 key="archive"
-                initial={{ opacity: 0, y: 10 }}
-                animate={{ opacity: 1, y: 0 }}
-                exit={{ opacity: 0, y: -10 }}
-                transition={{ duration: 0.15 }}
+                
+                
+                
+                
                 className="space-y-4"
                 id="archive-tab"
               >
@@ -625,9 +625,9 @@ export default function App() {
                     )}
                   </div>
                 </div>
-              </motion.div>
+              </div>
             )}
-          </AnimatePresence>
+          </> 
         </div>
 
         {/* Bottom Activity Bar */}

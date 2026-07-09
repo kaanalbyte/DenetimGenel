@@ -1,7 +1,7 @@
 import React, { useState } from "react";
 import { Office, Group } from "../types";
 import { Plus, Users, Trash2, Building, Mail, User, Search, RefreshCw, ChevronRight } from "lucide-react";
-import { motion } from "motion/react";
+
 
 interface OfficeGroupManagerProps {
   offices: Office[];

@@ -57,9 +57,9 @@ export default function AuditPanel({ offices, groups, activeAudit, onRefresh, on
     }
 
     const currentPhase = activeAudit.currentPhase;
-    const danismanRaw = currentPhase === "Tespit" ? activeAudit.phase1DanismanRaw : activeAudit.phase2DanismanRaw;
-    const ilanPanelRaw = currentPhase === "Tespit" ? activeAudit.phase1IlanPanelRaw : activeAudit.phase2IlanPanelRaw;
-    const ilanSahibindenRaw = currentPhase === "Tespit" ? activeAudit.phase1IlanSahibindenRaw : activeAudit.phase2IlanSahibindenRaw;
+    const danismanRaw = (currentPhase === "Tespit" ? activeAudit.phase1DanismanRaw : activeAudit.phase2DanismanRaw) || [];
+    const ilanPanelRaw = (currentPhase === "Tespit" ? activeAudit.phase1IlanPanelRaw : activeAudit.phase2IlanPanelRaw) || [];
+    const ilanSahibindenRaw = (currentPhase === "Tespit" ? activeAudit.phase1IlanSahibindenRaw : activeAudit.phase2IlanSahibindenRaw) || [];
 
     // Determine target entities:
     // If in Phase 2 (Kontrol), we ONLY evaluate entities that were problematic in Phase 1 (activeAudit.phase1ProblematicOffices)
