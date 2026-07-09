@@ -16,6 +16,7 @@ export default function OfficeGroupManager({ offices, groups, onRefresh }: Offic
   const [newOfficeName, setNewOfficeName] = useState("");
   const [newOfficeOwner, setNewOfficeOwner] = useState("");
   const [newOfficeEmail, setNewOfficeEmail] = useState("");
+  const [newOfficeBrand, setNewOfficeBrand] = useState("Coldwell Banker");
 
   // New group state
   const [newGroupId, setNewGroupId] = useState("");
@@ -32,6 +33,13 @@ export default function OfficeGroupManager({ offices, groups, onRefresh }: Offic
   const [cbFile, setCbFile] = useState<File | null>(null);
   const [c21File, setC21File] = useState<File | null>(null);
   const [eraFile, setEraFile] = useState<File | null>(null);
+
+  const [uploadReport, setUploadReport] = useState<{
+    added: number;
+    updated: number;
+    addedList: { id: string; name: string; brand: string }[];
+    updatedList: { id: string; name: string; brand: string }[];
+  } | null>(null);
 
   const cbInputRef = useRef<HTMLInputElement>(null);
   const c21InputRef = useRef<HTMLInputElement>(null);
@@ -60,6 +68,7 @@ export default function OfficeGroupManager({ offices, groups, onRefresh }: Offic
 
   const handleBulkBrandUpload = async () => {
     setLoading(true);
+    setUploadReport(null);
     try {
       let combinedOffices: any[] = [];
       
@@ -95,6 +104,12 @@ export default function OfficeGroupManager({ offices, groups, onRefresh }: Offic
 
       if (res.ok) {
         const result = await res.json();
+        setUploadReport({
+          added: result.added,
+          updated: result.updated,
+          addedList: result.addedList || [],
+          updatedList: result.updatedList || []
+        });
         showMsg("success", `Excel Yükleme Başarılı! ${result.added} yeni ofis eklendi, ${result.updated} ofis güncellendi.`);
         // Reset state
         setCbFile(null);
@@ -140,6 +155,7 @@ export default function OfficeGroupManager({ offices, groups, onRefresh }: Offic
           name: newOfficeName.trim(),
           ownerName: newOfficeOwner.trim(),
           ownerEmail: newOfficeEmail.trim(),
+          brand: newOfficeBrand,
           groupId: null
         })
       });
@@ -160,10 +176,10 @@ export default function OfficeGroupManager({ offices, groups, onRefresh }: Offic
     }
   };
 
-  const handleDeleteOffice = async (id: string) => {
-    if (!confirm("Bu ofisi silmek istediğinize emin misiniz?")) return;
+  const handleDeleteOffice = async (id: string, brand: string) => {
+    if (!confirm(`Bu ofisi (${brand}) silmek istediğinize emin misiniz?`)) return;
     try {
-      const res = await fetch(`/api/offices/${id}`, { method: "DELETE" });
+      const res = await fetch(`/api/offices/${id}?brand=${encodeURIComponent(brand)}`, { method: "DELETE" });
       if (res.ok) {
         showMsg("success", "Ofis silindi.");
         onRefresh();
@@ -175,6 +191,7 @@ export default function OfficeGroupManager({ offices, groups, onRefresh }: Offic
 
   const handleOfficeExcelLoad = async (type: string, data: any[]) => {
     setLoading(true);
+    setUploadReport(null);
     try {
       const defaultBrand = type === "ALL" ? "" : type;
       const res = await fetch("/api/offices/upload", {
@@ -184,6 +201,12 @@ export default function OfficeGroupManager({ offices, groups, onRefresh }: Offic
       });
       if (res.ok) {
         const result = await res.json();
+        setUploadReport({
+          added: result.added,
+          updated: result.updated,
+          addedList: result.addedList || [],
+          updatedList: result.updatedList || []
+        });
         showMsg("success", `Excel yüklendi. ${result.added} yeni ofis eklendi, ${result.updated} ofis güncellendi.`);
         onRefresh();
       } else {
@@ -249,18 +272,18 @@ export default function OfficeGroupManager({ offices, groups, onRefresh }: Offic
     }
   };
 
-  const handleAssignToGroup = async (officeId: string, groupId: string | null) => {
-    const office = offices.find(o => o.id === officeId);
+  const handleAssignToGroup = async (officeId: string, brand: string, groupId: string | null) => {
+    const office = offices.find(o => o.id === officeId && o.brand === brand);
     if (!office) return;
 
     try {
-      // Find all offices in the current group if any, update them
+      // Find all offices in the current group if any, update them using compound keys (id:::brand)
       let targetOfficeIds: string[] = [];
       if (groupId) {
         // Collect current members of this group + this office
         targetOfficeIds = offices
-          .filter(o => o.groupId === groupId || o.id === officeId)
-          .map(o => o.id);
+          .filter(o => o.groupId === groupId || (o.id === officeId && o.brand === brand))
+          .map(o => `${o.id}:::${o.brand}`);
       }
 
       // If removing from group
@@ -339,7 +362,33 @@ export default function OfficeGroupManager({ offices, groups, onRefresh }: Offic
             Excel verileri kardeş/grup ofis bilgisini barındırmaz. Burada tanımladığınız ilişkiler, denetim konsolidasyonunu belirler.
           </p>
         </div>
-        <div className="flex gap-3">
+        <div className="flex flex-wrap gap-3 items-center">
+          <button
+            type="button"
+            onClick={async () => {
+              if (confirm("DİKKAT: Veritabanındaki tüm ofisler, gruplar, denetim dönemleri ve e-posta kayıtları tamamen sıfırlanacaktır. Devam etmek istiyor musunuz?")) {
+                setLoading(true);
+                try {
+                  const res = await fetch("/api/db/reset", { method: "POST" });
+                  if (res.ok) {
+                    showMsg("success", "Tüm veritabanı başarıyla temizlendi.");
+                    onRefresh();
+                  } else {
+                    showMsg("error", "Veritabanı sıfırlanırken bir hata oluştu.");
+                  }
+                } catch (e) {
+                  showMsg("error", "Bağlantı hatası.");
+                } finally {
+                  setLoading(false);
+                }
+              }
+            }}
+            disabled={loading}
+            className="px-3.5 py-2 bg-rose-50 hover:bg-rose-100 text-rose-700 border border-rose-200 rounded font-semibold text-xs transition duration-150 flex items-center gap-1.5 cursor-pointer"
+          >
+            <Trash2 className="w-3.5 h-3.5 text-rose-600" />
+            Tüm Veritabanını Sıfırla
+          </button>
           <div className="px-3 py-1.5 bg-slate-50 rounded border border-slate-200 text-center">
             <div className="text-sm font-bold text-slate-800">{offices.length}</div>
             <div className="text-[10px] text-slate-500">Toplam Ofis</div>
@@ -501,14 +550,18 @@ export default function OfficeGroupManager({ offices, groups, onRefresh }: Offic
                           {members.length === 0 ? (
                             <span className="text-[9px] text-slate-400 italic">Bağlı ofis yok. Yandaki listeden atayabilirsiniz.</span>
                           ) : (
-                            members.map(m => (
-                              <span
-                                key={m.id}
-                                className="inline-flex items-center gap-1 font-mono text-[9px] bg-slate-100 text-slate-600 border border-slate-200/50 px-1 py-0.5 rounded-sm"
-                              >
-                                {m.id}
-                              </span>
-                            ))
+                            members.map(m => {
+                              const brandAbbr = m.brand === "Coldwell Banker" ? "CB" : m.brand === "Century 21" ? "C21" : m.brand === "ERA" ? "ERA" : "";
+                              return (
+                                <span
+                                  key={`${m.id}-${m.brand}`}
+                                  className="inline-flex items-center gap-1 font-mono text-[9px] bg-slate-100 text-slate-600 border border-slate-200/50 px-1 py-0.5 rounded-sm"
+                                  title={`${m.name} (${m.brand})`}
+                                >
+                                  {m.id} {brandAbbr && <span className="text-[8px] text-blue-500 font-bold">({brandAbbr})</span>}
+                                </span>
+                              );
+                            })
                           )}
                         </div>
                       </div>
@@ -531,12 +584,24 @@ export default function OfficeGroupManager({ offices, groups, onRefresh }: Offic
               Sisteme Yeni Tekil Ofis Ekle
             </h3>
             
-            <form onSubmit={handleCreateOffice} className="grid grid-cols-1 md:grid-cols-4 gap-2">
+            <form onSubmit={handleCreateOffice} className="grid grid-cols-1 md:grid-cols-5 gap-2">
+              <div>
+                <select
+                  value={newOfficeBrand}
+                  onChange={(e) => setNewOfficeBrand(e.target.value)}
+                  className="w-full text-xs px-2 py-1.5 border border-slate-200 rounded focus:outline-none focus:ring-1 focus:ring-blue-500 bg-white cursor-pointer font-medium text-slate-700"
+                >
+                  <option value="Coldwell Banker">Coldwell Banker</option>
+                  <option value="Century 21">Century 21</option>
+                  <option value="ERA">ERA</option>
+                  <option value="Diğer">Diğer</option>
+                </select>
+              </div>
               <div>
                 <input
                   type="text"
                   required
-                  placeholder="OF1009"
+                  placeholder="OF1001"
                   value={newOfficeId}
                   onChange={(e) => setNewOfficeId(e.target.value)}
                   className="w-full text-xs px-2 py-1.5 border border-slate-200 rounded focus:outline-none focus:ring-1 focus:ring-blue-500 bg-white font-mono"
@@ -748,6 +813,80 @@ export default function OfficeGroupManager({ offices, groups, onRefresh }: Offic
               </div>
             </div>
 
+            {/* Detailed Upload Report */}
+            {uploadReport && (
+              <div className="bg-slate-50 border border-slate-200 rounded-lg p-4 space-y-4">
+                <div className="flex items-center justify-between border-b border-slate-200 pb-2">
+                  <div className="flex items-center gap-2">
+                    <span className="p-1 rounded bg-green-100 text-green-600">
+                      <CheckCircle className="w-4 h-4" />
+                    </span>
+                    <h4 className="text-xs font-bold text-slate-800">Son Yükleme Detay Raporu</h4>
+                  </div>
+                  <button
+                    type="button"
+                    onClick={() => setUploadReport(null)}
+                    className="text-slate-400 hover:text-slate-600 transition p-1"
+                  >
+                    <X className="w-4 h-4" />
+                  </button>
+                </div>
+
+                <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                  {/* Newly Added List */}
+                  <div className="space-y-2">
+                    <div className="flex items-center justify-between">
+                      <span className="text-[11px] font-bold text-emerald-700 bg-emerald-50 px-2.5 py-0.5 rounded border border-emerald-100">
+                        {uploadReport.added} Yeni Ofis Eklendi
+                      </span>
+                    </div>
+                    {uploadReport.addedList.length === 0 ? (
+                      <p className="text-[10px] text-slate-400 italic">Sistemde olmayan yeni bir ofis kaydı tespit edilmedi.</p>
+                    ) : (
+                      <div className="max-h-40 overflow-y-auto border border-slate-200/60 rounded bg-white divide-y divide-slate-100">
+                        {uploadReport.addedList.map((o, idx) => (
+                          <div key={idx} className="p-2 flex items-center justify-between text-[11px]">
+                            <div className="flex items-center gap-1.5 truncate">
+                              <span className="font-mono bg-slate-100 px-1 py-0.2 rounded font-bold text-slate-700">{o.id}</span>
+                              <span className="truncate text-slate-800 font-medium">{o.name}</span>
+                            </div>
+                            <span className="text-[9px] px-1.5 py-0.5 rounded bg-blue-50 text-blue-700 border border-blue-100 font-medium shrink-0 font-sans">{o.brand}</span>
+                          </div>
+                        ))}
+                      </div>
+                    )}
+                  </div>
+
+                  {/* Updated/Duplicate List */}
+                  <div className="space-y-2">
+                    <div className="flex items-center justify-between">
+                      <span className="text-[11px] font-bold text-indigo-700 bg-indigo-50 px-2.5 py-0.5 rounded border border-indigo-100">
+                        {uploadReport.updated} Ofis Bilgisi Güncellendi
+                      </span>
+                    </div>
+                    {uploadReport.updatedList.length === 0 ? (
+                      <p className="text-[10px] text-slate-400 italic">Var olan ofislerde herhangi bir güncelleme veya mükerrer kayıt bulunmuyor.</p>
+                    ) : (
+                      <div className="max-h-40 overflow-y-auto border border-slate-200/60 rounded bg-white divide-y divide-slate-100">
+                        {uploadReport.updatedList.map((o, idx) => (
+                          <div key={idx} className="p-2 flex items-center justify-between text-[11px]">
+                            <div className="flex items-center gap-1.5 truncate">
+                              <span className="font-mono bg-slate-100 px-1 py-0.2 rounded font-bold text-slate-700">{o.id}</span>
+                              <span className="truncate text-slate-800 font-medium">{o.name}</span>
+                            </div>
+                            <span className="text-[9px] px-1.5 py-0.5 rounded bg-purple-50 text-purple-700 border border-purple-100 font-medium shrink-0 font-sans">{o.brand}</span>
+                          </div>
+                        ))}
+                      </div>
+                    )}
+                    <p className="text-[9px] text-slate-400 leading-relaxed mt-1">
+                      💡 <strong>Neden Güncellendi?</strong> Sistemde zaten yüklü bulunan ofisler (örneğin başlangıçtaki varsayılan ofisler) tekrar yüklendiğinde ya da Excel dosyasındaki mükerrer kayıtlar işlendiğinde bu grupta listelenir. Mevcut grup/ofis bağları asla bozulmaz.
+                    </p>
+                  </div>
+                </div>
+              </div>
+            )}
+
             {/* Action and hints */}
             <div className="pt-2 border-t border-slate-100 flex flex-col sm:flex-row items-center justify-between gap-4">
               <div className="text-[11px] text-slate-500 space-y-0.5">
@@ -837,7 +976,7 @@ export default function OfficeGroupManager({ offices, groups, onRefresh }: Offic
                     filteredOffices.map((office) => {
                       const groupOfOffice = groups.find(g => g.id === office.groupId);
                       return (
-                        <tr key={office.id} className="hover:bg-slate-50/40 transition">
+                        <tr key={`${office.id}-${office.brand}`} className="hover:bg-slate-50/40 transition">
                           <td className="px-3 py-2.5">
                             <div className="flex items-center gap-2">
                               <span className="font-mono text-[10px] bg-slate-100 border border-slate-200/50 font-bold px-1.5 py-0.5 rounded text-slate-700">
@@ -864,7 +1003,7 @@ export default function OfficeGroupManager({ offices, groups, onRefresh }: Offic
                             <div className="flex items-center gap-1.5">
                               <select
                                 value={office.groupId || ""}
-                                onChange={(e) => handleAssignToGroup(office.id, e.target.value || null)}
+                                onChange={(e) => handleAssignToGroup(office.id, office.brand || "", e.target.value || null)}
                                 className="text-xs bg-slate-50 border border-slate-200 rounded p-1 focus:outline-none focus:ring-1 focus:ring-blue-500 font-medium text-slate-700 cursor-pointer"
                               >
                                 <option value="">Bağımsız Ofis</option>
@@ -878,7 +1017,7 @@ export default function OfficeGroupManager({ offices, groups, onRefresh }: Offic
                           </td>
                           <td className="px-3 py-2.5 text-right">
                             <button
-                              onClick={() => handleDeleteOffice(office.id)}
+                              onClick={() => handleDeleteOffice(office.id, office.brand || "")}
                               className="p-1 text-slate-400 hover:text-rose-600 hover:bg-rose-50 rounded transition cursor-pointer"
                               title="Ofisi Sil"
                             >

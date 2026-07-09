@@ -103,7 +103,11 @@ export default function AuditPanel({ offices, groups, activeAudit, onRefresh, on
       const officeId = row.ofisKodu || row["Ofis Kodu"];
       if (!officeId) return;
 
-      const office = offices.find(o => o.id === officeId);
+      const rowBrand = String(row.marka || row["Marka"] || row.brand || row["Brand"] || "").trim().toLowerCase();
+      let office = offices.find(o => o.id === officeId && (rowBrand ? o.brand.toLowerCase().includes(rowBrand) : true));
+      if (!office) {
+        office = offices.find(o => o.id === officeId);
+      }
       if (!office) return;
 
       const entityId = office.groupId || office.id;
@@ -162,7 +166,11 @@ export default function AuditPanel({ offices, groups, activeAudit, onRefresh, on
     ilanPanelRaw.forEach(row => {
       const officeId = row.ofisKodu || row["Ofis Kodu"];
       const count = Number(row.ilanSayisi || row["İlan Sayısı"] || 0);
-      const office = offices.find(o => o.id === officeId);
+      const rowBrand = String(row.marka || row["Marka"] || row.brand || row["Brand"] || "").trim().toLowerCase();
+      let office = offices.find(o => o.id === officeId && (rowBrand ? o.brand.toLowerCase().includes(rowBrand) : true));
+      if (!office) {
+        office = offices.find(o => o.id === officeId);
+      }
       if (!office) return;
 
       const targetId = office.groupId || office.id;
@@ -175,7 +183,11 @@ export default function AuditPanel({ offices, groups, activeAudit, onRefresh, on
     ilanSahibindenRaw.forEach(row => {
       const officeId = row.ofisKodu || row["Ofis Kodu"];
       const count = Number(row.ilanSayisi || row["İlan Sayısı"] || 0);
-      const office = offices.find(o => o.id === officeId);
+      const rowBrand = String(row.marka || row["Marka"] || row.brand || row["Brand"] || "").trim().toLowerCase();
+      let office = offices.find(o => o.id === officeId && (rowBrand ? o.brand.toLowerCase().includes(rowBrand) : true));
+      if (!office) {
+        office = offices.find(o => o.id === officeId);
+      }
       if (!office) return;
 
       const targetId = office.groupId || office.id;

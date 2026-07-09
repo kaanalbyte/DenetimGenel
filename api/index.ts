@@ -300,9 +300,22 @@ app.post("/api/offices", (req, res) => {
     return res.status(400).json({ error: "Ofis kodu ve adı zorunludur." });
   }
 
-  const existingIdx = db.offices.findIndex((o) => o.id === office.id);
+  // Ensure brand exists and is clean
+  let brand = office.brand || "";
+  if (!brand) {
+    if (office.id.startsWith("CB")) brand = "Coldwell Banker";
+    else if (office.id.startsWith("C21") || office.id.startsWith("CENTURY") || office.id.startsWith("CE")) brand = "Century 21";
+    else if (office.id.startsWith("ERA")) brand = "ERA";
+    else brand = "Diğer";
+  }
+  office.brand = brand;
+
+  const existingIdx = db.offices.findIndex((o) => o.id === office.id && o.brand === office.brand);
   if (existingIdx > -1) {
-    db.offices[existingIdx] = office;
+    db.offices[existingIdx] = {
+      ...db.offices[existingIdx],
+      ...office
+    };
   } else {
     db.offices.push(office);
   }
@@ -350,6 +363,8 @@ app.post("/api/offices/upload", (req, res) => {
     return res.status(400).json({ error: "Geçersiz veri formatı." });
   }
 
+  const addedList: { id: string; name: string; brand: string }[] = [];
+  const updatedList: { id: string; name: string; brand: string }[] = [];
   let added = 0;
   let updated = 0;
 
@@ -365,7 +380,7 @@ app.post("/api/offices/upload", (req, res) => {
     const id = String(rawId).toUpperCase().trim();
     if (!id) continue; // Skip invalid rows
     
-    const name = String(rawName).trim();
+    const name = String(rawName).trim() || "İsimsiz Ofis";
     const ownerEmail = String(rawOwnerEmail).trim();
     const status = String(rawStatus).trim();
     const responsibleUser = String(rawResponsible).trim();
@@ -389,7 +404,7 @@ app.post("/api/offices/upload", (req, res) => {
     else if (brand.toLowerCase().includes("c21") || brand.toLowerCase().includes("century")) brand = "Century 21";
     else if (brand.toLowerCase().includes("era")) brand = "ERA";
 
-    const existingIdx = db.offices.findIndex((o) => o.id === id);
+    const existingIdx = db.offices.findIndex((o) => o.id === id && o.brand === brand);
     if (existingIdx > -1) {
       // Update fields but preserve group ID so relationships aren't broken!
       db.offices[existingIdx] = {
@@ -401,30 +416,37 @@ app.post("/api/offices/upload", (req, res) => {
         responsibleUser: responsibleUser || db.offices[existingIdx].responsibleUser,
         brand: brand || db.offices[existingIdx].brand,
       };
+      updatedList.push({ id, name, brand });
       updated++;
     } else {
       db.offices.push({
         id,
-        name: name || "İsimsiz Ofis",
-        ownerName: ownerName || "Bilinmiyor",
-        ownerEmail: ownerEmail || "",
+        name,
+        ownerName,
+        ownerEmail,
         status,
         responsibleUser,
         brand,
         groupId: null
       });
+      addedList.push({ id, name, brand });
       added++;
     }
   }
 
   writeDB(db);
-  res.json({ success: true, added, updated });
+  res.json({ success: true, added, updated, addedList, updatedList });
 });
 
 app.delete("/api/offices/:id", (req, res) => {
   const db = readDB();
   const id = req.params.id;
-  db.offices = db.offices.filter((o) => o.id !== id);
+  const brand = req.query.brand as string;
+  if (brand) {
+    db.offices = db.offices.filter((o) => !(o.id === id && o.brand === brand));
+  } else {
+    db.offices = db.offices.filter((o) => o.id !== id);
+  }
   writeDB(db);
   res.json({ success: true });
 });
@@ -458,9 +480,10 @@ app.post("/api/groups", (req, res) => {
     return off;
   });
 
-  // Assign new officeIds
+  // Assign new officeIds (supports compound key "id:::brand")
   db.offices = db.offices.map((off) => {
-    if (officeIds.includes(off.id)) {
+    const compoundKey = `${off.id}:::${off.brand}`;
+    if (officeIds.includes(off.id) || officeIds.includes(compoundKey)) {
       return { ...off, groupId: group.id };
     }
     return off;
@@ -482,6 +505,29 @@ app.delete("/api/groups/:id", (req, res) => {
   });
   writeDB(db);
   res.json({ success: true });
+});
+
+// Reset Database API
+app.post("/api/db/reset", (req, res) => {
+  const emptyDb: Database = {
+    offices: [],
+    groups: [],
+    audits: [],
+    emails: [],
+    config: {
+      resendApiKey: "",
+      brevoApiKey: "",
+      senderEmail: "denetim@masterturk.com.tr",
+      smtpEnabled: true,
+      smtpHost: "smtp.gmail.com",
+      smtpPort: 587,
+      smtpSecure: false,
+      smtpUser: "denetim@masterturk.com.tr",
+      smtpPass: "fucaupikpfrrhzzs"
+    }
+  };
+  writeDB(emptyDb);
+  res.json({ success: true, message: "Tüm veritabanı başarıyla temizlendi." });
 });
 
 // 3. Configuration API
