@@ -119,7 +119,7 @@ Object.defineProperty(window, 'fetch', {
       if (url === "/api/offices" && method === "POST") {
         const office = JSON.parse(init?.body as string);
         const offices = getLocalOffices();
-        const existingIdx = offices.findIndex((o: any) => o.id === office.id);
+        const existingIdx = offices.findIndex((o: any) => o.id === office.id && o.brand === office.brand);
         if (existingIdx > -1) {
           offices[existingIdx] = office;
         } else {
@@ -127,6 +127,24 @@ Object.defineProperty(window, 'fetch', {
         }
         localStorage.setItem("db_offices", JSON.stringify(offices));
         return makeResponse(office);
+      }
+
+      // --- 2c. POST /api/offices/bulk-assign ---
+      if (url === "/api/offices/bulk-assign" && method === "POST") {
+        const { compoundKeys, groupId } = JSON.parse(init?.body as string);
+        if (!Array.isArray(compoundKeys)) {
+          return makeResponse({ error: "Geçersiz veri formatı." }, 400);
+        }
+        const offices = getLocalOffices();
+        const updatedOffices = offices.map((o: any) => {
+          const key = `${o.id}:::${o.brand}`;
+          if (compoundKeys.includes(key)) {
+            return { ...o, groupId: groupId || null };
+          }
+          return o;
+        });
+        localStorage.setItem("db_offices", JSON.stringify(updatedOffices));
+        return makeResponse({ success: true });
       }
 
       // --- 2b. POST /api/offices/upload ---

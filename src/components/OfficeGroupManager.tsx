@@ -32,6 +32,8 @@ export default function OfficeGroupManager({ offices, groups, onRefresh }: Offic
   const [searchQuery, setSearchQuery] = useState("");
   const [selectedGroupId, setSelectedGroupId] = useState<string | null>(null);
   const [selectedBrand, setSelectedBrand] = useState<string>("ALL");
+  const [groupFilter, setGroupFilter] = useState<string>("ALL");
+  const [selectedOfficeIds, setSelectedOfficeIds] = useState<string[]>([]);
 
   // Multi-brand Excel Slots State
   const [cbFile, setCbFile] = useState<File | null>(null);
@@ -289,6 +291,32 @@ export default function OfficeGroupManager({ offices, groups, onRefresh }: Offic
     }
   };
 
+  const handleBulkAssignToGroup = async (groupId: string | null) => {
+    if (selectedOfficeIds.length === 0) return;
+    setLoading(true);
+    try {
+      const res = await fetch("/api/offices/bulk-assign", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({
+          compoundKeys: selectedOfficeIds,
+          groupId
+        })
+      });
+      if (res.ok) {
+        showMsg("success", `${selectedOfficeIds.length} ofis başarıyla güncellendi.`);
+        setSelectedOfficeIds([]);
+        onRefresh();
+      } else {
+        showMsg("error", "Toplu atama sırasında bir hata oluştu.");
+      }
+    } catch (err) {
+      showMsg("error", "Bağlantı hatası.");
+    } finally {
+      setLoading(false);
+    }
+  };
+
   const filteredOffices = offices.filter(o => {
     const term = searchQuery.toLowerCase();
     const matchesSearch = (
@@ -298,8 +326,31 @@ export default function OfficeGroupManager({ offices, groups, onRefresh }: Offic
       (o.responsibleUser && o.responsibleUser.toLowerCase().includes(term))
     );
     const matchesBrand = selectedBrand === "ALL" || o.brand === selectedBrand;
-    return matchesSearch && matchesBrand;
+    
+    let matchesGroup = true;
+    if (groupFilter === "UNASSIGNED") {
+      matchesGroup = !o.groupId;
+    } else if (groupFilter !== "ALL") {
+      matchesGroup = o.groupId === groupFilter;
+    }
+    
+    return matchesSearch && matchesBrand && matchesGroup;
   });
+
+  const allFilteredSelected = filteredOffices.length > 0 && filteredOffices.every(o => selectedOfficeIds.includes(`${o.id}:::${o.brand}`));
+
+  const handleToggleSelectAll = () => {
+    if (allFilteredSelected) {
+      const filteredKeys = filteredOffices.map(o => `${o.id}:::${o.brand}`);
+      setSelectedOfficeIds(prev => prev.filter(key => !filteredKeys.includes(key)));
+    } else {
+      const filteredKeys = filteredOffices.map(o => `${o.id}:::${o.brand}`);
+      setSelectedOfficeIds(prev => {
+        const union = new Set([...prev, ...filteredKeys]);
+        return Array.from(union);
+      });
+    }
+  };
 
   return (
     <div className="space-y-8" id="group-manager-panel">
@@ -488,7 +539,17 @@ export default function OfficeGroupManager({ offices, groups, onRefresh }: Offic
                       <div className="mt-2 pt-2 border-t border-dashed border-slate-100">
                         <div className="text-[10px] font-bold text-slate-400 mb-1 flex items-center justify-between">
                           <span>Bağlı Ofisler ({members.length})</span>
-                          <span className="text-[9px] text-blue-600">Seçimi Filtrele</span>
+                          <button
+                            type="button"
+                            onClick={(e) => {
+                              e.stopPropagation();
+                              setSelectedGroupId(group.id);
+                              setGroupFilter(group.id);
+                            }}
+                            className="text-[9px] text-blue-650 hover:text-blue-800 font-bold hover:underline cursor-pointer"
+                          >
+                            Seçimi Filtrele
+                          </button>
                         </div>
                         <div className="flex flex-wrap gap-1">
                           {members.length === 0 ? (
@@ -799,11 +860,26 @@ export default function OfficeGroupManager({ offices, groups, onRefresh }: Offic
               </h3>
               
               <div className="flex flex-wrap items-center gap-2 w-full sm:w-auto">
+                {/* Group Filter */}
+                <select
+                  value={groupFilter}
+                  onChange={(e) => setGroupFilter(e.target.value)}
+                  className="text-[11px] border border-slate-200 rounded px-2.5 py-1.5 bg-white text-slate-750 outline-none focus:border-blue-500 font-bold cursor-pointer"
+                >
+                  <option value="ALL">Tüm Ofisler (Gruplu/Bağımsız)</option>
+                  <option value="UNASSIGNED">Sadece Bağımsız Ofisler</option>
+                  {groups.map(g => (
+                    <option key={g.id} value={g.id}>
+                      Sadece {g.name} ({g.id}) Üyeleri
+                    </option>
+                  ))}
+                </select>
+
                 {/* Brand Filter */}
                 <select
                   value={selectedBrand}
                   onChange={(e) => setSelectedBrand(e.target.value)}
-                  className="text-[11px] border border-slate-200 rounded px-2.5 py-1.5 bg-white text-slate-700 outline-none focus:border-blue-500 font-medium cursor-pointer"
+                  className="text-[11px] border border-slate-200 rounded px-2.5 py-1.5 bg-white text-slate-750 outline-none focus:border-blue-500 font-bold cursor-pointer"
                 >
                   <option value="ALL">Tüm Markalar</option>
                   <option value="Coldwell Banker">Coldwell Banker</option>
@@ -826,10 +902,59 @@ export default function OfficeGroupManager({ offices, groups, onRefresh }: Offic
               </div>
             </div>
 
+            {/* Bulk Actions Banner */}
+            {selectedOfficeIds.length > 0 && (
+              <div className="bg-blue-50/70 border-b border-blue-100 px-4 py-3 flex flex-wrap items-center justify-between gap-3 animate-fade-in">
+                <div className="text-xs font-bold text-blue-800 flex items-center gap-1.5 font-sans">
+                  <span className="bg-blue-200 text-blue-800 px-2 py-0.5 rounded-full text-[11px] font-bold">
+                    {selectedOfficeIds.length}
+                  </span>
+                  ofis seçildi. Toplu işlem yapabilirsiniz:
+                </div>
+                <div className="flex items-center gap-2">
+                  <select
+                    onChange={(e) => {
+                      const val = e.target.value;
+                      if (!val) return;
+                      if (confirm(`Seçilen ${selectedOfficeIds.length} ofisi bu gruba atamak istediğinize emin misiniz?`)) {
+                        handleBulkAssignToGroup(val === "UNASSIGNED" ? null : val);
+                      }
+                      e.target.value = "";
+                    }}
+                    className="text-xs border border-blue-200 rounded px-2.5 py-1.5 bg-white text-slate-800 font-bold cursor-pointer outline-none focus:ring-1 focus:ring-blue-500"
+                  >
+                    <option value="">Gruba Ata / Çıkar...</option>
+                    <option value="UNASSIGNED">Bağımsız Yap (Gruptan Çıkar)</option>
+                    {groups.map(g => (
+                      <option key={g.id} value={g.id}>
+                        {g.name} ({g.id}) Grubuna Bağla
+                      </option>
+                    ))}
+                  </select>
+                  <button
+                    type="button"
+                    onClick={() => setSelectedOfficeIds([])}
+                    className="text-xs text-slate-500 hover:text-slate-800 font-bold px-2.5 py-1.5 cursor-pointer hover:bg-slate-100 rounded transition"
+                  >
+                    Seçimi Temizle
+                  </button>
+                </div>
+              </div>
+            )}
+
             <div className="overflow-x-auto">
               <table className="w-full text-left text-xs text-slate-600">
                 <thead className="bg-slate-50 text-[10px] uppercase font-bold text-slate-500 border-b border-slate-200">
                   <tr>
+                    <th className="px-3 py-2 w-10 text-center">
+                      <input
+                        type="checkbox"
+                        checked={allFilteredSelected}
+                        onChange={handleToggleSelectAll}
+                        className="rounded border-slate-300 text-blue-600 focus:ring-blue-500 cursor-pointer w-3.5 h-3.5"
+                        title="Tümünü Seç / Kaldır"
+                      />
+                    </th>
                     <th className="px-3 py-2 font-semibold">Ofis Kodu / Adı</th>
                     <th className="px-3 py-2 font-semibold">Marka / Durum</th>
                     <th className="px-3 py-2 font-semibold">Sorumlu & İletişim</th>
@@ -840,15 +965,29 @@ export default function OfficeGroupManager({ offices, groups, onRefresh }: Offic
                 <tbody className="divide-y divide-slate-100">
                   {filteredOffices.length === 0 ? (
                     <tr>
-                      <td colSpan={5} className="text-center py-8 text-slate-400">
+                      <td colSpan={6} className="text-center py-8 text-slate-400">
                         Aranan kriterlere uygun ofis kaydı bulunamadı.
                       </td>
                     </tr>
                   ) : (
                     filteredOffices.map((office) => {
                       const groupOfOffice = groups.find(g => g.id === office.groupId);
+                      const isOfficeSelected = selectedOfficeIds.includes(`${office.id}:::${office.brand}`);
                       return (
-                        <tr key={`${office.id}-${office.brand}`} className="hover:bg-slate-50/40 transition">
+                        <tr key={`${office.id}-${office.brand}`} className={`hover:bg-slate-50/40 transition ${isOfficeSelected ? "bg-blue-50/20" : ""}`}>
+                          <td className="px-3 py-2.5 w-10 text-center">
+                            <input
+                              type="checkbox"
+                              checked={isOfficeSelected}
+                              onChange={() => {
+                                const key = `${office.id}:::${office.brand}`;
+                                setSelectedOfficeIds(prev =>
+                                  prev.includes(key) ? prev.filter(k => k !== key) : [...prev, key]
+                                );
+                              }}
+                              className="rounded border-slate-300 text-blue-600 focus:ring-blue-500 cursor-pointer w-3.5 h-3.5"
+                            />
+                          </td>
                           <td className="px-3 py-2.5">
                             <div className="flex items-center gap-2">
                               <span className="font-mono text-[10px] bg-slate-100 border border-slate-200/50 font-bold px-1.5 py-0.5 rounded text-slate-700">
