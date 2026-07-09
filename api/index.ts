@@ -307,6 +307,38 @@ app.post("/api/offices", (req, res) => {
   res.json(office);
 });
 
+function getNormalizedValue(row: any, searchKeys: string[]): string {
+  if (!row || typeof row !== "object") return "";
+  
+  const normSearchKeys = searchKeys.map(k => 
+    k.toLowerCase()
+     .replace(/\s+/g, "")
+     .replace(/ı/g, "i")
+     .replace(/ğ/g, "g")
+     .replace(/ü/g, "u")
+     .replace(/ş/g, "s")
+     .replace(/ö/g, "o")
+     .replace(/ç/g, "c")
+  );
+
+  for (const rowKey of Object.keys(row)) {
+    const normRowKey = rowKey.trim()
+      .toLowerCase()
+      .replace(/\s+/g, "")
+      .replace(/ı/g, "i")
+      .replace(/ğ/g, "g")
+      .replace(/ü/g, "u")
+      .replace(/ş/g, "s")
+      .replace(/ö/g, "o")
+      .replace(/ç/g, "c");
+
+    if (normSearchKeys.includes(normRowKey)) {
+      return String(row[rowKey] ?? "").trim();
+    }
+  }
+  return "";
+}
+
 app.post("/api/offices/upload", (req, res) => {
   const db = readDB();
   const { offices, defaultBrand } = req.body;
@@ -319,13 +351,25 @@ app.post("/api/offices/upload", (req, res) => {
   let updated = 0;
 
   for (const row of offices) {
-    // Map Excel row fields. Exact casing and spaces.
-    const rawId = row["Ofis Kodu"] || row.ofisKodu || row.id || row.OfisKodu || row.ID || row["OfisKodu"] || "";
-    const rawStatus = row["Durum"] || row.durum || row.Durum || row["durum"] || "";
-    const rawName = row["Ad"] || row["Ofis Adı"] || row.ad || row.ofisAdi || row.name || row.OfisAdi || row.Name || "";
-    const rawOwnerEmail = row["E-Posta"] || row["E-posta"] || row.eposta || row.ownerEmail || row.Email || row.email || row["e-posta"] || "";
-    const rawResponsible = row["Sorumlu Sistem Kullanıcısı"] || row.sorumluSistemKullanicisi || row.SorumluSistemKullanıcısı || row["SorumluSistemKullanıcısı"] || "";
-    const rawBrand = row["Marka"] || row.marka || row.Marka || row.brand || row.Brand || "";
+    // Map Excel row fields resiliently using normalized key search
+    const rawId = getNormalizedValue(row, ["ofiskodu", "ofis kodu", "id", "kod", "officecode", "office code"]);
+    const rawStatus = getNormalizedValue(row, ["durum", "status", "aktif", "active", "ofisdurumu", "ofis durumu"]);
+    const rawName = getNormalizedValue(row, ["ad", "adi", "ofisadi", "ofis adi", "name", "officename", "ofis name"]);
+    const rawOwnerEmail = getNormalizedValue(row, ["e-posta", "eposta", "email", "mail", "ofis eposta", "ofis e-posta", "owneremail"]);
+    const rawResponsible = getNormalizedValue(row, [
+      "sorumlu sistem kullanicisi", 
+      "sorumlusistemkullanicisi", 
+      "sorumlu", 
+      "sahacisi", 
+      "sahaci", 
+      "ofis sahibi/yetkilisi", 
+      "yetkili", 
+      "ofissahibi", 
+      "ofis sahibi", 
+      "sahacicisi", 
+      "saha kullanicisi"
+    ]);
+    const rawBrand = getNormalizedValue(row, ["marka", "brand"]);
 
     const id = String(rawId).toUpperCase().trim();
     if (!id) continue; // Skip invalid rows
@@ -340,22 +384,35 @@ app.post("/api/offices/upload", (req, res) => {
     if (!brand && defaultBrand) {
       brand = defaultBrand;
     }
+    
+    // Intelligently guess brand from file name if row has a source file property
+    if (!brand && row._sourceFile) {
+      const sourceFile = String(row._sourceFile).toLowerCase();
+      if (sourceFile.includes("cb") || sourceFile.includes("coldwell")) {
+        brand = "Coldwell Banker";
+      } else if (sourceFile.includes("c21") || sourceFile.includes("century")) {
+        brand = "Century 21";
+      } else if (sourceFile.includes("era")) {
+        brand = "ERA";
+      }
+    }
+
+    // Default brand guess from office ID code prefix
     if (!brand) {
-      // Guess from office code prefix
       if (id.startsWith("CB")) brand = "Coldwell Banker";
       else if (id.startsWith("C21") || id.startsWith("CENTURY") || id.startsWith("CE")) brand = "Century 21";
       else if (id.startsWith("ERA")) brand = "ERA";
       else brand = "Diğer";
     }
 
-    // Normalize brand name
+    // Normalize final brand names
     if (brand.toLowerCase().includes("cb") || brand.toLowerCase().includes("coldwell")) brand = "Coldwell Banker";
     else if (brand.toLowerCase().includes("c21") || brand.toLowerCase().includes("century")) brand = "Century 21";
     else if (brand.toLowerCase().includes("era")) brand = "ERA";
 
     const existingIdx = db.offices.findIndex((o) => o.id === id);
     if (existingIdx > -1) {
-      // Update fields but preserve group ID if we want, or overwrite. We will preserve it so groups don't get wiped!
+      // Update fields but preserve group ID so relationships aren't broken!
       db.offices[existingIdx] = {
         ...db.offices[existingIdx],
         name: name || db.offices[existingIdx].name,
