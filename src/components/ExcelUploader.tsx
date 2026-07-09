@@ -2,14 +2,28 @@ import React, { useRef, useState } from "react";
 import * as xlsx from "xlsx";
 import { Upload, FileSpreadsheet, XCircle, CheckCircle } from "lucide-react";
 
-interface ExcelUploaderProps {
-  onDataLoaded: (type: "danisman" | "ilan_panel" | "ilan_sahibinden", data: any[]) => void;
-  isLoading: boolean;
+export interface ExcelFileType {
+  id: string;
+  label: string;
 }
 
-export const ExcelUploader: React.FC<ExcelUploaderProps> = ({ onDataLoaded, isLoading }) => {
+interface ExcelUploaderProps {
+  onDataLoaded: (type: string, data: any[]) => void;
+  isLoading: boolean;
+  fileTypes: ExcelFileType[];
+  title?: string;
+  hints?: React.ReactNode;
+}
+
+export const ExcelUploader: React.FC<ExcelUploaderProps> = ({ 
+  onDataLoaded, 
+  isLoading, 
+  fileTypes, 
+  title = "Excel / CSV Veri Yükleme (Modüler)", 
+  hints 
+}) => {
   const [selectedFile, setSelectedFile] = useState<File | null>(null);
-  const [fileType, setFileType] = useState<"danisman" | "ilan_panel" | "ilan_sahibinden">("danisman");
+  const [fileType, setFileType] = useState<string>(fileTypes[0]?.id || "");
   const fileInputRef = useRef<HTMLInputElement>(null);
 
   const handleFileChange = (e: React.ChangeEvent<HTMLInputElement>) => {
@@ -32,8 +46,6 @@ export const ExcelUploader: React.FC<ExcelUploaderProps> = ({ onDataLoaded, isLo
         // Convert Excel data to JSON
         const jsonData = xlsx.utils.sheet_to_json(worksheet, { defval: "" });
         
-        // Data mapping/cleaning can be done here before sending up
-        // We will just pass the raw parsed JSON and let the parent/backend handle the exact fields
         onDataLoaded(fileType, jsonData);
         
         // Reset after upload
@@ -51,20 +63,22 @@ export const ExcelUploader: React.FC<ExcelUploaderProps> = ({ onDataLoaded, isLo
     <div className="bg-slate-50 p-4 rounded-lg border border-slate-200">
       <h3 className="text-sm font-semibold text-slate-800 mb-3 flex items-center gap-2">
         <FileSpreadsheet className="w-4 h-4 text-blue-600" />
-        Excel / CSV Veri Yükleme (Modüler)
+        {title}
       </h3>
       
       <div className="flex flex-col sm:flex-row gap-3 items-start sm:items-center">
-        <select
-          value={fileType}
-          onChange={(e) => setFileType(e.target.value as any)}
-          className="text-sm border border-slate-300 rounded px-3 py-2 bg-white text-slate-700 outline-none focus:border-blue-500"
-          disabled={isLoading}
-        >
-          <option value="danisman">Kaçak Danışman Listesi</option>
-          <option value="ilan_panel">MasterTürk Panel İlan Raporu</option>
-          <option value="ilan_sahibinden">Sahibinden.com İlan Raporu</option>
-        </select>
+        {fileTypes.length > 1 && (
+          <select
+            value={fileType}
+            onChange={(e) => setFileType(e.target.value)}
+            className="text-sm border border-slate-300 rounded px-3 py-2 bg-white text-slate-700 outline-none focus:border-blue-500"
+            disabled={isLoading}
+          >
+            {fileTypes.map(t => (
+              <option key={t.id} value={t.id}>{t.label}</option>
+            ))}
+          </select>
+        )}
         
         <input
           type="file"
@@ -112,10 +126,11 @@ export const ExcelUploader: React.FC<ExcelUploaderProps> = ({ onDataLoaded, isLo
         )}
       </div>
       
-      <div className="mt-3 text-xs text-slate-500">
-        <p><strong>Danışman Listesi:</strong> <em>ofisKodu, danismanAdi, unvan, sahibindenSayisi, panelSayisi</em> kolonlarını içermelidir.</p>
-        <p><strong>İlan Raporları:</strong> <em>ofisKodu, ilanSayisi</em> kolonlarını içermelidir.</p>
-      </div>
+      {hints && (
+        <div className="mt-3 text-xs text-slate-500">
+          {hints}
+        </div>
+      )}
     </div>
   );
 };

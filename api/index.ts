@@ -307,6 +307,57 @@ app.post("/api/offices", (req, res) => {
   res.json(office);
 });
 
+app.post("/api/offices/upload", (req, res) => {
+  const db = readDB();
+  const { offices } = req.body;
+  
+  if (!Array.isArray(offices)) {
+    return res.status(400).json({ error: "Geçersiz veri formatı." });
+  }
+
+  let added = 0;
+  let updated = 0;
+
+  for (const row of offices) {
+    // Map Excel row fields. Depending on Excel column names. We will handle generic ones in frontend or try to guess.
+    const rawId = row.ofisKodu || row.id || row.OfisKodu || row.ID || "";
+    const rawName = row.ofisAdi || row.name || row.OfisAdi || row.Name || "";
+    const rawOwnerName = row.ofisSahibi || row.ownerName || row.OfisSahibi || "";
+    const rawOwnerEmail = row.eposta || row.ownerEmail || row.Email || row.email || "";
+
+    const id = String(rawId).toUpperCase().trim();
+    if (!id) continue; // Skip invalid rows
+    
+    const name = String(rawName).trim();
+    const ownerName = String(rawOwnerName).trim();
+    const ownerEmail = String(rawOwnerEmail).trim();
+
+    const existingIdx = db.offices.findIndex((o) => o.id === id);
+    if (existingIdx > -1) {
+      // Update fields but preserve group ID if we want, or overwrite. We will preserve it so groups don't get wiped!
+      db.offices[existingIdx] = {
+        ...db.offices[existingIdx],
+        name: name || db.offices[existingIdx].name,
+        ownerName: ownerName || db.offices[existingIdx].ownerName,
+        ownerEmail: ownerEmail || db.offices[existingIdx].ownerEmail,
+      };
+      updated++;
+    } else {
+      db.offices.push({
+        id,
+        name: name || "İsimsiz Ofis",
+        ownerName: ownerName || "Bilinmiyor",
+        ownerEmail: ownerEmail || "",
+        groupId: null
+      });
+      added++;
+    }
+  }
+
+  writeDB(db);
+  res.json({ success: true, added, updated });
+});
+
 app.delete("/api/offices/:id", (req, res) => {
   const db = readDB();
   const id = req.params.id;

@@ -1,5 +1,6 @@
 import React, { useState } from "react";
 import { Office, Group } from "../types";
+import { ExcelUploader } from "./ExcelUploader";
 import { Plus, Users, Trash2, Building, Mail, User, Search, RefreshCw, ChevronRight } from "lucide-react";
 
 
@@ -81,6 +82,28 @@ export default function OfficeGroupManager({ offices, groups, onRefresh }: Offic
       }
     } catch (err) {
       showMsg("error", "Ofis silinemedi.");
+    }
+  };
+
+  const handleOfficeExcelLoad = async (type: string, data: any[]) => {
+    setLoading(true);
+    try {
+      const res = await fetch("/api/offices/upload", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ offices: data })
+      });
+      if (res.ok) {
+        const result = await res.json();
+        showMsg("success", `Excel yüklendi. ${result.added} yeni ofis eklendi, ${result.updated} ofis güncellendi.`);
+        onRefresh();
+      } else {
+        showMsg("error", "Excel yüklenirken bir hata oluştu.");
+      }
+    } catch (err) {
+      showMsg("error", "Sunucu bağlantı hatası.");
+    } finally {
+      setLoading(false);
     }
   };
 
@@ -468,6 +491,19 @@ export default function OfficeGroupManager({ offices, groups, onRefresh }: Offic
               </div>
             </form>
           </div>
+
+          {/* Office Excel Upload */}
+          <ExcelUploader 
+            onDataLoaded={handleOfficeExcelLoad} 
+            isLoading={loading} 
+            title="Toplu Ofis Yükleme (Excel)"
+            fileTypes={[
+              { id: "offices", label: "Ofis Listesi" }
+            ]}
+            hints={
+              <p><strong>Ofis Listesi:</strong> <em>ofisKodu, ofisAdi, ofisSahibi, eposta</em> kolonlarını içermelidir. Varsa günceller, yoksa ekler.</p>
+            }
+          />
 
           {/* Office Directory & Assignment */}
           <div className="bg-white rounded-lg border border-slate-200 shadow-xs overflow-hidden">

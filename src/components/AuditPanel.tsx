@@ -624,7 +624,22 @@ export default function AuditPanel({ offices, groups, activeAudit, onRefresh, on
                 </div>
               </div>
 
-              <ExcelUploader onDataLoaded={handleRealDataLoad} isLoading={loading} />
+              <ExcelUploader 
+                onDataLoaded={handleRealDataLoad} 
+                isLoading={loading} 
+                title="Denetim Verisi Yükleme"
+                fileTypes={[
+                  { id: "danisman", label: "Kaçak Danışman Listesi" },
+                  { id: "ilan_panel", label: "MasterTürk Panel İlan Raporu" },
+                  { id: "ilan_sahibinden", label: "Sahibinden.com İlan Raporu" }
+                ]}
+                hints={
+                  <>
+                    <p><strong>Danışman Listesi:</strong> <em>ofisKodu, danismanAdi, unvan, sahibindenSayisi, panelSayisi</em> kolonlarını içermelidir.</p>
+                    <p><strong>İlan Raporları:</strong> <em>ofisKodu, ilanSayisi</em> kolonlarını içermelidir.</p>
+                  </>
+                }
+              />
 
               {/* REPORT DISPLAY TABLES */}
               {((activeAudit.currentPhase === "Tespit" && activeAudit.phase1Uploaded) ||
