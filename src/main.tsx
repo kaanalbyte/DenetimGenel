@@ -411,6 +411,36 @@ Object.defineProperty(window, 'fetch', {
         return makeResponse(getLocalEmails());
       }
 
+      // --- 15b. POST /api/db/reset ---
+      if (url === "/api/db/reset" && method === "POST") {
+        localStorage.setItem("db_offices", JSON.stringify([]));
+        localStorage.setItem("db_groups", JSON.stringify([]));
+        localStorage.setItem("db_audits", JSON.stringify([]));
+        localStorage.setItem("db_emails", JSON.stringify([]));
+        localStorage.setItem("db_config", JSON.stringify({
+          resendApiKey: "",
+          brevoApiKey: "",
+          senderEmail: "denetim@masterturk.com.tr",
+          smtpEnabled: true,
+          smtpHost: "smtp.gmail.com",
+          smtpPort: 587,
+          smtpSecure: false,
+          smtpUser: "denetim@masterturk.com.tr",
+          smtpPass: "fucaupikpfrrhzzs"
+        }));
+
+        // Async forward to external backend if configured to sync Cloud/Firestore state
+        const apiBase = getApiBaseUrl();
+        if (apiBase) {
+          const targetUrl = `${apiBase}${url}`;
+          originalFetch(targetUrl, init).catch((e) => {
+            console.warn("Arka plan veritabanı sıfırlama yönlendirmesi başarısız oldu:", e);
+          });
+        }
+
+        return makeResponse({ success: true, message: "Tüm veritabanı başarıyla temizlendi." });
+      }
+
       // --- 16. Stateless Passthrough for config/test-email ---
       if (url === "/api/config/test-email" && method === "POST") {
         const origBody = typeof init?.body === "string" ? JSON.parse(init.body) : {};
