@@ -11,18 +11,22 @@ interface OfficeGroupManagerProps {
 }
 
 export default function OfficeGroupManager({ offices, groups, onRefresh }: OfficeGroupManagerProps) {
-  // New office state
-  const [newOfficeId, setNewOfficeId] = useState("");
-  const [newOfficeName, setNewOfficeName] = useState("");
-  const [newOfficeOwner, setNewOfficeOwner] = useState("");
-  const [newOfficeEmail, setNewOfficeEmail] = useState("");
-  const [newOfficeBrand, setNewOfficeBrand] = useState("Coldwell Banker");
-
   // New group state
-  const [newGroupId, setNewGroupId] = useState("");
   const [newGroupName, setNewGroupName] = useState("");
-  const [newGroupOwner, setNewGroupOwner] = useState("");
-  const [newGroupEmail, setNewGroupEmail] = useState("");
+
+  const getNextGroupId = () => {
+    let maxNum = 99; // start G100
+    groups.forEach(g => {
+      const match = g.id.match(/^G(\d+)$/i);
+      if (match) {
+        const num = parseInt(match[1], 10);
+        if (num > maxNum) {
+          maxNum = num;
+        }
+      }
+    });
+    return `G${maxNum + 1}`;
+  };
 
   // Search & Filter State
   const [searchQuery, setSearchQuery] = useState("");
@@ -138,44 +142,6 @@ export default function OfficeGroupManager({ offices, groups, onRefresh }: Offic
     setTimeout(() => setMsg(null), 4000);
   };
 
-  const handleCreateOffice = async (e: React.FormEvent) => {
-    e.preventDefault();
-    if (!newOfficeId || !newOfficeName || !newOfficeOwner || !newOfficeEmail) {
-      showMsg("error", "Lütfen tüm ofis alanlarını doldurun.");
-      return;
-    }
-
-    setLoading(true);
-    try {
-      const res = await fetch("/api/offices", {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({
-          id: newOfficeId.toUpperCase().trim(),
-          name: newOfficeName.trim(),
-          ownerName: newOfficeOwner.trim(),
-          ownerEmail: newOfficeEmail.trim(),
-          brand: newOfficeBrand,
-          groupId: null
-        })
-      });
-      if (res.ok) {
-        showMsg("success", "Ofis başarıyla kaydedildi.");
-        setNewOfficeId("");
-        setNewOfficeName("");
-        setNewOfficeOwner("");
-        setNewOfficeEmail("");
-        onRefresh();
-      } else {
-        showMsg("error", "Ofis kaydedilirken bir hata oluştu.");
-      }
-    } catch (err) {
-      showMsg("error", "Sunucu bağlantı hatası.");
-    } finally {
-      setLoading(false);
-    }
-  };
-
   const handleDeleteOffice = async (id: string, brand: string) => {
     if (!confirm(`Bu ofisi (${brand}) silmek istediğinize emin misiniz?`)) return;
     try {
@@ -221,32 +187,30 @@ export default function OfficeGroupManager({ offices, groups, onRefresh }: Offic
 
   const handleCreateGroup = async (e: React.FormEvent) => {
     e.preventDefault();
-    if (!newGroupId || !newGroupName || !newGroupOwner || !newGroupEmail) {
-      showMsg("error", "Lütfen tüm grup alanlarını doldurun.");
+    if (!newGroupName) {
+      showMsg("error", "Lütfen grup adını doldurun.");
       return;
     }
 
     setLoading(true);
+    const autoId = getNextGroupId();
     try {
       const res = await fetch("/api/groups", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({
           group: {
-            id: newGroupId.toUpperCase().trim(),
+            id: autoId,
             name: newGroupName.trim(),
-            ownerName: newGroupOwner.trim(),
-            ownerEmail: newGroupEmail.trim()
+            ownerName: "",
+            ownerEmail: ""
           },
           officeIds: []
         })
       });
       if (res.ok) {
         showMsg("success", "Grup ofis yapısı başarıyla tanımlandı.");
-        setNewGroupId("");
         setNewGroupName("");
-        setNewGroupOwner("");
-        setNewGroupEmail("");
         onRefresh();
       } else {
         showMsg("error", "Grup kaydedilirken hata oluştu.");
@@ -413,7 +377,7 @@ export default function OfficeGroupManager({ offices, groups, onRefresh }: Offic
         <div className="lg:col-span-5 space-y-6">
           
           {/* Create Group Form */}
-          <div className="bg-white rounded-lg border border-slate-200 shadow-xs overflow-hidden">
+          <div className="bg-white rounded-lg border border-slate-200 shadow-xs overflow-hidden animate-fade-in">
             <div className="px-4 py-3 border-b border-slate-200 bg-slate-50/50">
               <h3 className="text-xs font-bold text-slate-800 tracking-tight flex items-center gap-2">
                 <Plus className="w-3.5 h-3.5 text-blue-600" />
@@ -426,11 +390,10 @@ export default function OfficeGroupManager({ offices, groups, onRefresh }: Offic
                   <label className="block text-[10px] font-bold text-slate-400 uppercase mb-1 font-mono">Grup Kodu</label>
                   <input
                     type="text"
-                    required
-                    placeholder="G100"
-                    value={newGroupId}
-                    onChange={(e) => setNewGroupId(e.target.value)}
-                    className="w-full text-xs px-2.5 py-1.5 border border-slate-200 rounded focus:outline-none focus:ring-1 focus:ring-blue-500 bg-white font-mono"
+                    disabled
+                    readOnly
+                    value={getNextGroupId()}
+                    className="w-full text-xs px-2.5 py-1.5 border border-slate-200 rounded focus:outline-none bg-slate-100 font-mono text-slate-500 cursor-not-allowed"
                   />
                 </div>
                 <div className="col-span-2">
@@ -441,31 +404,6 @@ export default function OfficeGroupManager({ offices, groups, onRefresh }: Offic
                     placeholder="Örn: Kuzey Ege Grubu"
                     value={newGroupName}
                     onChange={(e) => setNewGroupName(e.target.value)}
-                    className="w-full text-xs px-2.5 py-1.5 border border-slate-200 rounded focus:outline-none focus:ring-1 focus:ring-blue-500 bg-white"
-                  />
-                </div>
-              </div>
-
-              <div className="grid grid-cols-2 gap-3">
-                <div>
-                  <label className="block text-[10px] font-bold text-slate-400 uppercase mb-1">Ortak Malik (Sahibi)</label>
-                  <input
-                    type="text"
-                    required
-                    placeholder="Ad Soyad"
-                    value={newGroupOwner}
-                    onChange={(e) => setNewGroupOwner(e.target.value)}
-                    className="w-full text-xs px-2.5 py-1.5 border border-slate-200 rounded focus:outline-none focus:ring-1 focus:ring-blue-500 bg-white"
-                  />
-                </div>
-                <div>
-                  <label className="block text-[10px] font-bold text-slate-400 uppercase mb-1">Ortak İletişim E-posta</label>
-                  <input
-                    type="email"
-                    required
-                    placeholder="malik@alan.com"
-                    value={newGroupEmail}
-                    onChange={(e) => setNewGroupEmail(e.target.value)}
                     className="w-full text-xs px-2.5 py-1.5 border border-slate-200 rounded focus:outline-none focus:ring-1 focus:ring-blue-500 bg-white"
                   />
                 </div>
@@ -500,7 +438,7 @@ export default function OfficeGroupManager({ offices, groups, onRefresh }: Offic
                   const isSelected = selectedGroupId === group.id;
 
                   return (
-                    <div
+                     <div
                       key={group.id}
                       onClick={() => setSelectedGroupId(isSelected ? null : group.id)}
                       className={`p-3 rounded border transition duration-150 cursor-pointer ${
@@ -517,16 +455,22 @@ export default function OfficeGroupManager({ offices, groups, onRefresh }: Offic
                             </span>
                             <span className="font-bold text-xs text-slate-850">{group.name}</span>
                           </div>
-                          <div className="flex flex-col gap-0.5 mt-2 text-[11px] text-slate-500">
-                            <div className="flex items-center gap-1">
-                              <User className="w-3 h-3 text-slate-400" />
-                              <span>{group.ownerName}</span>
+                          {(group.ownerName || group.ownerEmail) && (
+                            <div className="flex flex-col gap-0.5 mt-2 text-[11px] text-slate-500">
+                              {group.ownerName && (
+                                <div className="flex items-center gap-1">
+                                  <User className="w-3 h-3 text-slate-400" />
+                                  <span>{group.ownerName}</span>
+                                </div>
+                              )}
+                              {group.ownerEmail && (
+                                <div className="flex items-center gap-1">
+                                  <Mail className="w-3 h-3 text-slate-400" />
+                                  <span>{group.ownerEmail}</span>
+                                </div>
+                              )}
                             </div>
-                            <div className="flex items-center gap-1">
-                              <Mail className="w-3 h-3 text-slate-400" />
-                              <span>{group.ownerEmail}</span>
-                            </div>
-                          </div>
+                          )}
                         </div>
                         <button
                           onClick={(e) => {
@@ -576,78 +520,6 @@ export default function OfficeGroupManager({ offices, groups, onRefresh }: Offic
 
         {/* RIGHT COLUMN: Office Inventory & Assigning */}
         <div className="lg:col-span-7 space-y-6">
-          
-          {/* Create Office Form & Search Header */}
-          <div className="bg-white rounded-lg border border-slate-200 shadow-xs p-4 space-y-4">
-            <h3 className="text-xs font-bold text-slate-800 tracking-tight flex items-center gap-2">
-              <Plus className="w-3.5 h-3.5 text-blue-600" />
-              Sisteme Yeni Tekil Ofis Ekle
-            </h3>
-            
-            <form onSubmit={handleCreateOffice} className="grid grid-cols-1 md:grid-cols-5 gap-2">
-              <div>
-                <select
-                  value={newOfficeBrand}
-                  onChange={(e) => setNewOfficeBrand(e.target.value)}
-                  className="w-full text-xs px-2 py-1.5 border border-slate-200 rounded focus:outline-none focus:ring-1 focus:ring-blue-500 bg-white cursor-pointer font-medium text-slate-700"
-                >
-                  <option value="Coldwell Banker">Coldwell Banker</option>
-                  <option value="Century 21">Century 21</option>
-                  <option value="ERA">ERA</option>
-                  <option value="Diğer">Diğer</option>
-                </select>
-              </div>
-              <div>
-                <input
-                  type="text"
-                  required
-                  placeholder="OF1001"
-                  value={newOfficeId}
-                  onChange={(e) => setNewOfficeId(e.target.value)}
-                  className="w-full text-xs px-2 py-1.5 border border-slate-200 rounded focus:outline-none focus:ring-1 focus:ring-blue-500 bg-white font-mono"
-                />
-              </div>
-              <div>
-                <input
-                  type="text"
-                  required
-                  placeholder="Ofis Adı"
-                  value={newOfficeName}
-                  onChange={(e) => setNewOfficeName(e.target.value)}
-                  className="w-full text-xs px-2 py-1.5 border border-slate-200 rounded focus:outline-none focus:ring-1 focus:ring-blue-500 bg-white"
-                />
-              </div>
-              <div>
-                <input
-                  type="text"
-                  required
-                  placeholder="Ofis Sahibi"
-                  value={newOfficeOwner}
-                  onChange={(e) => setNewOfficeOwner(e.target.value)}
-                  className="w-full text-xs px-2 py-1.5 border border-slate-200 rounded focus:outline-none focus:ring-1 focus:ring-blue-500 bg-white"
-                />
-              </div>
-              <div>
-                <div className="flex gap-2">
-                  <input
-                    type="email"
-                    required
-                    placeholder="E-posta"
-                    value={newOfficeEmail}
-                    onChange={(e) => setNewOfficeEmail(e.target.value)}
-                    className="w-full text-xs px-2 py-1.5 border border-slate-200 rounded focus:outline-none focus:ring-1 focus:ring-blue-500 bg-white"
-                  />
-                  <button
-                    type="submit"
-                    className="bg-slate-900 hover:bg-slate-800 text-white p-1.5 rounded transition flex items-center justify-center shrink-0 cursor-pointer"
-                    title="Ekle"
-                  >
-                    <Plus className="w-4 h-4" />
-                  </button>
-                </div>
-              </div>
-            </form>
-          </div>
 
           {/* Custom Multi-Brand Multi-File Excel Upload Interface */}
           <div className="bg-white rounded-lg border border-slate-200 shadow-sm p-5 space-y-4">
