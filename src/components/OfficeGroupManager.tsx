@@ -26,6 +26,7 @@ export default function OfficeGroupManager({ offices, groups, onRefresh }: Offic
   // Search & Filter State
   const [searchQuery, setSearchQuery] = useState("");
   const [selectedGroupId, setSelectedGroupId] = useState<string | null>(null);
+  const [selectedBrand, setSelectedBrand] = useState<string>("ALL");
 
   const [loading, setLoading] = useState(false);
   const [msg, setMsg] = useState<{ type: "success" | "error"; text: string } | null>(null);
@@ -88,10 +89,11 @@ export default function OfficeGroupManager({ offices, groups, onRefresh }: Offic
   const handleOfficeExcelLoad = async (type: string, data: any[]) => {
     setLoading(true);
     try {
+      const defaultBrand = type === "ALL" ? "" : type;
       const res = await fetch("/api/offices/upload", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ offices: data })
+        body: JSON.stringify({ offices: data, defaultBrand })
       });
       if (res.ok) {
         const result = await res.json();
@@ -215,11 +217,14 @@ export default function OfficeGroupManager({ offices, groups, onRefresh }: Offic
 
   const filteredOffices = offices.filter(o => {
     const term = searchQuery.toLowerCase();
-    return (
+    const matchesSearch = (
       o.id.toLowerCase().includes(term) ||
       o.name.toLowerCase().includes(term) ||
-      o.ownerName.toLowerCase().includes(term)
+      (o.ownerName && o.ownerName.toLowerCase().includes(term)) ||
+      (o.responsibleUser && o.responsibleUser.toLowerCase().includes(term))
     );
+    const matchesBrand = selectedBrand === "ALL" || o.brand === selectedBrand;
+    return matchesSearch && matchesBrand;
   });
 
   return (
@@ -496,12 +501,19 @@ export default function OfficeGroupManager({ offices, groups, onRefresh }: Offic
           <ExcelUploader 
             onDataLoaded={handleOfficeExcelLoad} 
             isLoading={loading} 
-            title="Toplu Ofis Yükleme (Excel)"
+            title="Ofis Listesi Yükle (Century 21, Coldwell Banker, ERA)"
             fileTypes={[
-              { id: "offices", label: "Ofis Listesi" }
+              { id: "ALL", label: "Tüm Markalar (Otomatik Algıla / Excel Sütunu)" },
+              { id: "Coldwell Banker", label: "Coldwell Banker (Yüklenenleri CB olarak işaretle)" },
+              { id: "Century 21", label: "Century 21 (Yüklenenleri C21 olarak işaretle)" },
+              { id: "ERA", label: "ERA (Yüklenenleri ERA olarak işaretle)" }
             ]}
             hints={
-              <p><strong>Ofis Listesi:</strong> <em>ofisKodu, ofisAdi, ofisSahibi, eposta</em> kolonlarını içermelidir. Varsa günceller, yoksa ekler.</p>
+              <div className="space-y-1">
+                <p><strong>Zorunlu Sütun Başlıkları:</strong> <em>Ofis Kodu, Durum, Ad, E-Posta, Sorumlu Sistem Kullanıcısı</em></p>
+                <p><strong>Seçmeli Sütun Başlığı:</strong> <em>Marka</em> (Eğer "Tüm Markalar" seçilirse ve Excel'de Marka sütunu yoksa, sistem Ofis Kodunun başındaki harflerden (CB, C21, ERA) otomatik eşleştirir).</p>
+                <p className="text-blue-600 font-semibold">⚠️ Bilgi: Excel güncellendiğinde sistemdeki grup-ofis ilişkilendirmeleri asla zarar görmez, sadece ofis bilgileri güncellenir.</p>
+              </div>
             }
           />
 
@@ -513,16 +525,31 @@ export default function OfficeGroupManager({ offices, groups, onRefresh }: Offic
                 Ofis Yönetim Envanteri ({filteredOffices.length})
               </h3>
               
-              {/* Search */}
-              <div className="relative w-full max-w-xs">
-                <Search className="w-3.5 h-3.5 text-slate-400 absolute left-2.5 top-2" />
-                <input
-                  type="text"
-                  placeholder="Kod, ad veya sahibine göre ara..."
-                  value={searchQuery}
-                  onChange={(e) => setSearchQuery(e.target.value)}
-                  className="w-full text-[11px] pl-8 pr-3 py-1.5 border border-slate-200 rounded focus:outline-none focus:ring-1 focus:ring-blue-500 bg-white"
-                />
+              <div className="flex flex-wrap items-center gap-2 w-full sm:w-auto">
+                {/* Brand Filter */}
+                <select
+                  value={selectedBrand}
+                  onChange={(e) => setSelectedBrand(e.target.value)}
+                  className="text-[11px] border border-slate-200 rounded px-2.5 py-1.5 bg-white text-slate-700 outline-none focus:border-blue-500 font-medium cursor-pointer"
+                >
+                  <option value="ALL">Tüm Markalar</option>
+                  <option value="Coldwell Banker">Coldwell Banker</option>
+                  <option value="Century 21">Century 21</option>
+                  <option value="ERA">ERA</option>
+                  <option value="Diğer">Diğer</option>
+                </select>
+
+                {/* Search */}
+                <div className="relative w-full sm:w-64">
+                  <Search className="w-3.5 h-3.5 text-slate-400 absolute left-2.5 top-2.5" />
+                  <input
+                    type="text"
+                    placeholder="Kod, ad, sorumlu veya e-postaya göre ara..."
+                    value={searchQuery}
+                    onChange={(e) => setSearchQuery(e.target.value)}
+                    className="w-full text-[11px] pl-8 pr-3 py-1.5 border border-slate-200 rounded focus:outline-none focus:ring-1 focus:ring-blue-500 bg-white"
+                  />
+                </div>
               </div>
             </div>
 
@@ -531,7 +558,8 @@ export default function OfficeGroupManager({ offices, groups, onRefresh }: Offic
                 <thead className="bg-slate-50 text-[10px] uppercase font-bold text-slate-500 border-b border-slate-200">
                   <tr>
                     <th className="px-3 py-2 font-semibold">Ofis Kodu / Adı</th>
-                    <th className="px-3 py-2 font-semibold">Sahibi ve İletişim</th>
+                    <th className="px-3 py-2 font-semibold">Marka / Durum</th>
+                    <th className="px-3 py-2 font-semibold">Sorumlu & İletişim</th>
                     <th className="px-3 py-2 font-semibold">Mevcut Grubu</th>
                     <th className="px-3 py-2 font-semibold text-right">Eylemler</th>
                   </tr>
@@ -539,7 +567,7 @@ export default function OfficeGroupManager({ offices, groups, onRefresh }: Offic
                 <tbody className="divide-y divide-slate-100">
                   {filteredOffices.length === 0 ? (
                     <tr>
-                      <td colSpan={4} className="text-center py-8 text-slate-400">
+                      <td colSpan={5} className="text-center py-8 text-slate-400">
                         Aranan kriterlere uygun ofis kaydı bulunamadı.
                       </td>
                     </tr>
@@ -557,8 +585,18 @@ export default function OfficeGroupManager({ offices, groups, onRefresh }: Offic
                             </div>
                           </td>
                           <td className="px-3 py-2.5">
-                            <div className="text-xs text-slate-700 font-medium">{office.ownerName}</div>
-                            <div className="text-[10px] text-slate-400 font-mono">{office.ownerEmail}</div>
+                            <div className="text-xs text-slate-700 font-medium">
+                              {office.brand || "Belirsiz"}
+                            </div>
+                            <div className={`text-[10px] font-bold ${office.status?.toLowerCase() === "aktif" ? "text-emerald-600" : office.status?.toLowerCase() === "pasif" ? "text-rose-600" : "text-slate-400"}`}>
+                              {office.status || "-"}
+                            </div>
+                          </td>
+                          <td className="px-3 py-2.5">
+                            <div className="text-xs text-slate-700 font-medium">
+                              {office.responsibleUser || office.ownerName || "Atanmamış"}
+                            </div>
+                            <div className="text-[10px] text-slate-400 font-mono">{office.ownerEmail || "-"}</div>
                           </td>
                           <td className="px-3 py-2.5">
                             <div className="flex items-center gap-1.5">

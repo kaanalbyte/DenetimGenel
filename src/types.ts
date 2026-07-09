@@ -4,6 +4,9 @@ export interface Office {
   ownerName: string; // Ofis Sahibi
   ownerEmail: string; // Ofis E-posta
   groupId: string | null; // Bağlı olduğu Grup Ofis ID'si
+  status?: string; // Durum
+  responsibleUser?: string; // Sorumlu Sistem Kullanıcısı
+  brand?: string; // Marka
 }
 
 export interface Group {

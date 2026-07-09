@@ -309,7 +309,7 @@ app.post("/api/offices", (req, res) => {
 
 app.post("/api/offices/upload", (req, res) => {
   const db = readDB();
-  const { offices } = req.body;
+  const { offices, defaultBrand } = req.body;
   
   if (!Array.isArray(offices)) {
     return res.status(400).json({ error: "Geçersiz veri formatı." });
@@ -319,18 +319,39 @@ app.post("/api/offices/upload", (req, res) => {
   let updated = 0;
 
   for (const row of offices) {
-    // Map Excel row fields. Depending on Excel column names. We will handle generic ones in frontend or try to guess.
-    const rawId = row.ofisKodu || row.id || row.OfisKodu || row.ID || "";
-    const rawName = row.ofisAdi || row.name || row.OfisAdi || row.Name || "";
-    const rawOwnerName = row.ofisSahibi || row.ownerName || row.OfisSahibi || "";
-    const rawOwnerEmail = row.eposta || row.ownerEmail || row.Email || row.email || "";
+    // Map Excel row fields. Exact casing and spaces.
+    const rawId = row["Ofis Kodu"] || row.ofisKodu || row.id || row.OfisKodu || row.ID || row["OfisKodu"] || "";
+    const rawStatus = row["Durum"] || row.durum || row.Durum || row["durum"] || "";
+    const rawName = row["Ad"] || row["Ofis Adı"] || row.ad || row.ofisAdi || row.name || row.OfisAdi || row.Name || "";
+    const rawOwnerEmail = row["E-Posta"] || row["E-posta"] || row.eposta || row.ownerEmail || row.Email || row.email || row["e-posta"] || "";
+    const rawResponsible = row["Sorumlu Sistem Kullanıcısı"] || row.sorumluSistemKullanicisi || row.SorumluSistemKullanıcısı || row["SorumluSistemKullanıcısı"] || "";
+    const rawBrand = row["Marka"] || row.marka || row.Marka || row.brand || row.Brand || "";
 
     const id = String(rawId).toUpperCase().trim();
     if (!id) continue; // Skip invalid rows
     
     const name = String(rawName).trim();
-    const ownerName = String(rawOwnerName).trim();
     const ownerEmail = String(rawOwnerEmail).trim();
+    const status = String(rawStatus).trim();
+    const responsibleUser = String(rawResponsible).trim();
+    const ownerName = responsibleUser || "Bilinmiyor"; // Default ownerName to responsible user if not present
+
+    let brand = String(rawBrand).trim();
+    if (!brand && defaultBrand) {
+      brand = defaultBrand;
+    }
+    if (!brand) {
+      // Guess from office code prefix
+      if (id.startsWith("CB")) brand = "Coldwell Banker";
+      else if (id.startsWith("C21") || id.startsWith("CENTURY") || id.startsWith("CE")) brand = "Century 21";
+      else if (id.startsWith("ERA")) brand = "ERA";
+      else brand = "Diğer";
+    }
+
+    // Normalize brand name
+    if (brand.toLowerCase().includes("cb") || brand.toLowerCase().includes("coldwell")) brand = "Coldwell Banker";
+    else if (brand.toLowerCase().includes("c21") || brand.toLowerCase().includes("century")) brand = "Century 21";
+    else if (brand.toLowerCase().includes("era")) brand = "ERA";
 
     const existingIdx = db.offices.findIndex((o) => o.id === id);
     if (existingIdx > -1) {
@@ -340,6 +361,9 @@ app.post("/api/offices/upload", (req, res) => {
         name: name || db.offices[existingIdx].name,
         ownerName: ownerName || db.offices[existingIdx].ownerName,
         ownerEmail: ownerEmail || db.offices[existingIdx].ownerEmail,
+        status: status || db.offices[existingIdx].status,
+        responsibleUser: responsibleUser || db.offices[existingIdx].responsibleUser,
+        brand: brand || db.offices[existingIdx].brand,
       };
       updated++;
     } else {
@@ -348,6 +372,9 @@ app.post("/api/offices/upload", (req, res) => {
         name: name || "İsimsiz Ofis",
         ownerName: ownerName || "Bilinmiyor",
         ownerEmail: ownerEmail || "",
+        status,
+        responsibleUser,
+        brand,
         groupId: null
       });
       added++;

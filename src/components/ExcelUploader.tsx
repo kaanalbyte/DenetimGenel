@@ -22,41 +22,49 @@ export const ExcelUploader: React.FC<ExcelUploaderProps> = ({
   title = "Excel / CSV Veri Yükleme (Modüler)", 
   hints 
 }) => {
-  const [selectedFile, setSelectedFile] = useState<File | null>(null);
+  const [selectedFiles, setSelectedFiles] = useState<File[]>([]);
   const [fileType, setFileType] = useState<string>(fileTypes[0]?.id || "");
   const fileInputRef = useRef<HTMLInputElement>(null);
 
   const handleFileChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     if (e.target.files && e.target.files.length > 0) {
-      setSelectedFile(e.target.files[0]);
+      setSelectedFiles(Array.from(e.target.files));
     }
   };
 
-  const processExcel = () => {
-    if (!selectedFile) return;
+  const processExcel = async () => {
+    if (selectedFiles.length === 0) return;
 
-    const reader = new FileReader();
-    reader.onload = (e) => {
-      try {
-        const data = e.target?.result;
-        const workbook = xlsx.read(data, { type: "binary" });
-        const firstSheetName = workbook.SheetNames[0];
-        const worksheet = workbook.Sheets[firstSheetName];
-        
-        // Convert Excel data to JSON
-        const jsonData = xlsx.utils.sheet_to_json(worksheet, { defval: "" });
-        
-        onDataLoaded(fileType, jsonData);
-        
-        // Reset after upload
-        setSelectedFile(null);
-        if (fileInputRef.current) fileInputRef.current.value = "";
-      } catch (error) {
-        console.error("Excel parse error:", error);
-        alert("Excel dosyası okunurken bir hata oluştu.");
-      }
-    };
-    reader.readAsBinaryString(selectedFile);
+    let allData: any[] = [];
+    
+    for (const file of selectedFiles) {
+      const data = await new Promise<any[]>((resolve, reject) => {
+        const reader = new FileReader();
+        reader.onload = (e) => {
+          try {
+            const data = e.target?.result;
+            const workbook = xlsx.read(data, { type: "binary" });
+            const firstSheetName = workbook.SheetNames[0];
+            const worksheet = workbook.Sheets[firstSheetName];
+            const jsonData = xlsx.utils.sheet_to_json(worksheet, { defval: "" });
+            // Optionally add filename to each row to identify brand if needed
+            const enrichedData = jsonData.map((row: any) => ({ ...row, _sourceFile: file.name }));
+            resolve(enrichedData);
+          } catch (error) {
+            console.error("Excel parse error:", error);
+            reject(error);
+          }
+        };
+        reader.onerror = reject;
+        reader.readAsBinaryString(file);
+      });
+      allData = [...allData, ...data];
+    }
+    
+    onDataLoaded(fileType, allData);
+    
+    setSelectedFiles([]);
+    if (fileInputRef.current) fileInputRef.current.value = "";
   };
 
   return (
@@ -87,6 +95,7 @@ export const ExcelUploader: React.FC<ExcelUploaderProps> = ({
           ref={fileInputRef}
           onChange={handleFileChange}
           disabled={isLoading}
+          multiple
         />
         
         <button
@@ -95,10 +104,10 @@ export const ExcelUploader: React.FC<ExcelUploaderProps> = ({
           disabled={isLoading}
         >
           <Upload className="w-4 h-4" />
-          {selectedFile ? selectedFile.name : "Dosya Seç..."}
+          {selectedFiles.length > 0 ? `${selectedFiles.length} Dosya Seçildi` : "Dosya Seç..."}
         </button>
 
-        {selectedFile && (
+        {selectedFiles.length > 0 && (
           <button
             onClick={processExcel}
             className="bg-blue-600 text-white px-4 py-2 rounded text-sm font-medium hover:bg-blue-700 transition-colors flex items-center gap-2"
@@ -113,10 +122,10 @@ export const ExcelUploader: React.FC<ExcelUploaderProps> = ({
           </button>
         )}
         
-        {selectedFile && !isLoading && (
+        {selectedFiles.length > 0 && !isLoading && (
            <button
              onClick={() => {
-               setSelectedFile(null);
+               setSelectedFiles([]);
                if (fileInputRef.current) fileInputRef.current.value = "";
              }}
              className="text-slate-500 hover:text-red-500 transition-colors p-2"
