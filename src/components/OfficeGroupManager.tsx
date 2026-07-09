@@ -2,6 +2,21 @@ import React, { useState, useRef } from "react";
 import { Office, Group } from "../types";
 import * as xlsx from "xlsx";
 import { Plus, Users, Trash2, Building, Mail, User, Search, RefreshCw, ChevronRight, Upload, X, FileSpreadsheet, CheckCircle, AlertCircle, Cloud } from "lucide-react";
+import { initializeApp, getApps, getApp } from "firebase/app";
+import { getFirestore, doc, setDoc } from "firebase/firestore";
+
+const firebaseConfig = {
+  apiKey: "AIzaSyCj3DLY9i3sjicmx3TUIaxfefU-ofEkkkE",
+  authDomain: "denetim-genel-ca47b.firebaseapp.com",
+  projectId: "denetim-genel-ca47b",
+  storageBucket: "denetim-genel-ca47b.firebasestorage.app",
+  messagingSenderId: "698035675578",
+  appId: "1:698035675578:web:5e71e4c556c67936083d83"
+};
+
+// Safe client-side Firebase initialization
+const firebaseApp = getApps().length === 0 ? initializeApp(firebaseConfig) : getApp();
+const clientFirestore = getFirestore(firebaseApp);
 
 
 interface OfficeGroupManagerProps {
@@ -153,26 +168,46 @@ export default function OfficeGroupManager({ offices, groups, onRefresh }: Offic
       const localEmails = localStorage.getItem("db_emails") ? JSON.parse(localStorage.getItem("db_emails")!) : [];
       const localConfig = localStorage.getItem("db_config") ? JSON.parse(localStorage.getItem("db_config")!) : null;
 
-      const res = await fetch("/api/db/sync-from-client", {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({
-          offices: localOffices,
-          groups: localGroups,
-          audits: localAudits,
-          emails: localEmails,
-          config: localConfig
-        })
-      });
+      // 1. Direct Client-side Firebase Firestore Save - Bypasses Vercel Serverless Function Limits
+      const docRef = doc(clientFirestore, "app", "database");
+      const dbPayload = {
+        offices: Array.isArray(localOffices) ? localOffices : [],
+        groups: Array.isArray(localGroups) ? localGroups : [],
+        audits: Array.isArray(localAudits) ? localAudits : [],
+        emails: Array.isArray(localEmails) ? localEmails : [],
+        config: localConfig || {
+          resendApiKey: "",
+          brevoApiKey: "",
+          senderEmail: "denetim@masterturk.com.tr",
+          smtpEnabled: true,
+          smtpHost: "smtp.gmail.com",
+          smtpPort: 587,
+          smtpSecure: false,
+          smtpUser: "denetim@masterturk.com.tr",
+          smtpPass: "fucaupikpfrrhzzs"
+        }
+      };
 
-      if (res.ok) {
-        showMsg("success", "Tüm lokal veriler başarıyla buluta (Firebase Firestore) senkronize edildi!");
-        onRefresh();
-      } else {
-        showMsg("error", "Buluta senkronizasyon sırasında bir hata oluştu.");
+      // Sanitize fields to prevent Firestore serialization crashes
+      const serializedData = JSON.parse(JSON.stringify(dbPayload));
+      await setDoc(docRef, serializedData);
+
+      // 2. Fallback backend sync (keep backend db.json file up-to-date in Cloud Run environment)
+      try {
+        await fetch("/api/db/sync-from-client", {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify(dbPayload)
+        });
+      } catch (backendErr) {
+        console.warn("Backend local sync fallback failed (non-critical on Vercel):", backendErr);
       }
-    } catch (err) {
-      showMsg("error", "Bağlantı hatası: Bulut veritabanına erişilemedi.");
+
+      showMsg("success", "Tüm lokal veriler başarıyla direkt buluta (Firebase Firestore) senkronize edildi!");
+      onRefresh();
+    } catch (err: any) {
+      console.error("Firestore sync error:", err);
+      showMsg("error", `Bağlantı hatası: Bulut veritabanına veri yazılamadı. (${err.message})`);
     } finally {
       setLoading(false);
     }
