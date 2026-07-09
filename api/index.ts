@@ -3,6 +3,7 @@ import path from "path";
 import fs from "fs";
 import dotenv from "dotenv";
 import nodemailer from "nodemailer";
+import { loadFromFirestore, saveToFirestore } from "./firebase";
 
 dotenv.config();
 
@@ -150,8 +151,51 @@ const DEFAULT_DB: Database = {
   }
 };
 
+// --- DB MEMORY CACHE & FIRESTORE SYNC ---
+let cachedDB: Database | null = null;
+let isSyncingFromFirestore = false;
+
+// Async background fetch to sync local db with cloud Firestore
+async function syncFromFirestoreAsync() {
+  if (isSyncingFromFirestore) return;
+  isSyncingFromFirestore = true;
+  try {
+    console.log("[Firebase] Arka planda Firestore veritabanı eşitlemesi başlatılıyor...");
+    const cloudData = await loadFromFirestore();
+    if (cloudData) {
+      cachedDB = cloudData as Database;
+      // Enforce default configurations
+      cachedDB.config = {
+        resendApiKey: "",
+        brevoApiKey: "",
+        senderEmail: "denetim@masterturk.com.tr",
+        smtpEnabled: true,
+        smtpHost: "smtp.gmail.com",
+        smtpPort: 587,
+        smtpSecure: false,
+        smtpUser: "denetim@masterturk.com.tr",
+        smtpPass: "fucaupikpfrrhzzs"
+      };
+      // Write to local fallback file
+      fs.writeFileSync(DB_PATH, JSON.stringify(cachedDB, null, 2), "utf8");
+      console.log("[Firebase] Arka planda eşitleme başarılı. Veriler Firestore'dan güncellendi.");
+    }
+  } catch (err) {
+    console.error("[Firebase] Arka planda eşitleme başarısız oldu:", err);
+  } finally {
+    isSyncingFromFirestore = false;
+  }
+}
+
+// Trigger initial async sync on load
+syncFromFirestoreAsync();
+
 // --- DB READ/WRITE HELPERS ---
 function readDB(): Database {
+  if (cachedDB) {
+    return cachedDB;
+  }
+
   try {
     let db: Database;
     if (process.env.VERCEL && !fs.existsSync(DB_PATH)) {
@@ -169,8 +213,12 @@ function readDB(): Database {
       }
     } else if (!fs.existsSync(DB_PATH)) {
       fs.writeFileSync(DB_PATH, JSON.stringify(DEFAULT_DB, null, 2), "utf8");
+      cachedDB = DEFAULT_DB;
+      // Trigger upload of default db to Firestore
+      saveToFirestore(DEFAULT_DB);
       return DEFAULT_DB;
     }
+
     const data = fs.readFileSync(DB_PATH, "utf8");
     db = JSON.parse(data);
     
@@ -186,6 +234,11 @@ function readDB(): Database {
       smtpUser: "denetim@masterturk.com.tr",
       smtpPass: "fucaupikpfrrhzzs"
     };
+
+    cachedDB = db;
+    // Trigger background sync from Firestore to get the most up-to-date cloud state
+    syncFromFirestoreAsync();
+
     return db;
   } catch (err) {
     console.error("Error reading database:", err);
@@ -195,7 +248,18 @@ function readDB(): Database {
 
 function writeDB(data: Database) {
   try {
+    // Save to memory cache immediately
+    cachedDB = data;
+    // Write to local fallback file synchronously
     fs.writeFileSync(DB_PATH, JSON.stringify(data, null, 2), "utf8");
+    // Write to Cloud Firestore asynchronously in the background
+    saveToFirestore(data).then((success) => {
+      if (success) {
+        console.log("[Firebase] Arka plan Firestore kaydı başarılı.");
+      } else {
+        console.warn("[Firebase] Arka plan Firestore kaydı başarısız oldu, yerel dosya güncel.");
+      }
+    });
   } catch (err) {
     console.error("Error writing database:", err);
   }
