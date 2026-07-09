@@ -129,6 +129,99 @@ Object.defineProperty(window, 'fetch', {
         return makeResponse(office);
       }
 
+      // --- 2b. POST /api/offices/upload ---
+      if (url === "/api/offices/upload" && method === "POST") {
+        const { offices, defaultBrand } = JSON.parse(init?.body as string);
+        if (!Array.isArray(offices)) {
+          return makeResponse({ error: "Geçersiz veri formatı." }, 400);
+        }
+
+        const localOffices = getLocalOffices();
+        const addedList: { id: string; name: string; brand: string }[] = [];
+        const updatedList: { id: string; name: string; brand: string }[] = [];
+        let added = 0;
+        let updated = 0;
+
+        const getNormVal = (row: any, searchKeys: string[]): string => {
+          if (!row || typeof row !== "object") return "";
+          const normSearchKeys = searchKeys.map(k =>
+            k.toLowerCase().replace(/[\s\-_]+/g, "").replace(/ı/g, "i").replace(/ğ/g, "g").replace(/ü/g, "u").replace(/ş/g, "s").replace(/ö/g, "o").replace(/ç/g, "c")
+          );
+          for (const rowKey of Object.keys(row)) {
+            const normRowKey = rowKey.toLowerCase().replace(/[\s\-_]+/g, "").replace(/ı/g, "i").replace(/ğ/g, "g").replace(/ü/g, "u").replace(/ş/g, "s").replace(/ö/g, "o").replace(/ç/g, "c");
+            if (normSearchKeys.includes(normRowKey)) {
+              return String(row[rowKey] ?? "").trim();
+            }
+          }
+          return "";
+        };
+
+        for (const row of offices) {
+          const rawId = getNormVal(row, ["ofiskodu", "ofis kodu", "id", "kod"]);
+          const rawStatus = getNormVal(row, ["durum", "status", "ofisdurumu"]);
+          const rawName = getNormVal(row, ["ad", "adi", "ofisadi", "ofis adi", "name"]);
+          const rawOwnerEmail = getNormVal(row, ["e-posta", "eposta", "email", "mail"]);
+          const rawResponsible = getNormVal(row, ["sorumlu sistem kullanicisi", "sorumlusistemkullanicisi"]);
+          const rawBrand = getNormVal(row, ["marka", "brand"]);
+
+          const id = String(rawId).toUpperCase().trim();
+          if (!id) continue;
+
+          const name = String(rawName).trim() || "İsimsiz Ofis";
+          const ownerEmail = String(rawOwnerEmail).trim();
+          const status = String(rawStatus).trim();
+          const responsibleUser = String(rawResponsible).trim();
+          const ownerName = responsibleUser || "Bilinmiyor";
+
+          let brand = String(rawBrand).trim();
+          if (!brand && defaultBrand) {
+            brand = defaultBrand;
+          }
+
+          if (!brand) {
+            if (id.startsWith("CB")) brand = "Coldwell Banker";
+            else if (id.startsWith("C21") || id.startsWith("CENTURY") || id.startsWith("CE")) brand = "Century 21";
+            else if (id.startsWith("ERA")) brand = "ERA";
+            else brand = "Diğer";
+          }
+
+          if (brand.toLowerCase().includes("cb") || brand.toLowerCase().includes("coldwell")) brand = "Coldwell Banker";
+          else if (brand.toLowerCase().includes("c21") || brand.toLowerCase().includes("century")) brand = "Century 21";
+          else if (brand.toLowerCase().includes("era")) brand = "ERA";
+
+          const existingIdx = localOffices.findIndex((o: any) => o.id === id && o.brand === brand);
+          if (existingIdx > -1) {
+            localOffices[existingIdx] = {
+              ...localOffices[existingIdx],
+              name: name || localOffices[existingIdx].name,
+              ownerName: ownerName || localOffices[existingIdx].ownerName,
+              ownerEmail: ownerEmail || localOffices[existingIdx].ownerEmail,
+              status: status || localOffices[existingIdx].status,
+              responsibleUser: responsibleUser || localOffices[existingIdx].responsibleUser,
+              brand: brand || localOffices[existingIdx].brand,
+            };
+            updatedList.push({ id, name, brand });
+            updated++;
+          } else {
+            localOffices.push({
+              id,
+              name,
+              ownerName,
+              ownerEmail,
+              status,
+              responsibleUser,
+              brand,
+              groupId: null
+            });
+            addedList.push({ id, name, brand });
+            added++;
+          }
+        }
+
+        localStorage.setItem("db_offices", JSON.stringify(localOffices));
+        return makeResponse({ success: true, added, updated, addedList, updatedList });
+      }
+
       // --- 3. DELETE /api/offices/:id ---
       if (url.startsWith("/api/offices/") && method === "DELETE") {
         const id = url.split("/").pop();
@@ -158,7 +251,8 @@ Object.defineProperty(window, 'fetch', {
         localStorage.setItem("db_groups", JSON.stringify(groups));
 
         const updatedOffices = offices.map((o: any) => {
-          if (officeIds.includes(o.id)) {
+          const compoundKey = `${o.id}:::${o.brand}`;
+          if (officeIds.includes(o.id) || officeIds.includes(compoundKey)) {
             return { ...o, groupId: group.id };
           } else if (o.groupId === group.id) {
             return { ...o, groupId: null };
