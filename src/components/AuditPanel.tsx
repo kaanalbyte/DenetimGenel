@@ -169,6 +169,7 @@ export default function AuditPanel({ offices, groups, activeAudit, onRefresh, on
     // --- 1. DANİŞMAN DENETİMİ RAPORU HESAPLAMA ---
     const danismanMap: { 
       [entityId: string]: { 
+        entityId: string;
         code: string; 
         name: string; 
         ownerName: string; 
@@ -196,10 +197,11 @@ export default function AuditPanel({ offices, groups, activeAudit, onRefresh, on
     } = {};
 
     // Initialize map with all offices/groups
-    const initializeDanismanMap = (id: string, name: string, ownerName: string, isGroup?: boolean) => {
-      if (!danismanMap[id]) {
-        danismanMap[id] = {
-          code: id,
+    const initializeDanismanMap = (entityKey: string, code: string, name: string, ownerName: string, isGroup?: boolean) => {
+      if (!danismanMap[entityKey]) {
+        danismanMap[entityKey] = {
+          entityId: entityKey,
+          code,
           name,
           ownerName,
           countOwner: 0,
@@ -215,6 +217,8 @@ export default function AuditPanel({ offices, groups, activeAudit, onRefresh, on
         };
       }
     };
+
+    const getEntityKey = (o: any) => o.groupId || `${o.id}:::${o.name}`;
 
     const findCorrectOffice = (officeId: string, rowBrand: string | null, row: any) => {
       let office = offices.find(o => o.id === officeId && (rowBrand ? brandsMatch(o.brand || "", rowBrand) : true) && o.status !== "Silinmiş");
@@ -246,12 +250,13 @@ export default function AuditPanel({ offices, groups, activeAudit, onRefresh, on
 
     // Populate offices and groups
     offices.forEach(o => {
-      if (isPhase2 && !phase1Problematic.includes(o.groupId || o.id)) return; // Only problematic ones in Phase 2
+      const eKey = getEntityKey(o);
+      if (isPhase2 && !phase1Problematic.includes(eKey)) return; // Only problematic ones in Phase 2
       
       if (o.groupId) {
         const group = groups.find(g => g.id === o.groupId);
         if (group) {
-          initializeDanismanMap(group.id, `${group.name} (Grup)`, group.ownerName, true);
+          initializeDanismanMap(group.id, group.id, `${group.name} (Grup)`, group.ownerName, true);
           const gEnt = danismanMap[group.id];
           if (gEnt && gEnt.subOffices && !gEnt.subOffices.find(s => s.code === o.id)) {
             gEnt.subOffices.push({
@@ -260,7 +265,7 @@ export default function AuditPanel({ offices, groups, activeAudit, onRefresh, on
           }
         }
       } else {
-        initializeDanismanMap(o.id, o.name, o.ownerName);
+        initializeDanismanMap(eKey, o.id, o.name, o.ownerName);
       }
     });
 
@@ -274,7 +279,7 @@ export default function AuditPanel({ offices, groups, activeAudit, onRefresh, on
       
       if (!office) return;
 
-      const entityId = office.groupId || office.id;
+      const entityId = getEntityKey(office);
       if (isPhase2 && !phase1Problematic.includes(entityId)) return;
 
       const entity = danismanMap[entityId];
@@ -307,10 +312,11 @@ export default function AuditPanel({ offices, groups, activeAudit, onRefresh, on
 
       const rowBrand = getBrandFromRow(row, offices);
       const office = findCorrectOffice(officeId, rowBrand, row);
+      console.log("DEBUG KACAK:", { id: officeId, brand: rowBrand, officeName: office?.name, row });
 
       if (!office) return;
 
-      const entityId = office.groupId || office.id;
+      const entityId = getEntityKey(office);
       if (isPhase2 && !phase1Problematic.includes(entityId)) return;
 
       const entity = danismanMap[entityId];
@@ -345,6 +351,7 @@ export default function AuditPanel({ offices, groups, activeAudit, onRefresh, on
     // --- 2. İLAN DENETİMİ RAPORU HESAPLAMA ---
     const ilanMap: { 
       [entityId: string]: { 
+        entityId: string;
         code: string; 
         name: string; 
         ownerName: string; 
@@ -368,13 +375,14 @@ export default function AuditPanel({ offices, groups, activeAudit, onRefresh, on
     } = {};
 
     offices.forEach(o => {
-      const targetId = o.groupId || o.id;
+      const targetId = getEntityKey(o);
       if (isPhase2 && !phase1Problematic.includes(targetId)) return;
 
       if (!ilanMap[targetId]) {
         if (o.groupId) {
           const group = groups.find(g => g.id === o.groupId);
           ilanMap[targetId] = {
+            entityId: targetId,
             code: targetId,
             name: group ? `${group.name} (Grup)` : "Grup Ofis",
             ownerName: group ? group.ownerName : o.ownerName,
@@ -389,7 +397,8 @@ export default function AuditPanel({ offices, groups, activeAudit, onRefresh, on
           };
         } else {
           ilanMap[targetId] = {
-            code: targetId,
+            entityId: targetId,
+            code: o.id,
             name: o.name,
             ownerName: o.ownerName,
             countSatilik: 0,
@@ -419,10 +428,11 @@ export default function AuditPanel({ offices, groups, activeAudit, onRefresh, on
 
       const rowBrand = getBrandFromRow(row, offices);
       const office = findCorrectOffice(officeId, rowBrand, row);
+      console.log("DEBUG ILAN_PANEL:", { id: officeId, brand: rowBrand, officeName: office?.name, row });
 
       if (!office) return;
 
-      const targetId = office.groupId || office.id;
+      const targetId = getEntityKey(office);
       if (ilanMap[targetId]) {
         const satilik = Number(getNormalizedValue(row, ["satilik", "satılık", "sale"]) || 0);
         const kiralik = Number(getNormalizedValue(row, ["kiralik", "kiralık", "rent"]) || 0);
@@ -449,10 +459,11 @@ export default function AuditPanel({ offices, groups, activeAudit, onRefresh, on
 
       const rowBrand = getBrandFromRow(row, offices);
       const office = findCorrectOffice(officeId, rowBrand, row);
+      console.log("DEBUG ILAN_SAHIBINDEN:", { id: officeId, brand: rowBrand, officeName: office?.name, row });
 
       if (!office) return;
 
-      const targetId = office.groupId || office.id;
+      const targetId = getEntityKey(office);
       if (ilanMap[targetId]) {
         const portfoy = Number(getNormalizedValue(row, ["portfoysayisi", "portfoy", "ilansayisi", "ilan sayisi"]) || 0);
         ilanMap[targetId].countSahibinden += portfoy;
@@ -1727,14 +1738,14 @@ export default function AuditPanel({ offices, groups, activeAudit, onRefresh, on
                               </tr>
                             ) : (
                               processedDanismanReport.map((item) => (
-                                <React.Fragment key={item.code}>
+                                <React.Fragment key={item.entityId}>
                                 <tr className={`hover:bg-slate-50/40 transition ${item.status === "Sorunlu" ? "bg-rose-50/20" : ""}`}>
                                   <td className="px-3 py-2">
                                     <input
                                       type="checkbox"
                                       disabled={item.status === "Uyumlu"}
-                                      checked={selectedDanismanIds.includes(item.code)}
-                                      onChange={() => toggleDanismanSelection(item.code)}
+                                      checked={selectedDanismanIds.includes(item.entityId)}
+                                      onChange={() => toggleDanismanSelection(item.entityId)}
                                       className="rounded border-slate-300 text-blue-600 focus:ring-blue-500 w-3.5 h-3.5 disabled:opacity-30 cursor-pointer"
                                     />
                                   </td>
@@ -1946,14 +1957,14 @@ export default function AuditPanel({ offices, groups, activeAudit, onRefresh, on
                               </tr>
                             ) : (
                               processedIlanReport.map((item) => (
-                                <React.Fragment key={item.code}>
+                                <React.Fragment key={item.entityId}>
                                 <tr className={`hover:bg-slate-50/40 transition ${item.status === "Sorunlu" ? "bg-rose-50/20" : ""}`}>
                                   <td className="px-3 py-2">
                                     <input
                                       type="checkbox"
                                       disabled={item.status === "Uyumlu"}
-                                      checked={selectedIlanIds.includes(item.code)}
-                                      onChange={() => toggleIlanSelection(item.code)}
+                                      checked={selectedIlanIds.includes(item.entityId)}
+                                      onChange={() => toggleIlanSelection(item.entityId)}
                                       className="rounded border-slate-300 text-blue-600 focus:ring-blue-500 w-3.5 h-3.5 disabled:opacity-30 cursor-pointer"
                                     />
                                   </td>
