@@ -868,7 +868,11 @@ export default function AuditPanel({ offices, groups, activeAudit, onRefresh, on
       result = result.filter(item => 
         item.name.toLowerCase().includes(searchLower) || 
         item.code.toLowerCase().includes(searchLower) || 
-        item.ownerName.toLowerCase().includes(searchLower)
+        item.ownerName.toLowerCase().includes(searchLower) ||
+        (item.subOffices && item.subOffices.some(sub => 
+          sub.name.toLowerCase().includes(searchLower) || 
+          sub.code.toLowerCase().includes(searchLower)
+        ))
       );
     }
 
@@ -930,7 +934,11 @@ export default function AuditPanel({ offices, groups, activeAudit, onRefresh, on
       result = result.filter(item => 
         item.name.toLowerCase().includes(searchLower) || 
         item.code.toLowerCase().includes(searchLower) || 
-        item.ownerName.toLowerCase().includes(searchLower)
+        item.ownerName.toLowerCase().includes(searchLower) ||
+        (item.subOffices && item.subOffices.some(sub => 
+          sub.name.toLowerCase().includes(searchLower) || 
+          sub.code.toLowerCase().includes(searchLower)
+        ))
       );
     }
 
