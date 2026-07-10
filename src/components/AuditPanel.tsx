@@ -52,17 +52,23 @@ function getNormalizedValue(row: any, searchKeys: string[]): string {
 
 function getBrandFromRow(row: any): string | null {
   const officeName = getNormalizedValue(row, ["ofisadi", "ofis adi", "name", "office name", "ad", "unvan"]).trim();
-  if (!officeName) return null;
   const upperName = officeName.toUpperCase();
-  if (upperName.startsWith("CB")) {
+  if (upperName.startsWith("CB") || upperName.includes("COLDWELL")) {
     return "Coldwell Banker";
   }
-  if (upperName.startsWith("C21")) {
+  if (upperName.startsWith("C21") || upperName.includes("CENTURY")) {
     return "Century 21";
   }
   if (upperName.startsWith("ERA")) {
     return "ERA";
   }
+  
+  // Also check _sourceFile
+  const src = String(row._sourceFile || "").toLowerCase();
+  if (src.includes("cb")) return "Coldwell Banker";
+  if (src.includes("c21") || src.includes("century")) return "Century 21";
+  if (src.includes("era")) return "ERA";
+  
   return null;
 }
 
@@ -172,7 +178,17 @@ export default function AuditPanel({ offices, groups, activeAudit, onRefresh, on
       const officeId = getNormalizedValue(row, ["ofiskodu", "ofis kodu", "id", "kod"]).toUpperCase().trim();
       if (!officeId) return;
 
-      const office = offices.find(o => o.id === officeId);
+      const rowBrand = getBrandFromRow(row);
+      let office = offices.find(o => o.id === officeId && (rowBrand ? brandsMatch(o.brand || "", rowBrand) : true) && o.status !== "Silinmiş");
+      if (!office) {
+        office = offices.find(o => o.id === officeId && (rowBrand ? brandsMatch(o.brand || "", rowBrand) : true));
+      }
+      if (!office) {
+        office = offices.find(o => o.id === officeId && o.status !== "Silinmiş");
+      }
+      if (!office) {
+        office = offices.find(o => o.id === officeId);
+      }
       if (!office) return;
 
       const entityId = office.groupId || office.id;
@@ -277,7 +293,17 @@ export default function AuditPanel({ offices, groups, activeAudit, onRefresh, on
       const officeId = getNormalizedValue(row, ["ofiskodu", "ofis kodu", "id", "kod"]).toUpperCase().trim();
       if (!officeId) return;
 
-      const office = offices.find(o => o.id === officeId);
+      const rowBrand = getBrandFromRow(row);
+      let office = offices.find(o => o.id === officeId && (rowBrand ? brandsMatch(o.brand || "", rowBrand) : true) && o.status !== "Silinmiş");
+      if (!office) {
+        office = offices.find(o => o.id === officeId && (rowBrand ? brandsMatch(o.brand || "", rowBrand) : true));
+      }
+      if (!office) {
+        office = offices.find(o => o.id === officeId && o.status !== "Silinmiş");
+      }
+      if (!office) {
+        office = offices.find(o => o.id === officeId);
+      }
       if (!office) return;
 
       const targetId = office.groupId || office.id;
@@ -297,7 +323,13 @@ export default function AuditPanel({ offices, groups, activeAudit, onRefresh, on
       if (!officeId) return;
 
       const rowBrand = getBrandFromRow(row);
-      let office = offices.find(o => o.id === officeId && (rowBrand ? brandsMatch(o.brand || "", rowBrand) : true));
+      let office = offices.find(o => o.id === officeId && (rowBrand ? brandsMatch(o.brand || "", rowBrand) : true) && o.status !== "Silinmiş");
+      if (!office) {
+        office = offices.find(o => o.id === officeId && (rowBrand ? brandsMatch(o.brand || "", rowBrand) : true));
+      }
+      if (!office) {
+        office = offices.find(o => o.id === officeId && o.status !== "Silinmiş");
+      }
       if (!office) {
         office = offices.find(o => o.id === officeId);
       }
@@ -495,8 +527,22 @@ export default function AuditPanel({ offices, groups, activeAudit, onRefresh, on
     const ilanSahibindenRaw = (currentPhase === "Tespit" ? activeAudit.phase1IlanSahibindenRaw : activeAudit.phase2IlanSahibindenRaw) || [];
     const kacakDanismanRaw = (currentPhase === "Tespit" ? activeAudit.phase1KacakDanismanRaw : activeAudit.phase2KacakDanismanRaw) || [];
 
-    const getOfficeBrand = (id: string) => {
-      const office = offices.find(o => o.id === id);
+    const getOfficeBrand = (id: string, sourceFile?: string) => {
+      const src = String(sourceFile || "").toLowerCase();
+      let preferredBrand: string | null = null;
+      if (src.includes("cb")) preferredBrand = "Coldwell Banker";
+      else if (src.includes("c21") || src.includes("century")) preferredBrand = "Century 21";
+      else if (src.includes("era")) preferredBrand = "ERA";
+
+      if (preferredBrand) {
+        const office = offices.find(o => o.id === id && o.brand === preferredBrand && o.status !== "Silinmiş") ||
+                       offices.find(o => o.id === id && o.brand === preferredBrand) ||
+                       offices.find(o => o.id === id && o.status !== "Silinmiş") ||
+                       offices.find(o => o.id === id);
+        return office?.brand || preferredBrand;
+      }
+
+      const office = offices.find(o => o.id === id && o.status !== "Silinmiş") || offices.find(o => o.id === id);
       return office?.brand || null;
     };
 
@@ -513,7 +559,7 @@ export default function AuditPanel({ offices, groups, activeAudit, onRefresh, on
 
     danismanRaw.forEach(r => {
       const id = getNormalizedValue(r, ["ofiskodu", "ofis kodu", "id", "kod"]).toUpperCase().trim();
-      const brand = getOfficeBrand(id);
+      const brand = getOfficeBrand(id, r._sourceFile);
       if (brand === "Coldwell Banker") cbDanismanCount++;
       else if (brand === "Century 21") c21DanismanCount++;
       else if (brand === "ERA") eraDanismanCount++;
@@ -527,7 +573,7 @@ export default function AuditPanel({ offices, groups, activeAudit, onRefresh, on
 
     ilanPanelRaw.forEach(r => {
       const id = getNormalizedValue(r, ["ofiskodu", "ofis kodu", "id", "kod"]).toUpperCase().trim();
-      const brand = getOfficeBrand(id);
+      const brand = getOfficeBrand(id, r._sourceFile);
       if (brand === "Coldwell Banker") cbIlanCount++;
       else if (brand === "Century 21") c21IlanCount++;
       else if (brand === "ERA") eraIlanCount++;
