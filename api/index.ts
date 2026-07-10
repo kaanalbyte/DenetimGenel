@@ -212,6 +212,10 @@ function pruneRow(row: any, type: "danisman" | "ilan_panel" | "ilan_sahibinden" 
   } else if (type === "ilan_sahibinden") {
     const countKey = getMatchedKey(row, ["portfoy", "portfoysayisi", "portfoy sayisi", "ilan", "ilansayisi", "ilan sayisi", "count", "sahibinden"]);
     if (countKey) pruned[countKey] = Number(row[countKey] || 0);
+    const officeNameKey = getMatchedKey(row, ["ofisadi", "ofis adi", "name", "office name", "ad", "unvan", "ofis"]);
+    if (officeNameKey) pruned[officeNameKey] = String(row[officeNameKey]).trim();
+    const nameKey = getMatchedKey(row, ["danismanadi", "danisman adi", "danisman adisoyadi", "danisman adi soyadi", "adsoyad", "ad soyad", "danismanadisoyadi", "danisman"]);
+    if (nameKey) pruned[nameKey] = String(row[nameKey]).trim();
   } else if (type === "kacak_danisman") {
     const nameKey = getMatchedKey(row, ["danismanadi", "danisman adi", "danisman adisoyadi", "danisman adi soyadi", "adsoyad", "ad soyad", "name", "danisman"]);
     if (nameKey) pruned[nameKey] = String(row[nameKey]).trim();
