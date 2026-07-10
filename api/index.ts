@@ -221,6 +221,8 @@ function pruneRow(row: any, type: "danisman" | "ilan_panel" | "ilan_sahibinden" 
     if (nameKey) pruned[nameKey] = String(row[nameKey]).trim();
     const countKey = getMatchedKey(row, ["portfoy", "portfoysayisi", "portfoy sayisi", "ilan", "ilansayisi", "ilan sayisi", "count", "sahibinden"]);
     if (countKey) pruned[countKey] = Number(row[countKey] || 0);
+    const officeNameKey = getMatchedKey(row, ["ofisadi", "ofis adi", "name", "office name", "ad", "unvan", "ofis"]);
+    if (officeNameKey) pruned[officeNameKey] = String(row[officeNameKey]).trim();
   }
 
   if (row._sourceFile) {

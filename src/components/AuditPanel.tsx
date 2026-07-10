@@ -216,6 +216,34 @@ export default function AuditPanel({ offices, groups, activeAudit, onRefresh, on
       }
     };
 
+    const findCorrectOffice = (officeId: string, rowBrand: string | null, row: any) => {
+      let office = offices.find(o => o.id === officeId && (rowBrand ? brandsMatch(o.brand || "", rowBrand) : true) && o.status !== "Silinmiş");
+      if (office) return office;
+      
+      office = offices.find(o => o.id === officeId && (rowBrand ? brandsMatch(o.brand || "", rowBrand) : true));
+      if (office) return office;
+
+      const rowOfficeName = getNormalizedValue(row, ["ofisadi", "ofis adi", "name", "office name", "ad", "unvan", "ofis"]);
+      if (rowOfficeName) {
+        const upName = rowOfficeName.toUpperCase().trim();
+        office = offices.find(o => o.name.toUpperCase().trim() === upName && o.status !== "Silinmiş");
+        if (office) return office;
+        office = offices.find(o => o.name.toUpperCase().trim() === upName);
+        if (office) return office;
+        
+        office = offices.find(o => o.status !== "Silinmiş" && (o.name.toUpperCase().includes(upName) || upName.includes(o.name.toUpperCase())));
+        if (office) return office;
+        
+        office = offices.find(o => (o.name.toUpperCase().includes(upName) || upName.includes(o.name.toUpperCase())));
+        if (office) return office;
+      }
+
+      office = offices.find(o => o.id === officeId && o.status !== "Silinmiş");
+      if (office) return office;
+      
+      return offices.find(o => o.id === officeId);
+    };
+
     // Populate offices and groups
     offices.forEach(o => {
       if (isPhase2 && !phase1Problematic.includes(o.groupId || o.id)) return; // Only problematic ones in Phase 2
@@ -242,16 +270,8 @@ export default function AuditPanel({ offices, groups, activeAudit, onRefresh, on
       if (!officeId) return;
 
       const rowBrand = getBrandFromRow(row, offices);
-      let office = offices.find(o => o.id === officeId && (rowBrand ? brandsMatch(o.brand || "", rowBrand) : true) && o.status !== "Silinmiş");
-      if (!office) {
-        office = offices.find(o => o.id === officeId && (rowBrand ? brandsMatch(o.brand || "", rowBrand) : true));
-      }
-      if (!office) {
-        office = offices.find(o => o.id === officeId && o.status !== "Silinmiş");
-      }
-      if (!office) {
-        office = offices.find(o => o.id === officeId);
-      }
+      const office = findCorrectOffice(officeId, rowBrand, row);
+      
       if (!office) return;
 
       const entityId = office.groupId || office.id;
@@ -286,10 +306,8 @@ export default function AuditPanel({ offices, groups, activeAudit, onRefresh, on
       if (!officeId) return;
 
       const rowBrand = getBrandFromRow(row, offices);
-      let office = offices.find(o => o.id === officeId && (rowBrand ? brandsMatch(o.brand || "", rowBrand) : true));
-      if (!office) {
-        office = offices.find(o => o.id === officeId);
-      }
+      const office = findCorrectOffice(officeId, rowBrand, row);
+
       if (!office) return;
 
       const entityId = office.groupId || office.id;
@@ -400,16 +418,8 @@ export default function AuditPanel({ offices, groups, activeAudit, onRefresh, on
       if (!officeId) return;
 
       const rowBrand = getBrandFromRow(row, offices);
-      let office = offices.find(o => o.id === officeId && (rowBrand ? brandsMatch(o.brand || "", rowBrand) : true) && o.status !== "Silinmiş");
-      if (!office) {
-        office = offices.find(o => o.id === officeId && (rowBrand ? brandsMatch(o.brand || "", rowBrand) : true));
-      }
-      if (!office) {
-        office = offices.find(o => o.id === officeId && o.status !== "Silinmiş");
-      }
-      if (!office) {
-        office = offices.find(o => o.id === officeId);
-      }
+      const office = findCorrectOffice(officeId, rowBrand, row);
+
       if (!office) return;
 
       const targetId = office.groupId || office.id;
@@ -438,16 +448,8 @@ export default function AuditPanel({ offices, groups, activeAudit, onRefresh, on
       if (!officeId) return;
 
       const rowBrand = getBrandFromRow(row, offices);
-      let office = offices.find(o => o.id === officeId && (rowBrand ? brandsMatch(o.brand || "", rowBrand) : true) && o.status !== "Silinmiş");
-      if (!office) {
-        office = offices.find(o => o.id === officeId && (rowBrand ? brandsMatch(o.brand || "", rowBrand) : true));
-      }
-      if (!office) {
-        office = offices.find(o => o.id === officeId && o.status !== "Silinmiş");
-      }
-      if (!office) {
-        office = offices.find(o => o.id === officeId);
-      }
+      const office = findCorrectOffice(officeId, rowBrand, row);
+
       if (!office) return;
 
       const targetId = office.groupId || office.id;

@@ -264,9 +264,29 @@ export default function App() {
           </button>
         </nav>
 
-        <div className="p-4 bg-slate-950 border-t border-slate-900 mt-auto flex flex-col items-center">
-          {isSidebarOpen && <div className="text-[10px] text-slate-500 uppercase font-bold mb-2 tracking-wider font-mono w-full whitespace-nowrap">Altyapı Durumu</div>}
-          <div className={`flex items-center gap-2 text-[10px] ${isSidebarOpen ? "w-full" : "justify-center"}`} title="Supabase Bağlı (Free Tier)">
+        <div className="p-4 bg-slate-950 border-t border-slate-900 mt-auto flex flex-col gap-3">
+          {isSidebarOpen ? (
+            <div className="flex items-center justify-between">
+              <div className="text-[10px] text-slate-500 uppercase font-bold tracking-wider font-mono whitespace-nowrap">Altyapı Durumu</div>
+              <button
+                onClick={() => setIsSidebarOpen(!isSidebarOpen)}
+                className="text-slate-400 hover:text-white hover:bg-slate-800 p-1 rounded transition-colors cursor-pointer"
+                title="Menüyü Kapat"
+              >
+                <PanelLeftClose className="w-4 h-4" />
+              </button>
+            </div>
+          ) : (
+            <button
+              onClick={() => setIsSidebarOpen(!isSidebarOpen)}
+              className="text-slate-400 hover:text-white hover:bg-slate-800 p-1.5 mx-auto rounded transition-colors cursor-pointer"
+              title="Menüyü Aç"
+            >
+              <PanelLeftOpen className="w-5 h-5" />
+            </button>
+          )}
+          
+          <div className={`flex items-center gap-2 text-[10px] ${isSidebarOpen ? "" : "justify-center"}`} title="Supabase Bağlı (Free Tier)">
             <div className="w-2 h-2 rounded-full bg-emerald-500 animate-pulse shrink-0"></div>
             {isSidebarOpen && <span className="text-slate-400 font-medium whitespace-nowrap">Supabase Bağlı</span>}
           </div>
@@ -279,13 +299,6 @@ export default function App() {
         {/* Header */}
         <header className="h-14 bg-white border-b border-slate-200 px-4 sm:px-6 flex items-center justify-between shrink-0">
           <div className="flex items-center gap-3">
-            <button
-              onClick={() => setIsSidebarOpen(!isSidebarOpen)}
-              className="text-slate-400 hover:text-slate-600 hover:bg-slate-100 p-1.5 rounded transition-colors cursor-pointer"
-              title="Menüyü Aç/Kapat"
-            >
-              {isSidebarOpen ? <PanelLeftClose className="w-5 h-5" /> : <PanelLeftOpen className="w-5 h-5" />}
-            </button>
             <h1 className="text-sm font-bold text-slate-800 flex items-center gap-2">
               {activeAudit ? activeAudit.name : "Ocak 2024 Denetim Dönemi"}
               {activeAudit ? (
