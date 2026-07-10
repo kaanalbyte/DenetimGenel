@@ -358,8 +358,8 @@ export default function AuditPanel({ offices, groups, activeAudit, onRefresh, on
     }
   };
 
-  const handleRealDataLoad = async (type: string, data: any[], secondaryData?: any[]) => {
-    if (!activeAudit) return;
+  const handleRealDataLoad = async (type: string, data: any[], secondaryData?: any[]): Promise<boolean> => {
+    if (!activeAudit) return false;
     setLoading(true);
     try {
       const res = await fetch("/api/audits/active/upload", {
@@ -370,12 +370,15 @@ export default function AuditPanel({ offices, groups, activeAudit, onRefresh, on
       if (res.ok) {
         showMsg("success", "Gerçek veri başarıyla yüklendi!");
         onRefresh();
+        return true;
       } else {
         const err = await res.json();
         showMsg("error", "Hata: " + err.error);
+        return false;
       }
     } catch (err) {
       showMsg("error", "Sunucuya bağlanılamadı.");
+      return false;
     } finally {
       setLoading(false);
     }
