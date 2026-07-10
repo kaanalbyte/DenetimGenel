@@ -197,6 +197,11 @@ function pruneRow(row: any, type: "danisman" | "ilan_panel" | "ilan_sahibinden" 
     pruned[officeCodeKey] = String(row[officeCodeKey]).trim();
   }
 
+  const officeNameKey = getMatchedKey(row, ["ofisadi", "ofis adi", "name", "office name", "ad", "unvan", "ofis"]);
+  if (officeNameKey) {
+    pruned[officeNameKey] = String(row[officeNameKey]).trim();
+  }
+
   if (type === "danisman") {
     const ownerKey = getMatchedKey(row, ["owner", "sahip", "ofissahibi"]);
     if (ownerKey) pruned[ownerKey] = Number(row[ownerKey] || 0);
@@ -212,8 +217,6 @@ function pruneRow(row: any, type: "danisman" | "ilan_panel" | "ilan_sahibinden" 
   } else if (type === "ilan_sahibinden") {
     const countKey = getMatchedKey(row, ["portfoy", "portfoysayisi", "portfoy sayisi", "ilan", "ilansayisi", "ilan sayisi", "count", "sahibinden"]);
     if (countKey) pruned[countKey] = Number(row[countKey] || 0);
-    const officeNameKey = getMatchedKey(row, ["ofisadi", "ofis adi", "name", "office name", "ad", "unvan", "ofis"]);
-    if (officeNameKey) pruned[officeNameKey] = String(row[officeNameKey]).trim();
     const nameKey = getMatchedKey(row, ["danismanadi", "danisman adi", "danisman adisoyadi", "danisman adi soyadi", "adsoyad", "ad soyad", "danismanadisoyadi", "danisman"]);
     if (nameKey) pruned[nameKey] = String(row[nameKey]).trim();
   } else if (type === "kacak_danisman") {
@@ -221,8 +224,6 @@ function pruneRow(row: any, type: "danisman" | "ilan_panel" | "ilan_sahibinden" 
     if (nameKey) pruned[nameKey] = String(row[nameKey]).trim();
     const countKey = getMatchedKey(row, ["portfoy", "portfoysayisi", "portfoy sayisi", "ilan", "ilansayisi", "ilan sayisi", "count", "sahibinden"]);
     if (countKey) pruned[countKey] = Number(row[countKey] || 0);
-    const officeNameKey = getMatchedKey(row, ["ofisadi", "ofis adi", "name", "office name", "ad", "unvan", "ofis"]);
-    if (officeNameKey) pruned[officeNameKey] = String(row[officeNameKey]).trim();
   }
 
   if (row._sourceFile) {
