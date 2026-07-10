@@ -384,17 +384,46 @@ Object.defineProperty(window, 'fetch', {
           return "";
         };
 
+        const getBrandFromRowLocal = (row: any): string => {
+          const officeName = getNormValLocal(row, ["ofisadi", "ofis adi", "name", "office name", "ad", "unvan"]).trim();
+          const upperName = officeName.toUpperCase();
+          if (upperName.startsWith("CB") || upperName.includes("COLDWELL")) {
+            return "Coldwell Banker";
+          }
+          if (upperName.startsWith("C21") || upperName.includes("CENTURY")) {
+            return "Century 21";
+          }
+          if (upperName.startsWith("ERA")) {
+            return "ERA";
+          }
+          
+          const src = String(row._sourceFile || "").toLowerCase();
+          if (src.includes("cb")) return "Coldwell Banker";
+          if (src.includes("c21") || src.includes("century")) return "Century 21";
+          if (src.includes("era")) return "ERA";
+          
+          return "";
+        };
+
         const mergeByOfficeCodeLocal = (existing: any[], incomingRows: any[]) => {
           const ex = Array.isArray(existing) ? existing : [];
           const inc = Array.isArray(incomingRows) ? incomingRows : [];
           const map = new Map<string, any>();
           ex.forEach(row => {
-            const key = getNormValLocal(row, ["ofiskodu", "ofis kodu", "id", "kod"]).toUpperCase().trim();
-            if (key) map.set(key, row);
+            const officeId = getNormValLocal(row, ["ofiskodu", "ofis kodu", "id", "kod"]).toUpperCase().trim();
+            if (officeId) {
+              const brand = getBrandFromRowLocal(row);
+              const key = brand ? `${officeId}:::${brand}` : officeId;
+              map.set(key, row);
+            }
           });
           inc.forEach(row => {
-            const key = getNormValLocal(row, ["ofiskodu", "ofis kodu", "id", "kod"]).toUpperCase().trim();
-            if (key) map.set(key, row);
+            const officeId = getNormValLocal(row, ["ofiskodu", "ofis kodu", "id", "kod"]).toUpperCase().trim();
+            if (officeId) {
+              const brand = getBrandFromRowLocal(row);
+              const key = brand ? `${officeId}:::${brand}` : officeId;
+              map.set(key, row);
+            }
           });
           return Array.from(map.values());
         };

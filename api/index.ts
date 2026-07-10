@@ -897,6 +897,28 @@ app.post("/api/audits", (req, res) => {
   res.json(newAudit);
 });
 
+function getBrandFromRowBackend(row: any): string {
+  const officeName = getNormalizedValue(row, ["ofisadi", "ofis adi", "name", "office name", "ad", "unvan"]).trim();
+  const upperName = officeName.toUpperCase();
+  if (upperName.startsWith("CB") || upperName.includes("COLDWELL")) {
+    return "Coldwell Banker";
+  }
+  if (upperName.startsWith("C21") || upperName.includes("CENTURY")) {
+    return "Century 21";
+  }
+  if (upperName.startsWith("ERA")) {
+    return "ERA";
+  }
+  
+  // Check source file name
+  const src = String(row._sourceFile || "").toLowerCase();
+  if (src.includes("cb")) return "Coldwell Banker";
+  if (src.includes("c21") || src.includes("century")) return "Century 21";
+  if (src.includes("era")) return "ERA";
+  
+  return "";
+}
+
 // Helper to merge incoming rows with existing ones based on office code resiliently
 function mergeByOfficeCode(existing: any[], incoming: any[]) {
   if (!Array.isArray(existing)) existing = [];
@@ -904,15 +926,19 @@ function mergeByOfficeCode(existing: any[], incoming: any[]) {
 
   const existingMap = new Map<string, any>();
   existing.forEach(row => {
-    const key = getNormalizedValue(row, ["ofiskodu", "ofis kodu", "id", "kod"]).toUpperCase().trim();
-    if (key) {
+    const officeId = getNormalizedValue(row, ["ofiskodu", "ofis kodu", "id", "kod"]).toUpperCase().trim();
+    if (officeId) {
+      const brand = getBrandFromRowBackend(row);
+      const key = brand ? `${officeId}:::${brand}` : officeId;
       existingMap.set(key, row);
     }
   });
 
   incoming.forEach(row => {
-    const key = getNormalizedValue(row, ["ofiskodu", "ofis kodu", "id", "kod"]).toUpperCase().trim();
-    if (key) {
+    const officeId = getNormalizedValue(row, ["ofiskodu", "ofis kodu", "id", "kod"]).toUpperCase().trim();
+    if (officeId) {
+      const brand = getBrandFromRowBackend(row);
+      const key = brand ? `${officeId}:::${brand}` : officeId;
       existingMap.set(key, row); // Overwrite existing or add new
     }
   });
