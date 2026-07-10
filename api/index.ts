@@ -941,7 +941,8 @@ function mergeByOfficeCode(existing: any[], incoming: any[]) {
     const officeId = getNormalizedValue(row, ["ofiskodu", "ofis kodu", "id", "kod"]).toUpperCase().trim();
     if (officeId) {
       const brand = getBrandFromRowBackend(row);
-      const key = brand ? `${officeId}:::${brand}` : officeId;
+      const name = getNormalizedValue(row, ["danismanadi", "danisman adi", "danisman adisoyadi", "danisman adi soyadi", "adsoyad", "ad soyad", "danismanadisoyadi"]).toUpperCase().trim();
+      const key = name ? `${officeId}:::${brand}:::${name}` : (brand ? `${officeId}:::${brand}` : officeId);
       existingMap.set(key, row);
     }
   });
@@ -950,7 +951,8 @@ function mergeByOfficeCode(existing: any[], incoming: any[]) {
     const officeId = getNormalizedValue(row, ["ofiskodu", "ofis kodu", "id", "kod"]).toUpperCase().trim();
     if (officeId) {
       const brand = getBrandFromRowBackend(row);
-      const key = brand ? `${officeId}:::${brand}` : officeId;
+      const name = getNormalizedValue(row, ["danismanadi", "danisman adi", "danisman adisoyadi", "danisman adi soyadi", "adsoyad", "ad soyad", "danismanadisoyadi"]).toUpperCase().trim();
+      const key = name ? `${officeId}:::${brand}:::${name}` : (brand ? `${officeId}:::${brand}` : officeId);
       existingMap.set(key, row); // Overwrite existing or add new
     }
   });

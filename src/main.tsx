@@ -425,7 +425,8 @@ Object.defineProperty(window, 'fetch', {
             const officeId = getNormValLocal(row, ["ofiskodu", "ofis kodu", "id", "kod"]).toUpperCase().trim();
             if (officeId) {
               const brand = getBrandFromRowLocal(row);
-              const key = brand ? `${officeId}:::${brand}` : officeId;
+              const name = getNormValLocal(row, ["danismanadi", "danisman adi", "danisman adisoyadi", "danisman adi soyadi", "adsoyad", "ad soyad", "danismanadisoyadi"]).toUpperCase().trim();
+              const key = name ? `${officeId}:::${brand}:::${name}` : (brand ? `${officeId}:::${brand}` : officeId);
               map.set(key, row);
             }
           });
@@ -433,7 +434,8 @@ Object.defineProperty(window, 'fetch', {
             const officeId = getNormValLocal(row, ["ofiskodu", "ofis kodu", "id", "kod"]).toUpperCase().trim();
             if (officeId) {
               const brand = getBrandFromRowLocal(row);
-              const key = brand ? `${officeId}:::${brand}` : officeId;
+              const name = getNormValLocal(row, ["danismanadi", "danisman adi", "danisman adisoyadi", "danisman adi soyadi", "adsoyad", "ad soyad", "danismanadisoyadi"]).toUpperCase().trim();
+              const key = name ? `${officeId}:::${brand}:::${name}` : (brand ? `${officeId}:::${brand}` : officeId);
               map.set(key, row);
             }
           });
