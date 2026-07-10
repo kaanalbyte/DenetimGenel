@@ -157,6 +157,75 @@ const DEFAULT_DB: Database = {
 let cachedDB: Database | null = null;
 let isSyncingFromFirestore = false;
 
+function getMatchedKey(row: any, searchKeys: string[]): string | null {
+  if (!row || typeof row !== "object") return null;
+  const normSearchKeys = searchKeys.map(k => 
+    k.toLowerCase()
+     .replace(/[\s\-_]+/g, "")
+     .replace(/ı/g, "i")
+     .replace(/ğ/g, "g")
+     .replace(/ü/g, "u")
+     .replace(/ş/g, "s")
+     .replace(/ö/g, "o")
+     .replace(/ç/g, "c")
+  );
+
+  for (const rowKey of Object.keys(row)) {
+    const normRowKey = rowKey.trim()
+      .toLowerCase()
+      .replace(/[\s\-_]+/g, "")
+      .replace(/ı/g, "i")
+      .replace(/ğ/g, "g")
+      .replace(/ü/g, "u")
+      .replace(/ş/g, "s")
+      .replace(/ö/g, "o")
+      .replace(/ç/g, "c");
+
+    if (normSearchKeys.includes(normRowKey)) {
+      return rowKey;
+    }
+  }
+  return null;
+}
+
+function pruneRow(row: any, type: "danisman" | "ilan_panel" | "ilan_sahibinden" | "kacak_danisman") {
+  if (!row || typeof row !== "object") return row;
+  const pruned: any = {};
+  
+  const officeCodeKey = getMatchedKey(row, ["ofiskodu", "ofis kodu", "id", "kod"]);
+  if (officeCodeKey) {
+    pruned[officeCodeKey] = String(row[officeCodeKey]).trim();
+  }
+
+  if (type === "danisman") {
+    const ownerKey = getMatchedKey(row, ["owner", "sahip", "ofissahibi"]);
+    if (ownerKey) pruned[ownerKey] = Number(row[ownerKey] || 0);
+    const brokerKey = getMatchedKey(row, ["broker"]);
+    if (brokerKey) pruned[brokerKey] = Number(row[brokerKey] || 0);
+    const danismanKey = getMatchedKey(row, ["danisman", "danismanlar", "danismantoplami", "advisor", "agent"]);
+    if (danismanKey) pruned[danismanKey] = Number(row[danismanKey] || 0);
+  } else if (type === "ilan_panel") {
+    const satilikKey = getMatchedKey(row, ["satilik", "satilikilan", "sales", "sale"]);
+    if (satilikKey) pruned[satilikKey] = Number(row[satilikKey] || 0);
+    const kiralikKey = getMatchedKey(row, ["kiralik", "kiralikilan", "rentals", "rent"]);
+    if (kiralikKey) pruned[kiralikKey] = Number(row[kiralikKey] || 0);
+  } else if (type === "ilan_sahibinden") {
+    const countKey = getMatchedKey(row, ["portfoy", "portfoysayisi", "portfoy sayisi", "ilan", "ilansayisi", "ilan sayisi", "count", "sahibinden"]);
+    if (countKey) pruned[countKey] = Number(row[countKey] || 0);
+  } else if (type === "kacak_danisman") {
+    const nameKey = getMatchedKey(row, ["danismanadi", "danisman adi", "danisman adisoyadi", "danisman adi soyadi", "adsoyad", "ad soyad", "name", "danisman"]);
+    if (nameKey) pruned[nameKey] = String(row[nameKey]).trim();
+    const countKey = getMatchedKey(row, ["portfoy", "portfoysayisi", "portfoy sayisi", "ilan", "ilansayisi", "ilan sayisi", "count", "sahibinden"]);
+    if (countKey) pruned[countKey] = Number(row[countKey] || 0);
+  }
+
+  if (row._sourceFile) {
+    pruned._sourceFile = row._sourceFile;
+  }
+
+  return pruned;
+}
+
 // Async background fetch to sync local db with cloud Firestore
 async function syncFromFirestoreAsync() {
   if (isSyncingFromFirestore) return;
@@ -168,10 +237,48 @@ async function syncFromFirestoreAsync() {
     // Create robust merge to protect from empty objects or missing fields in Firestore
     const current = cachedDB || DEFAULT_DB;
     
+    // Robustly merge audits to avoid losing newer locally-uploaded data
+    const mergedAudits = [...(current.audits || [])];
+    const cloudAudits = (cloudData && Array.isArray(cloudData.audits)) ? cloudData.audits : [];
+
+    cloudAudits.forEach((cloudAudit: any) => {
+      const localIdx = mergedAudits.findIndex(a => a.id === cloudAudit.id);
+      if (localIdx === -1) {
+        mergedAudits.push(cloudAudit);
+      } else {
+        const localAudit = mergedAudits[localIdx];
+        const localTime = new Date(localAudit.updatedAt || localAudit.createdAt || 0).getTime();
+        const cloudTime = new Date(cloudAudit.updatedAt || cloudAudit.createdAt || 0).getTime();
+
+        const localDataPoints = 
+          (localAudit.phase1DanismanRaw?.length || 0) +
+          (localAudit.phase1IlanPanelRaw?.length || 0) +
+          (localAudit.phase1IlanSahibindenRaw?.length || 0) +
+          (localAudit.phase2DanismanRaw?.length || 0) +
+          (localAudit.phase2IlanPanelRaw?.length || 0) +
+          (localAudit.phase2IlanSahibindenRaw?.length || 0);
+
+        const cloudDataPoints = 
+          (cloudAudit.phase1DanismanRaw?.length || 0) +
+          (cloudAudit.phase1IlanPanelRaw?.length || 0) +
+          (cloudAudit.phase1IlanSahibindenRaw?.length || 0) +
+          (cloudAudit.phase2DanismanRaw?.length || 0) +
+          (cloudAudit.phase2IlanPanelRaw?.length || 0) +
+          (cloudAudit.phase2IlanSahibindenRaw?.length || 0);
+
+        if (localDataPoints > cloudDataPoints || (localDataPoints === cloudDataPoints && localTime >= cloudTime)) {
+          // Keep local version (has more data or is newer)
+        } else {
+          // Keep cloud version
+          mergedAudits[localIdx] = cloudAudit;
+        }
+      }
+    });
+    
     const mergedDB: Database = {
       offices: (cloudData && Array.isArray(cloudData.offices)) ? cloudData.offices : current.offices || DEFAULT_DB.offices,
       groups: (cloudData && Array.isArray(cloudData.groups)) ? cloudData.groups : current.groups || DEFAULT_DB.groups,
-      audits: (cloudData && Array.isArray(cloudData.audits)) ? cloudData.audits : current.audits || [],
+      audits: mergedAudits,
       emails: (cloudData && Array.isArray(cloudData.emails)) ? cloudData.emails : current.emails || [],
       config: {
         ...DEFAULT_DB.config,
@@ -851,32 +958,49 @@ app.post("/api/audits/active/upload", (req, res) => {
   const { type, data, secondaryData } = req.body; // type: 'danisman' | 'ilan_panel' | 'ilan_sahibinden'
   const active = db.audits[activeIdx];
 
+  let processedData = data;
+  let processedSecondary = secondaryData;
+
+  if (Array.isArray(data)) {
+    if (type === "danisman") {
+      processedData = data.map(r => pruneRow(r, "danisman"));
+    } else if (type === "ilan_panel") {
+      processedData = data.map(r => pruneRow(r, "ilan_panel"));
+    } else if (type === "ilan_sahibinden") {
+      processedData = data.map(r => pruneRow(r, "ilan_sahibinden"));
+    }
+  }
+
+  if (Array.isArray(secondaryData)) {
+    processedSecondary = secondaryData.map(r => pruneRow(r, "kacak_danisman"));
+  }
+
   if (active.currentPhase === "Tespit") {
     if (type === "danisman") {
-      active.phase1DanismanRaw = mergeByOfficeCode(active.phase1DanismanRaw, data);
+      active.phase1DanismanRaw = mergeByOfficeCode(active.phase1DanismanRaw, processedData);
     }
     if (type === "ilan_panel") {
-      active.phase1IlanPanelRaw = mergeByOfficeCode(active.phase1IlanPanelRaw, data);
+      active.phase1IlanPanelRaw = mergeByOfficeCode(active.phase1IlanPanelRaw, processedData);
     }
     if (type === "ilan_sahibinden") {
-      active.phase1IlanSahibindenRaw = mergeByOfficeCode(active.phase1IlanSahibindenRaw, data);
-      if (Array.isArray(secondaryData)) {
-        active.phase1KacakDanismanRaw = mergeKacakDanisman(active.phase1KacakDanismanRaw || [], secondaryData);
+      active.phase1IlanSahibindenRaw = mergeByOfficeCode(active.phase1IlanSahibindenRaw, processedData);
+      if (Array.isArray(processedSecondary)) {
+        active.phase1KacakDanismanRaw = mergeKacakDanisman(active.phase1KacakDanismanRaw || [], processedSecondary);
       }
     }
     
     active.phase1Uploaded = true;
   } else if (active.currentPhase === "Kontrol") {
     if (type === "danisman") {
-      active.phase2DanismanRaw = mergeByOfficeCode(active.phase2DanismanRaw, data);
+      active.phase2DanismanRaw = mergeByOfficeCode(active.phase2DanismanRaw, processedData);
     }
     if (type === "ilan_panel") {
-      active.phase2IlanPanelRaw = mergeByOfficeCode(active.phase2IlanPanelRaw, data);
+      active.phase2IlanPanelRaw = mergeByOfficeCode(active.phase2IlanPanelRaw, processedData);
     }
     if (type === "ilan_sahibinden") {
-      active.phase2IlanSahibindenRaw = mergeByOfficeCode(active.phase2IlanSahibindenRaw, data);
-      if (Array.isArray(secondaryData)) {
-        active.phase2KacakDanismanRaw = mergeKacakDanisman(active.phase2KacakDanismanRaw || [], secondaryData);
+      active.phase2IlanSahibindenRaw = mergeByOfficeCode(active.phase2IlanSahibindenRaw, processedData);
+      if (Array.isArray(processedSecondary)) {
+        active.phase2KacakDanismanRaw = mergeKacakDanisman(active.phase2KacakDanismanRaw || [], processedSecondary);
       }
     }
     
