@@ -16,11 +16,15 @@ import {
   Layers,
   Sparkles,
   HelpCircle,
-  Building
+  Building,
+  Menu,
+  PanelLeftClose,
+  PanelLeftOpen
 } from "lucide-react";
 
 
 export default function App() {
+  const [isSidebarOpen, setIsSidebarOpen] = useState(true);
   const [offices, setOffices] = useState<Office[]>([]);
   const [groups, setGroups] = useState<Group[]>([]);
   const [emails, setEmails] = useState<EmailLog[]>([]);
@@ -176,84 +180,95 @@ export default function App() {
     <div className="flex h-screen w-screen bg-slate-50 text-slate-900 font-sans overflow-hidden" id="app-root">
       
       {/* Sidebar Navigation */}
-      <aside className="w-60 bg-slate-900 text-slate-300 flex flex-col shrink-0 border-r border-slate-800">
-        <div className="p-4 border-b border-slate-800">
+      <aside className={`bg-slate-900 text-slate-300 flex flex-col shrink-0 border-r border-slate-800 transition-all duration-300 overflow-hidden ${isSidebarOpen ? "w-60" : "w-[68px]"}`}>
+        <div className="p-4 border-b border-slate-800 flex items-center justify-between">
           <div className="flex items-center gap-2.5">
-            <div className="w-8 h-8 bg-blue-600 rounded flex items-center justify-center font-bold text-white shadow-sm">FD</div>
-            <div>
-              <span className="font-semibold text-white tracking-tight text-sm block">FranchiseAudit</span>
-              <span className="text-[9px] text-slate-500 font-medium tracking-wider uppercase">MasterTurk</span>
-            </div>
+            <div className="w-8 h-8 bg-blue-600 rounded flex items-center justify-center font-bold text-white shadow-sm shrink-0">FD</div>
+            {isSidebarOpen && (
+              <div className="whitespace-nowrap">
+                <span className="font-semibold text-white tracking-tight text-sm block">FranchiseAudit</span>
+                <span className="text-[9px] text-slate-500 font-medium tracking-wider uppercase">MasterTurk</span>
+              </div>
+            )}
           </div>
         </div>
         
-        <nav className="flex-1 p-2 space-y-1 overflow-y-auto">
-          <div className="text-[10px] text-slate-500 uppercase font-bold px-3 py-2 tracking-wider">Menü</div>
+        <nav className="flex-1 p-2 space-y-1 overflow-y-auto overflow-x-hidden">
+          {isSidebarOpen ? (
+            <div className="text-[10px] text-slate-500 uppercase font-bold px-3 py-2 tracking-wider whitespace-nowrap">Menü</div>
+          ) : (
+            <div className="h-6"></div>
+          )}
           <button
             onClick={() => setActiveTab("dashboard")}
-            className={`w-full flex items-center gap-3 px-3 py-2 rounded text-xs font-semibold transition-all ${
+            title="Denetim Masası"
+            className={`w-full flex items-center gap-3 py-2 rounded text-xs font-semibold transition-all ${
               activeTab === "dashboard"
                 ? "bg-slate-800 text-white shadow-xs"
                 : "text-slate-400 hover:bg-slate-800/60 hover:text-white"
-            }`}
+            } ${isSidebarOpen ? "px-3" : "px-0 justify-center"}`}
           >
-            <BarChart3 className="w-4 h-4" />
-            Denetim Masası
+            <BarChart3 className="w-5 h-5 shrink-0" />
+            {isSidebarOpen && <span className="whitespace-nowrap">Denetim Masası</span>}
           </button>
           <button
             onClick={() => setActiveTab("funnel")}
-            className={`w-full flex items-center gap-3 px-3 py-2 rounded text-xs font-semibold transition-all relative ${
+            title="Denetim Hunisi"
+            className={`w-full flex items-center gap-3 py-2 rounded text-xs font-semibold transition-all relative ${
               activeTab === "funnel"
                 ? "bg-slate-800 text-white shadow-xs"
                 : "text-slate-400 hover:bg-slate-800/60 hover:text-white"
-            }`}
+            } ${isSidebarOpen ? "px-3" : "px-0 justify-center"}`}
           >
-            <Layers className="w-4 h-4" />
-            Denetim Hunisi
+            <Layers className="w-5 h-5 shrink-0" />
+            {isSidebarOpen && <span className="whitespace-nowrap">Denetim Hunisi</span>}
             {activeAudit && (
-              <span className="w-1.5 h-1.5 rounded-full bg-amber-500 animate-pulse ml-auto" />
+              <span className={`w-1.5 h-1.5 rounded-full bg-amber-500 animate-pulse ${isSidebarOpen ? "ml-auto" : "absolute top-2 right-2"}`} />
             )}
           </button>
           <button
             onClick={() => setActiveTab("groups")}
-            className={`w-full flex items-center gap-3 px-3 py-2 rounded text-xs font-semibold transition-all ${
+            title="Grup & Ofis Yönetimi"
+            className={`w-full flex items-center gap-3 py-2 rounded text-xs font-semibold transition-all ${
               activeTab === "groups"
                 ? "bg-slate-800 text-white shadow-xs"
                 : "text-slate-400 hover:bg-slate-800/60 hover:text-white"
-            }`}
+            } ${isSidebarOpen ? "px-3" : "px-0 justify-center"}`}
           >
-            <Building2 className="w-4 h-4" />
-            Grup & Ofis Yönetimi
+            <Building2 className="w-5 h-5 shrink-0" />
+            {isSidebarOpen && <span className="whitespace-nowrap">Grup & Ofis Yönetimi</span>}
           </button>
           <button
             onClick={() => setActiveTab("emails")}
-            className={`w-full flex items-center gap-3 px-3 py-2 rounded text-xs font-semibold transition-all ${
+            title="E-Posta Şablonları"
+            className={`w-full flex items-center gap-3 py-2 rounded text-xs font-semibold transition-all ${
               activeTab === "emails"
                 ? "bg-slate-800 text-white shadow-xs"
                 : "text-slate-400 hover:bg-slate-800/60 hover:text-white"
-            }`}
+            } ${isSidebarOpen ? "px-3" : "px-0 justify-center"}`}
           >
-            <Mail className="w-4 h-4" />
-            E-Posta Şablonları
+            <Mail className="w-5 h-5 shrink-0" />
+            {isSidebarOpen && <span className="whitespace-nowrap">E-Posta Şablonları</span>}
           </button>
           <button
             onClick={() => setActiveTab("archive")}
-            className={`w-full flex items-center gap-3 px-3 py-2 rounded text-xs font-semibold transition-all ${
+            title="Excel Raporları / Arşiv"
+            className={`w-full flex items-center gap-3 py-2 rounded text-xs font-semibold transition-all ${
               activeTab === "archive"
                 ? "bg-slate-800 text-white shadow-xs"
                 : "text-slate-400 hover:bg-slate-800/60 hover:text-white"
-            }`}
+            } ${isSidebarOpen ? "px-3" : "px-0 justify-center"}`}
           >
-            <Archive className="w-4 h-4" />
-            Excel Raporları / Arşiv
+            <Archive className="w-5 h-5 shrink-0" />
+            {isSidebarOpen && <span className="whitespace-nowrap">Excel Raporları / Arşiv</span>}
           </button>
         </nav>
 
-        <div className="p-4 bg-slate-950 border-t border-slate-900 mt-auto">
-          <div className="text-[10px] text-slate-500 uppercase font-bold mb-2 tracking-wider font-mono">Altyapı Durumu</div>
-          <div className="flex items-center gap-2 text-[10px]">
-            <div className="w-1.5 h-1.5 rounded-full bg-emerald-500 animate-pulse"></div>
-            <span className="text-slate-400 font-medium">Supabase Bağlı (Free Tier)</span>
+        <div className="p-4 bg-slate-950 border-t border-slate-900 mt-auto flex flex-col items-center">
+          {isSidebarOpen && <div className="text-[10px] text-slate-500 uppercase font-bold mb-2 tracking-wider font-mono w-full whitespace-nowrap">Altyapı Durumu</div>}
+          <div className={`flex items-center gap-2 text-[10px] ${isSidebarOpen ? "w-full" : "justify-center"}`} title="Supabase Bağlı (Free Tier)">
+            <div className="w-2 h-2 rounded-full bg-emerald-500 animate-pulse shrink-0"></div>
+            {isSidebarOpen && <span className="text-slate-400 font-medium whitespace-nowrap">Supabase Bağlı</span>}
           </div>
         </div>
       </aside>
@@ -262,19 +277,28 @@ export default function App() {
       <main className="flex-1 flex flex-col min-w-0 h-full overflow-hidden">
         
         {/* Header */}
-        <header className="h-14 bg-white border-b border-slate-200 px-6 flex items-center justify-between shrink-0">
-          <h1 className="text-sm font-bold text-slate-800 flex items-center gap-2">
-            {activeAudit ? activeAudit.name : "Ocak 2024 Denetim Dönemi"}
-            {activeAudit ? (
-              <span className="bg-blue-50 text-blue-700 text-[10px] font-bold px-2 py-0.5 rounded-full uppercase border border-blue-100">
-                Aktif Dönem: {activeAudit.currentPhase} Fazı
-              </span>
-            ) : (
-              <span className="bg-slate-100 text-slate-500 text-[10px] font-bold px-2 py-0.5 rounded-full uppercase border border-slate-200">
-                Beklemede
-              </span>
-            )}
-          </h1>
+        <header className="h-14 bg-white border-b border-slate-200 px-4 sm:px-6 flex items-center justify-between shrink-0">
+          <div className="flex items-center gap-3">
+            <button
+              onClick={() => setIsSidebarOpen(!isSidebarOpen)}
+              className="text-slate-400 hover:text-slate-600 hover:bg-slate-100 p-1.5 rounded transition-colors cursor-pointer"
+              title="Menüyü Aç/Kapat"
+            >
+              {isSidebarOpen ? <PanelLeftClose className="w-5 h-5" /> : <PanelLeftOpen className="w-5 h-5" />}
+            </button>
+            <h1 className="text-sm font-bold text-slate-800 flex items-center gap-2">
+              {activeAudit ? activeAudit.name : "Ocak 2024 Denetim Dönemi"}
+              {activeAudit ? (
+                <span className="bg-blue-50 text-blue-700 text-[10px] font-bold px-2 py-0.5 rounded-full uppercase border border-blue-100 hidden sm:inline-block">
+                  Aktif Dönem: {activeAudit.currentPhase} Fazı
+                </span>
+              ) : (
+                <span className="bg-slate-100 text-slate-500 text-[10px] font-bold px-2 py-0.5 rounded-full uppercase border border-slate-200 hidden sm:inline-block">
+                  Beklemede
+                </span>
+              )}
+            </h1>
+          </div>
           <div className="flex items-center gap-2">
             <button
               onClick={() => setActiveTab("funnel")}
