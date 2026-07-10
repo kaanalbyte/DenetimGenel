@@ -898,7 +898,7 @@ app.post("/api/audits", (req, res) => {
 });
 
 function getBrandFromRowBackend(row: any): string {
-  const officeName = getNormalizedValue(row, ["ofisadi", "ofis adi", "name", "office name", "ad", "unvan"]).trim();
+  const officeName = getNormalizedValue(row, ["ofisadi", "ofis adi", "name", "office name", "ad", "unvan", "ofis"]).trim();
   const upperName = officeName.toUpperCase();
   if (upperName.startsWith("CB") || upperName.includes("COLDWELL")) {
     return "Coldwell Banker";
@@ -915,6 +915,18 @@ function getBrandFromRowBackend(row: any): string {
   if (src.includes("cb")) return "Coldwell Banker";
   if (src.includes("c21") || src.includes("century")) return "Century 21";
   if (src.includes("era")) return "ERA";
+
+  // Fallback lookup from database offices
+  const officeId = getNormalizedValue(row, ["ofiskodu", "ofis kodu", "id", "kod"]).toUpperCase().trim();
+  if (officeId) {
+    try {
+      const db = readDB();
+      const office = db.offices.find((o: any) => o.id === officeId && o.status !== "Silinmiş") || db.offices.find((o: any) => o.id === officeId);
+      if (office?.brand) return office.brand;
+    } catch (e) {
+      // ignore
+    }
+  }
   
   return "";
 }

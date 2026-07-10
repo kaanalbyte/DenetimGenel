@@ -50,8 +50,8 @@ function getNormalizedValue(row: any, searchKeys: string[]): string {
   return "";
 }
 
-function getBrandFromRow(row: any): string | null {
-  const officeName = getNormalizedValue(row, ["ofisadi", "ofis adi", "name", "office name", "ad", "unvan"]).trim();
+function getBrandFromRow(row: any, officesList?: any[]): string | null {
+  const officeName = getNormalizedValue(row, ["ofisadi", "ofis adi", "name", "office name", "ad", "unvan", "ofis"]).trim();
   const upperName = officeName.toUpperCase();
   if (upperName.startsWith("CB") || upperName.includes("COLDWELL")) {
     return "Coldwell Banker";
@@ -68,6 +68,15 @@ function getBrandFromRow(row: any): string | null {
   if (src.includes("cb")) return "Coldwell Banker";
   if (src.includes("c21") || src.includes("century")) return "Century 21";
   if (src.includes("era")) return "ERA";
+  
+  // Fallback database lookup
+  if (officesList) {
+    const officeId = getNormalizedValue(row, ["ofiskodu", "ofis kodu", "id", "kod"]).toUpperCase().trim();
+    if (officeId) {
+      const office = officesList.find(o => o.id === officeId && o.status !== "Silinmiş") || officesList.find(o => o.id === officeId);
+      if (office?.brand) return office.brand;
+    }
+  }
   
   return null;
 }
@@ -107,6 +116,11 @@ export default function AuditPanel({ offices, groups, activeAudit, onRefresh, on
   // Pre-calculated tables state
   const [danismanReport, setDanismanReport] = useState<any[]>([]);
   const [ilanReport, setIlanReport] = useState<any[]>([]);
+
+  // Diagnostics Panel states
+  const [showDiagnostics, setShowDiagnostics] = useState(false);
+  const [diagnosticSearch, setDiagnosticSearch] = useState("");
+  const [diagnosticBrand, setDiagnosticBrand] = useState("all");
 
   // Calculate Reports whenever activeAudit data, groups, or offices change
   useEffect(() => {
@@ -178,7 +192,7 @@ export default function AuditPanel({ offices, groups, activeAudit, onRefresh, on
       const officeId = getNormalizedValue(row, ["ofiskodu", "ofis kodu", "id", "kod"]).toUpperCase().trim();
       if (!officeId) return;
 
-      const rowBrand = getBrandFromRow(row);
+      const rowBrand = getBrandFromRow(row, offices);
       let office = offices.find(o => o.id === officeId && (rowBrand ? brandsMatch(o.brand || "", rowBrand) : true) && o.status !== "Silinmiş");
       if (!office) {
         office = offices.find(o => o.id === officeId && (rowBrand ? brandsMatch(o.brand || "", rowBrand) : true));
@@ -212,7 +226,7 @@ export default function AuditPanel({ offices, groups, activeAudit, onRefresh, on
       const officeId = getNormalizedValue(row, ["ofiskodu", "ofis kodu", "id", "kod"]).toUpperCase().trim();
       if (!officeId) return;
 
-      const rowBrand = getBrandFromRow(row);
+      const rowBrand = getBrandFromRow(row, offices);
       let office = offices.find(o => o.id === officeId && (rowBrand ? brandsMatch(o.brand || "", rowBrand) : true));
       if (!office) {
         office = offices.find(o => o.id === officeId);
@@ -293,7 +307,7 @@ export default function AuditPanel({ offices, groups, activeAudit, onRefresh, on
       const officeId = getNormalizedValue(row, ["ofiskodu", "ofis kodu", "id", "kod"]).toUpperCase().trim();
       if (!officeId) return;
 
-      const rowBrand = getBrandFromRow(row);
+      const rowBrand = getBrandFromRow(row, offices);
       let office = offices.find(o => o.id === officeId && (rowBrand ? brandsMatch(o.brand || "", rowBrand) : true) && o.status !== "Silinmiş");
       if (!office) {
         office = offices.find(o => o.id === officeId && (rowBrand ? brandsMatch(o.brand || "", rowBrand) : true));
@@ -322,7 +336,7 @@ export default function AuditPanel({ offices, groups, activeAudit, onRefresh, on
       const officeId = getNormalizedValue(row, ["ofiskodu", "ofis kodu", "id", "kod"]).toUpperCase().trim();
       if (!officeId) return;
 
-      const rowBrand = getBrandFromRow(row);
+      const rowBrand = getBrandFromRow(row, offices);
       let office = offices.find(o => o.id === officeId && (rowBrand ? brandsMatch(o.brand || "", rowBrand) : true) && o.status !== "Silinmiş");
       if (!office) {
         office = offices.find(o => o.id === officeId && (rowBrand ? brandsMatch(o.brand || "", rowBrand) : true));
@@ -507,6 +521,25 @@ export default function AuditPanel({ offices, groups, activeAudit, onRefresh, on
     }
   };
 
+  const getOfficeBrand = (id: string, sourceFile?: string) => {
+    const src = String(sourceFile || "").toLowerCase();
+    let preferredBrand: string | null = null;
+    if (src.includes("cb")) preferredBrand = "Coldwell Banker";
+    else if (src.includes("c21") || src.includes("century")) preferredBrand = "Century 21";
+    else if (src.includes("era")) preferredBrand = "ERA";
+
+    if (preferredBrand) {
+      const office = offices.find(o => o.id === id && o.brand === preferredBrand && o.status !== "Silinmiş") ||
+                     offices.find(o => o.id === id && o.brand === preferredBrand) ||
+                     offices.find(o => o.id === id && o.status !== "Silinmiş") ||
+                     offices.find(o => o.id === id);
+      return office?.brand || preferredBrand;
+    }
+
+    const office = offices.find(o => o.id === id && o.status !== "Silinmiş") || offices.find(o => o.id === id);
+    return office?.brand || null;
+  };
+
   const getUploadDetails = () => {
     if (!activeAudit) return {
       cbDanisman: { uploaded: false, count: 0 },
@@ -526,25 +559,6 @@ export default function AuditPanel({ offices, groups, activeAudit, onRefresh, on
     const ilanPanelRaw = (currentPhase === "Tespit" ? activeAudit.phase1IlanPanelRaw : activeAudit.phase2IlanPanelRaw) || [];
     const ilanSahibindenRaw = (currentPhase === "Tespit" ? activeAudit.phase1IlanSahibindenRaw : activeAudit.phase2IlanSahibindenRaw) || [];
     const kacakDanismanRaw = (currentPhase === "Tespit" ? activeAudit.phase1KacakDanismanRaw : activeAudit.phase2KacakDanismanRaw) || [];
-
-    const getOfficeBrand = (id: string, sourceFile?: string) => {
-      const src = String(sourceFile || "").toLowerCase();
-      let preferredBrand: string | null = null;
-      if (src.includes("cb")) preferredBrand = "Coldwell Banker";
-      else if (src.includes("c21") || src.includes("century")) preferredBrand = "Century 21";
-      else if (src.includes("era")) preferredBrand = "ERA";
-
-      if (preferredBrand) {
-        const office = offices.find(o => o.id === id && o.brand === preferredBrand && o.status !== "Silinmiş") ||
-                       offices.find(o => o.id === id && o.brand === preferredBrand) ||
-                       offices.find(o => o.id === id && o.status !== "Silinmiş") ||
-                       offices.find(o => o.id === id);
-        return office?.brand || preferredBrand;
-      }
-
-      const office = offices.find(o => o.id === id && o.status !== "Silinmiş") || offices.find(o => o.id === id);
-      return office?.brand || null;
-    };
 
     let cbDanismanCount = 0;
     let c21DanismanCount = 0;
@@ -1122,6 +1136,243 @@ export default function AuditPanel({ offices, groups, activeAudit, onRefresh, on
                   </div>
                 }
               />
+
+              {/* DIAGNOSTIC PANEL FOR UPLOADED RAW ROWS */}
+              {activeAudit && (
+                <div className="bg-slate-50 border border-slate-200 rounded-lg p-4 mt-4 shadow-2xs">
+                  <div className="flex items-center justify-between">
+                    <div className="flex items-center gap-2">
+                      <span className="text-sm">🔍</span>
+                      <div>
+                        <h4 className="text-xs font-bold text-slate-800">Detaylı Veri Yükleme & Ofis Eşleştirme Tanısı (Diagnostic Panel)</h4>
+                        <p className="text-[10px] text-slate-400">Excel'den okunan ham verileri ve sistem eşleşmelerini analiz edin.</p>
+                      </div>
+                    </div>
+                    <button
+                      onClick={() => setShowDiagnostics(!showDiagnostics)}
+                      className="px-2.5 py-1 text-[10px] font-bold text-slate-600 bg-white hover:bg-slate-50 border border-slate-200 rounded flex items-center gap-1 transition cursor-pointer"
+                    >
+                      {showDiagnostics ? "Tanı Panelini Kapat" : "Tanı Panelini Aç"}
+                    </button>
+                  </div>
+
+                  {showDiagnostics && (
+                    <div className="mt-4 pt-4 border-t border-slate-200 space-y-4">
+                      {/* FILTERS */}
+                      <div className="flex flex-col sm:flex-row gap-2">
+                        <input
+                          type="text"
+                          placeholder="Ofis Kodu veya Adı Ara..."
+                          value={diagnosticSearch}
+                          onChange={(e) => setDiagnosticSearch(e.target.value)}
+                          className="px-2.5 py-1.5 text-xs border border-slate-200 rounded bg-white w-full sm:w-64 focus:outline-none focus:border-slate-400"
+                        />
+                        <select
+                          value={diagnosticBrand}
+                          onChange={(e) => setDiagnosticBrand(e.target.value)}
+                          className="px-2.5 py-1.5 text-xs border border-slate-200 rounded bg-white w-full sm:w-48 focus:outline-none"
+                        >
+                          <option value="all">Tüm Markalar</option>
+                          <option value="Century 21">Century 21</option>
+                          <option value="Coldwell Banker">Coldwell Banker</option>
+                          <option value="ERA">ERA</option>
+                          <option value="not_found">Marka Bulunamayanlar</option>
+                        </select>
+                      </div>
+
+                      {/* DATA SECTION TABLES */}
+                      <div className="space-y-4">
+                        {/* 1. Resmi Kadro Ham Verileri */}
+                        <div>
+                          <h5 className="text-[11px] font-bold text-slate-700 mb-1.5 flex items-center gap-1">
+                            <span className="w-1.5 h-1.5 rounded-full bg-blue-500"></span>
+                            📋 Ham Resmi Kadro Verileri ({
+                              ((activeAudit.currentPhase === "Tespit" ? activeAudit.phase1DanismanRaw : activeAudit.phase2DanismanRaw) || []).length
+                            } Satır)
+                          </h5>
+                          <div className="overflow-x-auto border border-slate-200 rounded bg-white max-h-64 overflow-y-auto">
+                            <table className="w-full text-left text-[11px] text-slate-600">
+                              <thead className="bg-slate-50 text-[10px] uppercase font-bold text-slate-500 border-b border-slate-200 sticky top-0">
+                                <tr>
+                                  <th className="px-3 py-1.5">Dosya</th>
+                                  <th className="px-3 py-1.5">Excel Ofis Kodu</th>
+                                  <th className="px-3 py-1.5">Excel Ofis Adı</th>
+                                  <th className="px-3 py-1.5">Çözümlenen Marka</th>
+                                  <th className="px-3 py-1.5">Sistem Eşleşmesi & Durumu</th>
+                                  <th className="px-3 py-1.5">Owner / Broker / Danışman</th>
+                                </tr>
+                              </thead>
+                              <tbody className="divide-y divide-slate-150">
+                                {(() => {
+                                  const rawList = (activeAudit.currentPhase === "Tespit" ? activeAudit.phase1DanismanRaw : activeAudit.phase2DanismanRaw) || [];
+                                  const filtered = rawList.filter(row => {
+                                    const officeId = getNormalizedValue(row, ["ofiskodu", "ofis kodu", "id", "kod"]).toUpperCase().trim();
+                                    const officeName = getNormalizedValue(row, ["ofisadi", "ofis adi", "name", "office name", "ad", "unvan", "ofis"]).toLowerCase();
+                                    const brand = getOfficeBrand(officeId, row._sourceFile) || "";
+                                    
+                                    const matchesSearch = officeId.toLowerCase().includes(diagnosticSearch.toLowerCase()) || officeName.includes(diagnosticSearch.toLowerCase());
+                                    const matchesBrand = diagnosticBrand === "all" || 
+                                      (diagnosticBrand === "not_found" && !brand) ||
+                                      brand === diagnosticBrand;
+                                      
+                                    return matchesSearch && matchesBrand;
+                                  });
+
+                                  if (filtered.length === 0) {
+                                    return (
+                                      <tr>
+                                        <td colSpan={6} className="text-center py-4 text-slate-400">Veri bulunamadı veya arama kriterleriyle eşleşen kayıt yok.</td>
+                                      </tr>
+                                    );
+                                  }
+
+                                  return filtered.map((row, idx) => {
+                                    const officeId = getNormalizedValue(row, ["ofiskodu", "ofis kodu", "id", "kod"]).toUpperCase().trim();
+                                    const officeName = getNormalizedValue(row, ["ofisadi", "ofis adi", "name", "office name", "ad", "unvan", "ofis"]) || "-";
+                                    const brand = getOfficeBrand(officeId, row._sourceFile);
+                                    
+                                    // Search in registered offices
+                                    const matchedOffice = offices.find(o => o.id === officeId && o.brand === brand) || offices.find(o => o.id === officeId);
+
+                                    return (
+                                      <tr key={idx} className="hover:bg-slate-50/50">
+                                        <td className="px-3 py-1.5 text-slate-400 max-w-[120px] truncate" title={row._sourceFile}>{row._sourceFile || "-"}</td>
+                                        <td className="px-3 py-1.5 font-bold font-mono text-slate-800">{officeId || <span className="text-red-500 font-bold">BOŞ / HATA</span>}</td>
+                                        <td className="px-3 py-1.5 text-slate-700">{officeName}</td>
+                                        <td className="px-3 py-1.5">
+                                          {brand ? (
+                                            <span className={`px-1.5 py-0.5 rounded text-[9px] font-bold ${
+                                              brand === "Century 21" ? "bg-orange-50 text-orange-700 border border-orange-100" :
+                                              brand === "Coldwell Banker" ? "bg-blue-50 text-blue-700 border border-blue-100" :
+                                              "bg-red-50 text-red-700 border border-red-100"
+                                            }`}>
+                                              {brand}
+                                            </span>
+                                          ) : (
+                                            <span className="text-red-500 font-bold">Belirlenemedi</span>
+                                          )}
+                                        </td>
+                                        <td className="px-3 py-1.5">
+                                          {matchedOffice ? (
+                                            <span className={`flex items-center gap-1 ${matchedOffice.status === "Silinmiş" ? "text-red-500" : matchedOffice.status === "Dondurulmuş" ? "text-amber-600" : "text-emerald-600"}`}>
+                                              <span className="font-bold">{matchedOffice.name}</span>
+                                              <span className="text-[9px] px-1 py-0.2 bg-slate-100 rounded font-mono">({matchedOffice.status})</span>
+                                            </span>
+                                          ) : (
+                                            <span className="text-rose-500 font-semibold italic flex items-center gap-1">
+                                              <span>⚠ Sistemde kayıtlı değil</span>
+                                            </span>
+                                          )}
+                                        </td>
+                                        <td className="px-3 py-1.5 text-slate-500 font-mono">
+                                          O: {getNormalizedValue(row, ["owner", "sahip", "ofissahibi"]) || 0} / 
+                                          B: {getNormalizedValue(row, ["broker"]) || 0} / 
+                                          D: {getNormalizedValue(row, ["danisman", "danismanlar", "danismantoplami", "advisor", "agent"]) || 0}
+                                        </td>
+                                      </tr>
+                                    );
+                                  });
+                                })()}
+                              </tbody>
+                            </table>
+                          </div>
+                        </div>
+
+                        {/* 2. Resmi Portföy Ham Verileri */}
+                        <div>
+                          <h5 className="text-[11px] font-bold text-slate-700 mb-1.5 flex items-center gap-1">
+                            <span className="w-1.5 h-1.5 rounded-full bg-emerald-500"></span>
+                            🏡 Ham Resmi Portföy Verileri ({
+                              ((activeAudit.currentPhase === "Tespit" ? activeAudit.phase1IlanPanelRaw : activeAudit.phase2IlanPanelRaw) || []).length
+                            } Satır)
+                          </h5>
+                          <div className="overflow-x-auto border border-slate-200 rounded bg-white max-h-64 overflow-y-auto">
+                            <table className="w-full text-left text-[11px] text-slate-600">
+                              <thead className="bg-slate-50 text-[10px] uppercase font-bold text-slate-500 border-b border-slate-200 sticky top-0">
+                                <tr>
+                                  <th className="px-3 py-1.5">Dosya</th>
+                                  <th className="px-3 py-1.5">Excel Ofis Kodu</th>
+                                  <th className="px-3 py-1.5">Çözümlenen Marka</th>
+                                  <th className="px-3 py-1.5">Sistem Eşleşmesi & Durumu</th>
+                                  <th className="px-3 py-1.5">Satılık / Kiralık</th>
+                                </tr>
+                              </thead>
+                              <tbody className="divide-y divide-slate-150">
+                                {(() => {
+                                  const rawList = (activeAudit.currentPhase === "Tespit" ? activeAudit.phase1IlanPanelRaw : activeAudit.phase2IlanPanelRaw) || [];
+                                  const filtered = rawList.filter(row => {
+                                    const officeId = getNormalizedValue(row, ["ofiskodu", "ofis kodu", "id", "kod"]).toUpperCase().trim();
+                                    const brand = getOfficeBrand(officeId, row._sourceFile) || "";
+                                    
+                                    const matchesSearch = officeId.toLowerCase().includes(diagnosticSearch.toLowerCase());
+                                    const matchesBrand = diagnosticBrand === "all" || 
+                                      (diagnosticBrand === "not_found" && !brand) ||
+                                      brand === diagnosticBrand;
+                                      
+                                    return matchesSearch && matchesBrand;
+                                  });
+
+                                  if (filtered.length === 0) {
+                                    return (
+                                      <tr>
+                                        <td colSpan={5} className="text-center py-4 text-slate-400">Veri bulunamadı veya arama kriterleriyle eşleşen kayıt yok.</td>
+                                      </tr>
+                                    );
+                                  }
+
+                                  return filtered.map((row, idx) => {
+                                    const officeId = getNormalizedValue(row, ["ofiskodu", "ofis kodu", "id", "kod"]).toUpperCase().trim();
+                                    const brand = getOfficeBrand(officeId, row._sourceFile);
+                                    
+                                    // Search in registered offices
+                                    const matchedOffice = offices.find(o => o.id === officeId && o.brand === brand) || offices.find(o => o.id === officeId);
+
+                                    return (
+                                      <tr key={idx} className="hover:bg-slate-50/50">
+                                        <td className="px-3 py-1.5 text-slate-400 max-w-[120px] truncate" title={row._sourceFile}>{row._sourceFile || "-"}</td>
+                                        <td className="px-3 py-1.5 font-bold font-mono text-slate-800">{officeId || <span className="text-red-500 font-bold">BOŞ / HATA</span>}</td>
+                                        <td className="px-3 py-1.5">
+                                          {brand ? (
+                                            <span className={`px-1.5 py-0.5 rounded text-[9px] font-bold ${
+                                              brand === "Century 21" ? "bg-orange-50 text-orange-700 border border-orange-100" :
+                                              brand === "Coldwell Banker" ? "bg-blue-50 text-blue-700 border border-blue-100" :
+                                              "bg-red-50 text-red-700 border border-red-100"
+                                            }`}>
+                                              {brand}
+                                            </span>
+                                          ) : (
+                                            <span className="text-red-500 font-bold">Belirlenemedi</span>
+                                          )}
+                                        </td>
+                                        <td className="px-3 py-1.5">
+                                          {matchedOffice ? (
+                                            <span className={`flex items-center gap-1 ${matchedOffice.status === "Silinmiş" ? "text-red-500" : matchedOffice.status === "Dondurulmuş" ? "text-amber-600" : "text-emerald-600"}`}>
+                                              <span className="font-bold">{matchedOffice.name}</span>
+                                              <span className="text-[9px] px-1 py-0.2 bg-slate-100 rounded font-mono">({matchedOffice.status})</span>
+                                            </span>
+                                          ) : (
+                                            <span className="text-rose-500 font-semibold italic flex items-center gap-1">
+                                              <span>⚠ Sistemde kayıtlı değil</span>
+                                            </span>
+                                          )}
+                                        </td>
+                                        <td className="px-3 py-1.5 text-slate-500 font-mono">
+                                          S: {getNormalizedValue(row, ["satilik", "satılık", "sale"]) || 0} / 
+                                          K: {getNormalizedValue(row, ["kiralik", "kiralık", "rent"]) || 0}
+                                        </td>
+                                      </tr>
+                                    );
+                                  });
+                                })()}
+                              </tbody>
+                            </table>
+                          </div>
+                        </div>
+                      </div>
+                    </div>
+                  )}
+                </div>
+              )}
 
               {/* REPORT DISPLAY TABLES */}
               {((activeAudit.currentPhase === "Tespit" && activeAudit.phase1Uploaded) ||

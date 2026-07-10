@@ -385,7 +385,7 @@ Object.defineProperty(window, 'fetch', {
         };
 
         const getBrandFromRowLocal = (row: any): string => {
-          const officeName = getNormValLocal(row, ["ofisadi", "ofis adi", "name", "office name", "ad", "unvan"]).trim();
+          const officeName = getNormValLocal(row, ["ofisadi", "ofis adi", "name", "office name", "ad", "unvan", "ofis"]).trim();
           const upperName = officeName.toUpperCase();
           if (upperName.startsWith("CB") || upperName.includes("COLDWELL")) {
             return "Coldwell Banker";
@@ -401,6 +401,18 @@ Object.defineProperty(window, 'fetch', {
           if (src.includes("cb")) return "Coldwell Banker";
           if (src.includes("c21") || src.includes("century")) return "Century 21";
           if (src.includes("era")) return "ERA";
+
+          // Fallback lookup from database offices
+          const officeId = getNormValLocal(row, ["ofiskodu", "ofis kodu", "id", "kod"]).toUpperCase().trim();
+          if (officeId) {
+            try {
+              const offices = getLocalOffices();
+              const office = offices.find((o: any) => o.id === officeId && o.status !== "Silinmiş") || offices.find((o: any) => o.id === officeId);
+              if (office?.brand) return office.brand;
+            } catch (e) {
+              // ignore
+            }
+          }
           
           return "";
         };
