@@ -50,6 +50,27 @@ function getNormalizedValue(row: any, searchKeys: string[]): string {
   return "";
 }
 
+function getBrandFromRow(row: any): string | null {
+  const officeName = getNormalizedValue(row, ["ofisadi", "ofis adi", "name", "office name", "ad", "unvan"]).trim();
+  if (!officeName) return null;
+  const upperName = officeName.toUpperCase();
+  if (upperName.startsWith("CB")) {
+    return "Coldwell Banker";
+  }
+  if (upperName.startsWith("C21")) {
+    return "Century 21";
+  }
+  if (upperName.startsWith("ERA")) {
+    return "ERA";
+  }
+  return null;
+}
+
+function brandsMatch(b1: string, b2: string): boolean {
+  const norm = (s: string) => s.toLowerCase().replace(/[\s\-_]+/g, "");
+  return norm(b1) === norm(b2);
+}
+
 interface AuditPanelProps {
   offices: Office[];
   groups: Group[];
@@ -175,7 +196,11 @@ export default function AuditPanel({ offices, groups, activeAudit, onRefresh, on
       const officeId = getNormalizedValue(row, ["ofiskodu", "ofis kodu", "id", "kod"]).toUpperCase().trim();
       if (!officeId) return;
 
-      const office = offices.find(o => o.id === officeId);
+      const rowBrand = getBrandFromRow(row);
+      let office = offices.find(o => o.id === officeId && (rowBrand ? brandsMatch(o.brand || "", rowBrand) : true));
+      if (!office) {
+        office = offices.find(o => o.id === officeId);
+      }
       if (!office) return;
 
       const entityId = office.groupId || office.id;
@@ -271,7 +296,11 @@ export default function AuditPanel({ offices, groups, activeAudit, onRefresh, on
       const officeId = getNormalizedValue(row, ["ofiskodu", "ofis kodu", "id", "kod"]).toUpperCase().trim();
       if (!officeId) return;
 
-      const office = offices.find(o => o.id === officeId);
+      const rowBrand = getBrandFromRow(row);
+      let office = offices.find(o => o.id === officeId && (rowBrand ? brandsMatch(o.brand || "", rowBrand) : true));
+      if (!office) {
+        office = offices.find(o => o.id === officeId);
+      }
       if (!office) return;
 
       const targetId = office.groupId || office.id;
