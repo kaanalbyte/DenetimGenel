@@ -974,8 +974,9 @@ function mergeKacakDanisman(existing: any[], incoming: any[]) {
   const existingMap = new Map<string, any>();
   existing.forEach(row => {
     const offId = getNormalizedValue(row, ["ofiskodu", "ofis kodu", "id", "kod"]).toUpperCase().trim();
+    const brand = getBrandFromRowBackend(row);
     const name = getNormalizedValue(row, ["danismanadi", "danisman adi", "danisman adisoyadi", "danisman adi soyadi", "adsoyad", "ad soyad", "danismanadisoyadi"]).toUpperCase().trim();
-    const key = `${offId}:::${name}`;
+    const key = `${offId}:::${brand}:::${name}`;
     if (offId && name) {
       existingMap.set(key, row);
     }
@@ -983,8 +984,9 @@ function mergeKacakDanisman(existing: any[], incoming: any[]) {
 
   incoming.forEach(row => {
     const offId = getNormalizedValue(row, ["ofiskodu", "ofis kodu", "id", "kod"]).toUpperCase().trim();
+    const brand = getBrandFromRowBackend(row);
     const name = getNormalizedValue(row, ["danismanadi", "danisman adi", "danisman adisoyadi", "danisman adi soyadi", "adsoyad", "ad soyad", "danismanadisoyadi"]).toUpperCase().trim();
-    const key = `${offId}:::${name}`;
+    const key = `${offId}:::${brand}:::${name}`;
     if (offId && name) {
       existingMap.set(key, row); // Overwrite or add
     }

@@ -448,14 +448,16 @@ Object.defineProperty(window, 'fetch', {
           const map = new Map<string, any>();
           ex.forEach(row => {
             const offId = getNormValLocal(row, ["ofiskodu", "ofis kodu", "id", "kod"]).toUpperCase().trim();
+            const brand = getBrandFromRowLocal(row);
             const name = getNormValLocal(row, ["danismanadi", "danisman adi", "danisman adisoyadi", "danisman adi soyadi", "adsoyad", "ad soyad", "danismanadisoyadi"]).toUpperCase().trim();
-            const key = `${offId}:::${name}`;
+            const key = `${offId}:::${brand}:::${name}`;
             if (offId && name) map.set(key, row);
           });
           inc.forEach(row => {
             const offId = getNormValLocal(row, ["ofiskodu", "ofis kodu", "id", "kod"]).toUpperCase().trim();
+            const brand = getBrandFromRowLocal(row);
             const name = getNormValLocal(row, ["danismanadi", "danisman adi", "danisman adisoyadi", "danisman adi soyadi", "adsoyad", "ad soyad", "danismanadisoyadi"]).toUpperCase().trim();
-            const key = `${offId}:::${name}`;
+            const key = `${offId}:::${brand}:::${name}`;
             if (offId && name) map.set(key, row);
           });
           return Array.from(map.values());
