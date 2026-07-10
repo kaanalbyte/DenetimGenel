@@ -122,6 +122,31 @@ export default function AuditPanel({ offices, groups, activeAudit, onRefresh, on
   const [diagnosticSearch, setDiagnosticSearch] = useState("");
   const [diagnosticBrand, setDiagnosticBrand] = useState("all");
 
+  // Filters & Sorting for Table A (Danışman Denetimi)
+  const [danismanSearch, setDanismanSearch] = useState("");
+  const [danismanBrand, setDanismanBrand] = useState("all");
+  const [danismanStatus, setDanismanStatus] = useState("all");
+  const [danismanSort, setDanismanSort] = useState("name_asc");
+
+  // Filters & Sorting for Table B (İlan Denetimi)
+  const [ilanSearch, setIlanSearch] = useState("");
+  const [ilanBrand, setIlanBrand] = useState("all");
+  const [ilanStatus, setIlanStatus] = useState("all");
+  const [ilanSort, setIlanSort] = useState("name_asc");
+
+  // Helper function to resolve brand of a group or office code
+  const getEntityBrand = (code: string) => {
+    const office = offices.find(o => o.id === code);
+    if (office?.brand) return office.brand;
+    const groupOffice = offices.find(o => o.groupId === code);
+    if (groupOffice?.brand) return groupOffice.brand;
+    const nameUpper = String(code).toUpperCase() + " " + String(offices.find(o => o.id === code)?.name || "").toUpperCase();
+    if (nameUpper.includes("CB") || nameUpper.includes("COLDWELL")) return "Coldwell Banker";
+    if (nameUpper.includes("C21") || nameUpper.includes("CENTURY")) return "Century 21";
+    if (nameUpper.includes("ERA")) return "ERA";
+    return "";
+  };
+
   // Calculate Reports whenever activeAudit data, groups, or offices change
   useEffect(() => {
     if (!activeAudit) {
@@ -152,6 +177,7 @@ export default function AuditPanel({ offices, groups, activeAudit, onRefresh, on
         countDanisman: number; 
         countOfficialTotal: number; 
         countKacak: number; 
+        sumKacakPortfolio: number;
         names: string[]; 
         status: "Sorunlu" | "Uyumlu" 
       } 
@@ -169,6 +195,7 @@ export default function AuditPanel({ offices, groups, activeAudit, onRefresh, on
           countDanisman: 0,
           countOfficialTotal: 0,
           countKacak: 0,
+          sumKacakPortfolio: 0,
           names: [],
           status: "Uyumlu"
         };
@@ -245,6 +272,7 @@ export default function AuditPanel({ offices, groups, activeAudit, onRefresh, on
         if (name && !entity.names.includes(displayLabel)) {
           entity.names.push(displayLabel);
           entity.countKacak += 1;
+          entity.sumKacakPortfolio += portfolio;
           entity.status = "Sorunlu";
         }
       }
@@ -730,6 +758,132 @@ export default function AuditPanel({ offices, groups, activeAudit, onRefresh, on
       prev.includes(id) ? prev.filter(item => item !== id) : [...prev, id]
     );
   };
+
+  // --- TABLE A FILTERS, SORTING, AND TOTALS ---
+  const processedDanismanReport = React.useMemo(() => {
+    let result = [...danismanReport];
+
+    // Filter by search text
+    if (danismanSearch.trim()) {
+      const searchLower = danismanSearch.toLowerCase();
+      result = result.filter(item => 
+        item.name.toLowerCase().includes(searchLower) || 
+        item.code.toLowerCase().includes(searchLower) || 
+        item.ownerName.toLowerCase().includes(searchLower)
+      );
+    }
+
+    // Filter by brand
+    if (danismanBrand !== "all") {
+      result = result.filter(item => {
+        const brand = getEntityBrand(item.code);
+        return brand === danismanBrand;
+      });
+    }
+
+    // Filter by status
+    if (danismanStatus !== "all") {
+      result = result.filter(item => {
+        if (danismanStatus === "Sorunlu") return item.status === "Sorunlu";
+        if (danismanStatus === "Uyumlu") return item.status === "Uyumlu";
+        return true;
+      });
+    }
+
+    // Sorting
+    result.sort((a, b) => {
+      switch (danismanSort) {
+        case "name_asc":
+          return a.name.localeCompare(b.name, "tr");
+        case "name_desc":
+          return b.name.localeCompare(a.name, "tr");
+        case "resmi_kadro_desc":
+          return b.countOfficialTotal - a.countOfficialTotal;
+        case "resmi_kadro_asc":
+          return a.countOfficialTotal - b.countOfficialTotal;
+        case "kacak_desc":
+          return b.countKacak - a.countKacak;
+        case "kacak_asc":
+          return a.countKacak - b.countKacak;
+        default:
+          return 0;
+      }
+    });
+
+    return result;
+  }, [danismanReport, danismanSearch, danismanBrand, danismanStatus, danismanSort, offices]);
+
+  const totalOfficial = processedDanismanReport.reduce((acc, item) => acc + item.countOfficialTotal, 0);
+  const totalOwner = processedDanismanReport.reduce((acc, item) => acc + item.countOwner, 0);
+  const totalBroker = processedDanismanReport.reduce((acc, item) => acc + item.countBroker, 0);
+  const totalDanisman = processedDanismanReport.reduce((acc, item) => acc + item.countDanisman, 0);
+  const totalKacakCount = processedDanismanReport.reduce((acc, item) => acc + item.countKacak, 0);
+  const totalKacakPortfolios = processedDanismanReport.reduce((acc, item) => acc + (item.sumKacakPortfolio || 0), 0);
+
+
+  // --- TABLE B FILTERS, SORTING, AND TOTALS ---
+  const processedIlanReport = React.useMemo(() => {
+    let result = [...ilanReport];
+
+    // Filter by search text
+    if (ilanSearch.trim()) {
+      const searchLower = ilanSearch.toLowerCase();
+      result = result.filter(item => 
+        item.name.toLowerCase().includes(searchLower) || 
+        item.code.toLowerCase().includes(searchLower) || 
+        item.ownerName.toLowerCase().includes(searchLower)
+      );
+    }
+
+    // Filter by brand
+    if (ilanBrand !== "all") {
+      result = result.filter(item => {
+        const brand = getEntityBrand(item.code);
+        return brand === ilanBrand;
+      });
+    }
+
+    // Filter by status
+    if (ilanStatus !== "all") {
+      result = result.filter(item => {
+        if (ilanStatus === "Sorunlu") return item.status === "Sorunlu";
+        if (ilanStatus === "Uyumlu") return item.status === "Uyumlu";
+        return true;
+      });
+    }
+
+    // Sorting
+    result.sort((a, b) => {
+      switch (ilanSort) {
+        case "name_asc":
+          return a.name.localeCompare(b.name, "tr");
+        case "name_desc":
+          return b.name.localeCompare(a.name, "tr");
+        case "resmi_panel_desc":
+          return b.countPanelTotal - a.countPanelTotal;
+        case "resmi_panel_asc":
+          return a.countPanelTotal - b.countPanelTotal;
+        case "sahibinden_desc":
+          return b.countSahibinden - a.countSahibinden;
+        case "sahibinden_asc":
+          return a.countSahibinden - b.countSahibinden;
+        case "fark_desc":
+          return b.difference - a.difference;
+        case "fark_asc":
+          return a.difference - b.difference;
+        default:
+          return 0;
+      }
+    });
+
+    return result;
+  }, [ilanReport, ilanSearch, ilanBrand, ilanStatus, ilanSort, offices]);
+
+  const totalPanel = processedIlanReport.reduce((acc, item) => acc + item.countPanelTotal, 0);
+  const totalSatilik = processedIlanReport.reduce((acc, item) => acc + item.countSatilik, 0);
+  const totalKiralik = processedIlanReport.reduce((acc, item) => acc + item.countKiralik, 0);
+  const totalSahibinden = processedIlanReport.reduce((acc, item) => acc + item.countSahibinden, 0);
+  const totalDifference = processedIlanReport.reduce((acc, item) => acc + item.difference, 0);
 
   return (
     <div className="space-y-8" id="audit-process-panel">
@@ -1410,11 +1564,68 @@ export default function AuditPanel({ offices, groups, activeAudit, onRefresh, on
                         </div>
                       </div>
 
-                      <div className="overflow-x-auto">
-                        <table className="w-full text-left text-xs text-slate-600">
-                          <thead className="bg-slate-50 text-[10px] uppercase font-bold text-slate-500 border-b border-slate-200">
+                      {/* Filter Controls Row for Table A */}
+                      <div className="px-3 py-2 bg-slate-50/30 border-b border-slate-150 flex flex-wrap gap-2 items-center">
+                        <div className="flex-1 min-w-[140px]">
+                          <input
+                            type="text"
+                            placeholder="Ofis/Grup ara..."
+                            value={danismanSearch}
+                            onChange={(e) => setDanismanSearch(e.target.value)}
+                            className="w-full px-2 py-1 text-xs border border-slate-200 rounded bg-white focus:outline-none focus:border-slate-400 placeholder:text-slate-400"
+                          />
+                        </div>
+                        <div className="w-full sm:w-auto">
+                          <select
+                            value={danismanBrand}
+                            onChange={(e) => setDanismanBrand(e.target.value)}
+                            className="w-full sm:w-[130px] px-2 py-1 text-xs border border-slate-200 rounded bg-white focus:outline-none focus:border-slate-400"
+                          >
+                            <option value="all">Tüm Markalar</option>
+                            <option value="Coldwell Banker">Coldwell Banker</option>
+                            <option value="Century 21">Century 21</option>
+                            <option value="ERA">ERA</option>
+                          </select>
+                        </div>
+                        <div className="w-full sm:w-auto">
+                          <select
+                            value={danismanStatus}
+                            onChange={(e) => setDanismanStatus(e.target.value)}
+                            className="w-full sm:w-[120px] px-2 py-1 text-xs border border-slate-200 rounded bg-white focus:outline-none focus:border-slate-400"
+                          >
+                            <option value="all">Tüm Durumlar</option>
+                            <option value="Sorunlu">Kaçak Var</option>
+                            <option value="Uyumlu">Uyumlu</option>
+                          </select>
+                        </div>
+                        <div className="w-full sm:w-auto">
+                          <select
+                            value={danismanSort}
+                            onChange={(e) => setDanismanSort(e.target.value)}
+                            className="w-full sm:w-[150px] px-2 py-1 text-xs border border-slate-200 rounded bg-white focus:outline-none focus:border-slate-400"
+                          >
+                            <option value="name_asc">Sıralama: İsim (A-Z)</option>
+                            <option value="name_desc">Sıralama: İsim (Z-A)</option>
+                            <option value="resmi_kadro_desc">Sıralama: Resmi Kadro (Yüksek)</option>
+                            <option value="resmi_kadro_asc">Sıralama: Resmi Kadro (Düşük)</option>
+                            <option value="kacak_desc">Sıralama: Kaçak Sayısı (Yüksek)</option>
+                            <option value="kacak_asc">Sıralama: Kaçak Sayısı (Düşük)</option>
+                          </select>
+                        </div>
+                      </div>
+
+                      <div className="overflow-x-auto max-h-[500px]">
+                        <table className="w-full text-left text-xs text-slate-600 border-collapse table-fixed min-w-[600px]">
+                          <colgroup>
+                            <col className="w-10" />
+                            <col className="w-1/3" />
+                            <col className="w-1/4 text-center" />
+                            <col className="w-24" />
+                            <col className="w-1/3" />
+                          </colgroup>
+                          <thead className="bg-slate-50 text-[10px] uppercase font-bold text-slate-500 border-b border-slate-200 sticky top-0 z-10 shadow-xs">
                             <tr>
-                              <th className="px-3 py-2 w-10">Seç</th>
+                              <th className="px-3 py-2">Seç</th>
                               <th className="px-3 py-2">Ofis/Grup Kodu & Adı</th>
                               <th className="px-3 py-2 text-center">Resmi Kadro (Panel)</th>
                               <th className="px-3 py-2">Durumu</th>
@@ -1422,12 +1633,12 @@ export default function AuditPanel({ offices, groups, activeAudit, onRefresh, on
                             </tr>
                           </thead>
                           <tbody className="divide-y divide-slate-100">
-                            {danismanReport.length === 0 ? (
+                            {processedDanismanReport.length === 0 ? (
                               <tr>
-                                <td colSpan={5} className="text-center py-6 text-slate-400">Uyumsuz danışman tespiti bulunmuyor.</td>
+                                <td colSpan={5} className="text-center py-6 text-slate-400">Aranan kriterlere uygun danışman tespiti bulunamadı.</td>
                               </tr>
                             ) : (
-                              danismanReport.map((item) => (
+                              processedDanismanReport.map((item) => (
                                 <tr key={item.code} className={`hover:bg-slate-50/40 transition ${item.status === "Sorunlu" ? "bg-rose-50/20" : ""}`}>
                                   <td className="px-3 py-2">
                                     <input
@@ -1439,8 +1650,8 @@ export default function AuditPanel({ offices, groups, activeAudit, onRefresh, on
                                     />
                                   </td>
                                   <td className="px-3 py-2">
-                                    <div className="font-semibold text-slate-850">{item.name}</div>
-                                    <div className="text-[10px] text-slate-400 font-mono mt-0.5">{item.code} - {item.ownerName}</div>
+                                    <div className="font-semibold text-slate-850 truncate">{item.name}</div>
+                                    <div className="text-[10px] text-slate-400 font-mono mt-0.5 truncate">{item.code} - {item.ownerName}</div>
                                   </td>
                                   <td className="px-3 py-2 text-center">
                                     <div className="font-mono text-xs text-slate-700 font-semibold">
@@ -1474,6 +1685,43 @@ export default function AuditPanel({ offices, groups, activeAudit, onRefresh, on
                               ))
                             )}
                           </tbody>
+                          {processedDanismanReport.length > 0 && (
+                            <tfoot className="bg-slate-100 font-bold border-t-2 border-slate-300 sticky bottom-0 z-10 shadow-xs">
+                              <tr>
+                                <td className="px-3 py-2.5"></td>
+                                <td className="px-3 py-2.5 text-slate-800 text-xs">TOPLAM ({processedDanismanReport.length} Ofis)</td>
+                                <td className="px-3 py-2.5 text-center">
+                                  <div className="text-xs text-slate-950">Kadro: {totalOfficial}</div>
+                                  <div className="text-[9px] text-slate-500 font-normal">
+                                    O: {totalOwner} | B: {totalBroker} | D: {totalDanisman}
+                                  </div>
+                                </td>
+                                <td className="px-3 py-2.5">
+                                  {totalKacakCount > 0 ? (
+                                    <span className="inline-block px-1.5 py-0.5 rounded font-bold text-[9px] bg-rose-100 text-rose-900">
+                                      {totalKacakCount} KAÇAK VAR
+                                    </span>
+                                  ) : (
+                                    <span className="inline-block px-1.5 py-0.5 rounded font-bold text-[9px] bg-emerald-100 text-emerald-800">
+                                      UYUMLU
+                                    </span>
+                                  )}
+                                </td>
+                                <td className="px-3 py-2.5 text-rose-900 text-xs font-semibold">
+                                  {totalKacakCount > 0 ? (
+                                    <div className="flex flex-col">
+                                      <span>Kaçak Danışman Sayısı: {totalKacakCount} Kişi</span>
+                                      <span className="text-[10px] text-slate-500 font-mono font-normal">
+                                        Toplam Portföy (Parantez İçi): {totalKacakPortfolios}
+                                      </span>
+                                    </div>
+                                  ) : (
+                                    <span className="text-slate-400 font-mono text-[11px]">-</span>
+                                  )}
+                                </td>
+                              </tr>
+                            </tfoot>
+                          )}
                         </table>
                       </div>
                     </div>
@@ -1489,11 +1737,71 @@ export default function AuditPanel({ offices, groups, activeAudit, onRefresh, on
                         </div>
                       </div>
 
-                      <div className="overflow-x-auto">
-                        <table className="w-full text-left text-xs text-slate-600">
-                          <thead className="bg-slate-50 text-[10px] uppercase font-bold text-slate-500 border-b border-slate-200">
+                      {/* Filter Controls Row for Table B */}
+                      <div className="px-3 py-2 bg-slate-50/30 border-b border-slate-150 flex flex-wrap gap-2 items-center">
+                        <div className="flex-1 min-w-[140px]">
+                          <input
+                            type="text"
+                            placeholder="Ofis/Grup ara..."
+                            value={ilanSearch}
+                            onChange={(e) => setIlanSearch(e.target.value)}
+                            className="w-full px-2 py-1 text-xs border border-slate-200 rounded bg-white focus:outline-none focus:border-slate-400 placeholder:text-slate-400"
+                          />
+                        </div>
+                        <div className="w-full sm:w-auto">
+                          <select
+                            value={ilanBrand}
+                            onChange={(e) => setIlanBrand(e.target.value)}
+                            className="w-full sm:w-[130px] px-2 py-1 text-xs border border-slate-200 rounded bg-white focus:outline-none focus:border-slate-400"
+                          >
+                            <option value="all">Tüm Markalar</option>
+                            <option value="Coldwell Banker">Coldwell Banker</option>
+                            <option value="Century 21">Century 21</option>
+                            <option value="ERA">ERA</option>
+                          </select>
+                        </div>
+                        <div className="w-full sm:w-auto">
+                          <select
+                            value={ilanStatus}
+                            onChange={(e) => setIlanStatus(e.target.value)}
+                            className="w-full sm:w-[120px] px-2 py-1 text-xs border border-slate-200 rounded bg-white focus:outline-none focus:border-slate-400"
+                          >
+                            <option value="all">Tüm Durumlar</option>
+                            <option value="Sorunlu">Limit Aşıldı</option>
+                            <option value="Uyumlu">Uyumlu</option>
+                          </select>
+                        </div>
+                        <div className="w-full sm:w-auto">
+                          <select
+                            value={ilanSort}
+                            onChange={(e) => setIlanSort(e.target.value)}
+                            className="w-full sm:w-[150px] px-2 py-1 text-xs border border-slate-200 rounded bg-white focus:outline-none focus:border-slate-400"
+                          >
+                            <option value="name_asc">Sıralama: İsim (A-Z)</option>
+                            <option value="name_desc">Sıralama: İsim (Z-A)</option>
+                            <option value="resmi_panel_desc">Sıralama: Resmi Panel (Yüksek)</option>
+                            <option value="resmi_panel_asc">Sıralama: Resmi Panel (Düşük)</option>
+                            <option value="sahibinden_desc">Sıralama: Sahibinden (Yüksek)</option>
+                            <option value="sahibinden_asc">Sıralama: Sahibinden (Düşük)</option>
+                            <option value="fark_desc">Sıralama: Fark (Yüksek)</option>
+                            <option value="fark_asc">Sıralama: Fark (Düşük)</option>
+                          </select>
+                        </div>
+                      </div>
+
+                      <div className="overflow-x-auto max-h-[500px]">
+                        <table className="w-full text-left text-xs text-slate-600 border-collapse table-fixed min-w-[600px]">
+                          <colgroup>
+                            <col className="w-10" />
+                            <col className="w-2/5" />
+                            <col className="w-1/4 text-center" />
+                            <col className="w-24 text-center" />
+                            <col className="w-20 text-center" />
+                            <col className="w-24" />
+                          </colgroup>
+                          <thead className="bg-slate-50 text-[10px] uppercase font-bold text-slate-500 border-b border-slate-200 sticky top-0 z-10 shadow-xs">
                             <tr>
-                              <th className="px-3 py-2 w-10">Seç</th>
+                              <th className="px-3 py-2">Seç</th>
                               <th className="px-3 py-2">Ofis/Grup Kodu & Adı</th>
                               <th className="px-3 py-2 text-center">Resmi Panel (Portföy)</th>
                               <th className="px-3 py-2 text-center">Sahibinden</th>
@@ -1502,12 +1810,12 @@ export default function AuditPanel({ offices, groups, activeAudit, onRefresh, on
                             </tr>
                           </thead>
                           <tbody className="divide-y divide-slate-100">
-                            {ilanReport.length === 0 ? (
+                            {processedIlanReport.length === 0 ? (
                               <tr>
-                                <td colSpan={6} className="text-center py-6 text-slate-400">Uyumsuz ilan sayısı tespiti bulunmuyor.</td>
+                                <td colSpan={6} className="text-center py-6 text-slate-400">Aranan kriterlere uygun ilan tespiti bulunamadı.</td>
                               </tr>
                             ) : (
-                              ilanReport.map((item) => (
+                              processedIlanReport.map((item) => (
                                 <tr key={item.code} className={`hover:bg-slate-50/40 transition ${item.status === "Sorunlu" ? "bg-rose-50/20" : ""}`}>
                                   <td className="px-3 py-2">
                                     <input
@@ -1519,8 +1827,8 @@ export default function AuditPanel({ offices, groups, activeAudit, onRefresh, on
                                     />
                                   </td>
                                   <td className="px-3 py-2">
-                                    <div className="font-semibold text-slate-850">{item.name}</div>
-                                    <div className="text-[10px] text-slate-400 font-mono mt-0.5">{item.code} - {item.ownerName}</div>
+                                    <div className="font-semibold text-slate-850 truncate">{item.name}</div>
+                                    <div className="text-[10px] text-slate-400 font-mono mt-0.5 truncate">{item.code} - {item.ownerName}</div>
                                   </td>
                                   <td className="px-3 py-2 text-center">
                                     <div className="font-mono text-xs text-slate-700 font-semibold">
@@ -1549,6 +1857,29 @@ export default function AuditPanel({ offices, groups, activeAudit, onRefresh, on
                               ))
                             )}
                           </tbody>
+                          {processedIlanReport.length > 0 && (
+                            <tfoot className="bg-slate-100 font-bold border-t-2 border-slate-300 sticky bottom-0 z-10 shadow-xs">
+                              <tr>
+                                <td className="px-3 py-2.5"></td>
+                                <td className="px-3 py-2.5 text-slate-800 text-xs">TOPLAM ({processedIlanReport.length} Ofis)</td>
+                                <td className="px-3 py-2.5 text-center">
+                                  <div className="text-xs text-slate-950">Resmi Panel: {totalPanel}</div>
+                                  <div className="text-[9px] text-slate-500 font-normal">
+                                    Satılık: {totalSatilik} | Kiralık: {totalKiralik}
+                                  </div>
+                                </td>
+                                <td className="px-3 py-2.5 text-center text-xs font-mono text-slate-950">
+                                  {totalSahibinden}
+                                </td>
+                                <td className="px-3 py-2.5 text-center text-xs font-mono">
+                                  <span className={totalDifference > 0 ? "text-rose-600 font-bold" : "text-emerald-600 font-bold"}>
+                                    {totalDifference > 0 ? `+${totalDifference}` : totalDifference}
+                                  </span>
+                                </td>
+                                <td className="px-3 py-2.5"></td>
+                              </tr>
+                            </tfoot>
+                          )}
                         </table>
                       </div>
                     </div>
