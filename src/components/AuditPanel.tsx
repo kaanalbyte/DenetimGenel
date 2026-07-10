@@ -179,12 +179,24 @@ export default function AuditPanel({ offices, groups, activeAudit, onRefresh, on
         countKacak: number; 
         sumKacakPortfolio: number;
         names: string[]; 
-        status: "Sorunlu" | "Uyumlu" 
+        status: "Sorunlu" | "Uyumlu";
+        isGroup?: boolean;
+        subOffices?: {
+          code: string;
+          name: string;
+          countOwner: number;
+          countBroker: number;
+          countDanisman: number;
+          countOfficialTotal: number;
+          countKacak: number;
+          sumKacakPortfolio: number;
+          names: string[];
+        }[];
       } 
     } = {};
 
     // Initialize map with all offices/groups
-    const initializeDanismanMap = (id: string, name: string, ownerName: string) => {
+    const initializeDanismanMap = (id: string, name: string, ownerName: string, isGroup?: boolean) => {
       if (!danismanMap[id]) {
         danismanMap[id] = {
           code: id,
@@ -197,7 +209,9 @@ export default function AuditPanel({ offices, groups, activeAudit, onRefresh, on
           countKacak: 0,
           sumKacakPortfolio: 0,
           names: [],
-          status: "Uyumlu"
+          status: "Uyumlu",
+          isGroup,
+          subOffices: isGroup ? [] : undefined
         };
       }
     };
@@ -208,7 +222,15 @@ export default function AuditPanel({ offices, groups, activeAudit, onRefresh, on
       
       if (o.groupId) {
         const group = groups.find(g => g.id === o.groupId);
-        if (group) initializeDanismanMap(group.id, `${group.name} (Grup)`, group.ownerName);
+        if (group) {
+          initializeDanismanMap(group.id, `${group.name} (Grup)`, group.ownerName, true);
+          const gEnt = danismanMap[group.id];
+          if (gEnt && gEnt.subOffices && !gEnt.subOffices.find(s => s.code === o.id)) {
+            gEnt.subOffices.push({
+              code: o.id, name: o.name, countOwner: 0, countBroker: 0, countDanisman: 0, countOfficialTotal: 0, countKacak: 0, sumKacakPortfolio: 0, names: []
+            });
+          }
+        }
       } else {
         initializeDanismanMap(o.id, o.name, o.ownerName);
       }
@@ -245,6 +267,16 @@ export default function AuditPanel({ offices, groups, activeAudit, onRefresh, on
         entity.countBroker += brokerVal;
         entity.countDanisman += danismanVal;
         entity.countOfficialTotal += (ownerVal + brokerVal + danismanVal);
+        
+        if (entity.isGroup && office.groupId && entity.subOffices) {
+          const sub = entity.subOffices.find(s => s.code === office.id);
+          if (sub) {
+            sub.countOwner += ownerVal;
+            sub.countBroker += brokerVal;
+            sub.countDanisman += danismanVal;
+            sub.countOfficialTotal += (ownerVal + brokerVal + danismanVal);
+          }
+        }
       }
     });
 
@@ -275,6 +307,17 @@ export default function AuditPanel({ offices, groups, activeAudit, onRefresh, on
           entity.sumKacakPortfolio += portfolio;
           entity.status = "Sorunlu";
         }
+        
+        if (entity.isGroup && office.groupId && entity.subOffices) {
+          const sub = entity.subOffices.find(s => s.code === office.id);
+          if (sub) {
+            if (name && !sub.names.includes(displayLabel)) {
+              sub.names.push(displayLabel);
+              sub.countKacak += 1;
+              sub.sumKacakPortfolio += portfolio;
+            }
+          }
+        }
       }
     });
 
@@ -292,7 +335,17 @@ export default function AuditPanel({ offices, groups, activeAudit, onRefresh, on
         countPanelTotal: number; 
         countSahibinden: number; 
         difference: number; 
-        status: "Sorunlu" | "Uyumlu" 
+        status: "Sorunlu" | "Uyumlu";
+        isGroup?: boolean;
+        subOffices?: {
+          code: string;
+          name: string;
+          countSatilik: number;
+          countKiralik: number;
+          countPanelTotal: number;
+          countSahibinden: number;
+          difference: number;
+        }[];
       } 
     } = {};
 
@@ -312,7 +365,9 @@ export default function AuditPanel({ offices, groups, activeAudit, onRefresh, on
             countPanelTotal: 0,
             countSahibinden: 0,
             difference: 0,
-            status: "Uyumlu"
+            status: "Uyumlu",
+            isGroup: true,
+            subOffices: []
           };
         } else {
           ilanMap[targetId] = {
@@ -326,6 +381,15 @@ export default function AuditPanel({ offices, groups, activeAudit, onRefresh, on
             difference: 0,
             status: "Uyumlu"
           };
+        }
+      }
+      
+      if (o.groupId) {
+        const ent = ilanMap[targetId];
+        if (ent && ent.subOffices && !ent.subOffices.find(s => s.code === o.id)) {
+          ent.subOffices.push({
+            code: o.id, name: o.name, countSatilik: 0, countKiralik: 0, countPanelTotal: 0, countSahibinden: 0, difference: 0
+          });
         }
       }
     });
@@ -356,6 +420,15 @@ export default function AuditPanel({ offices, groups, activeAudit, onRefresh, on
         ilanMap[targetId].countSatilik += satilik;
         ilanMap[targetId].countKiralik += kiralik;
         ilanMap[targetId].countPanelTotal += (satilik + kiralik);
+        
+        if (ilanMap[targetId].isGroup && office.groupId && ilanMap[targetId].subOffices) {
+          const sub = ilanMap[targetId].subOffices!.find(s => s.code === office.id);
+          if (sub) {
+            sub.countSatilik += satilik;
+            sub.countKiralik += kiralik;
+            sub.countPanelTotal += (satilik + kiralik);
+          }
+        }
       }
     });
 
@@ -381,6 +454,13 @@ export default function AuditPanel({ offices, groups, activeAudit, onRefresh, on
       if (ilanMap[targetId]) {
         const portfoy = Number(getNormalizedValue(row, ["portfoysayisi", "portfoy", "ilansayisi", "ilan sayisi"]) || 0);
         ilanMap[targetId].countSahibinden += portfoy;
+        
+        if (ilanMap[targetId].isGroup && office.groupId && ilanMap[targetId].subOffices) {
+          const sub = ilanMap[targetId].subOffices!.find(s => s.code === office.id);
+          if (sub) {
+            sub.countSahibinden += portfoy;
+          }
+        }
       }
     });
 
@@ -391,6 +471,12 @@ export default function AuditPanel({ offices, groups, activeAudit, onRefresh, on
       const p = item.countPanelTotal;
       const diff = s - p; // Excess on Sahibinden portal
       item.difference = diff;
+      
+      if (item.subOffices) {
+        item.subOffices.forEach(sub => {
+          sub.difference = sub.countSahibinden - sub.countPanelTotal;
+        });
+      }
 
       // Rule:
       // If Total Sahibinden Listings <= 100: Max 10 listings difference tolerance. (Problematic if diff > 10)
@@ -1639,7 +1725,8 @@ export default function AuditPanel({ offices, groups, activeAudit, onRefresh, on
                               </tr>
                             ) : (
                               processedDanismanReport.map((item) => (
-                                <tr key={item.code} className={`hover:bg-slate-50/40 transition ${item.status === "Sorunlu" ? "bg-rose-50/20" : ""}`}>
+                                <React.Fragment key={item.code}>
+                                <tr className={`hover:bg-slate-50/40 transition ${item.status === "Sorunlu" ? "bg-rose-50/20" : ""}`}>
                                   <td className="px-3 py-2">
                                     <input
                                       type="checkbox"
@@ -1682,6 +1769,47 @@ export default function AuditPanel({ offices, groups, activeAudit, onRefresh, on
                                     )}
                                   </td>
                                 </tr>
+                                {item.isGroup && item.subOffices && item.subOffices.map((sub: any) => (
+                                  <tr key={sub.code} className="bg-slate-50/50 hover:bg-slate-100/50 transition">
+                                    <td className="px-3 py-1.5"></td>
+                                    <td className="px-3 py-1.5 pl-6">
+                                      <div className="flex items-center text-slate-600">
+                                        <div className="w-3 h-3 border-l-2 border-b-2 border-slate-300 mr-2 rounded-bl"></div>
+                                        <div>
+                                          <div className="font-medium text-xs truncate">{sub.name}</div>
+                                          <div className="text-[9px] text-slate-400 font-mono">{sub.code}</div>
+                                        </div>
+                                      </div>
+                                    </td>
+                                    <td className="px-3 py-1.5 text-center">
+                                      <div className="font-mono text-[10px] text-slate-600 font-semibold">
+                                        Toplam: {sub.countOfficialTotal}
+                                      </div>
+                                      <div className="text-[8px] text-slate-400 font-mono">
+                                        O: {sub.countOwner} | B: {sub.countBroker} | D: {sub.countDanisman}
+                                      </div>
+                                    </td>
+                                    <td className="px-3 py-1.5">
+                                      {sub.countKacak > 0 && (
+                                        <span className="inline-block px-1.5 py-0.5 rounded font-bold text-[8px] uppercase bg-rose-50 text-rose-600 border border-rose-100">
+                                          {sub.countKacak} KAÇAK
+                                        </span>
+                                      )}
+                                    </td>
+                                    <td className="px-3 py-1.5 text-rose-600 font-medium">
+                                      {sub.names && sub.names.length > 0 && (
+                                        <div className="flex flex-wrap gap-1">
+                                          {sub.names.map((n: string, i: number) => (
+                                            <span key={i} className="bg-rose-50 border border-rose-100 text-[9px] px-1 py-0.5 rounded text-rose-700 font-mono">
+                                              {n}
+                                            </span>
+                                          ))}
+                                        </div>
+                                      )}
+                                    </td>
+                                  </tr>
+                                ))}
+                                </React.Fragment>
                               ))
                             )}
                           </tbody>
@@ -1816,7 +1944,8 @@ export default function AuditPanel({ offices, groups, activeAudit, onRefresh, on
                               </tr>
                             ) : (
                               processedIlanReport.map((item) => (
-                                <tr key={item.code} className={`hover:bg-slate-50/40 transition ${item.status === "Sorunlu" ? "bg-rose-50/20" : ""}`}>
+                                <React.Fragment key={item.code}>
+                                <tr className={`hover:bg-slate-50/40 transition ${item.status === "Sorunlu" ? "bg-rose-50/20" : ""}`}>
                                   <td className="px-3 py-2">
                                     <input
                                       type="checkbox"
@@ -1854,6 +1983,38 @@ export default function AuditPanel({ offices, groups, activeAudit, onRefresh, on
                                     </span>
                                   </td>
                                 </tr>
+                                {item.isGroup && item.subOffices && item.subOffices.map((sub: any) => (
+                                  <tr key={sub.code} className="bg-slate-50/50 hover:bg-slate-100/50 transition">
+                                    <td className="px-3 py-1.5"></td>
+                                    <td className="px-3 py-1.5 pl-6">
+                                      <div className="flex items-center text-slate-600">
+                                        <div className="w-3 h-3 border-l-2 border-b-2 border-slate-300 mr-2 rounded-bl"></div>
+                                        <div>
+                                          <div className="font-medium text-xs truncate">{sub.name}</div>
+                                          <div className="text-[9px] text-slate-400 font-mono">{sub.code}</div>
+                                        </div>
+                                      </div>
+                                    </td>
+                                    <td className="px-3 py-1.5 text-center">
+                                      <div className="font-mono text-[10px] text-slate-600 font-semibold">
+                                        Toplam: {sub.countPanelTotal}
+                                      </div>
+                                      <div className="text-[8px] text-slate-400 font-mono">
+                                        S: {sub.countSatilik} | K: {sub.countKiralik}
+                                      </div>
+                                    </td>
+                                    <td className="px-3 py-1.5 text-center font-mono font-bold text-slate-600 text-[11px]">
+                                      {sub.countSahibinden}
+                                    </td>
+                                    <td className="px-3 py-1.5 text-center font-semibold font-mono text-[11px]">
+                                      <span className={sub.difference > 0 ? "text-rose-500" : "text-emerald-500"}>
+                                        {sub.difference > 0 ? `+${sub.difference}` : sub.difference}
+                                      </span>
+                                    </td>
+                                    <td className="px-3 py-1.5"></td>
+                                  </tr>
+                                ))}
+                                </React.Fragment>
                               ))
                             )}
                           </tbody>

@@ -1,0 +1,251 @@
+  // Calculate Reports whenever activeAudit data, groups, or offices change
+  useEffect(() => {
+    if (!activeAudit) {
+      setDanismanReport([]);
+      setIlanReport([]);
+      return;
+    }
+
+    const currentPhase = activeAudit.currentPhase;
+    const danismanRaw = (currentPhase === "Tespit" ? activeAudit.phase1DanismanRaw : activeAudit.phase2DanismanRaw) || [];
+    const ilanPanelRaw = (currentPhase === "Tespit" ? activeAudit.phase1IlanPanelRaw : activeAudit.phase2IlanPanelRaw) || [];
+    const ilanSahibindenRaw = (currentPhase === "Tespit" ? activeAudit.phase1IlanSahibindenRaw : activeAudit.phase2IlanSahibindenRaw) || [];
+    const kacakDanismanRaw = (currentPhase === "Tespit" ? activeAudit.phase1KacakDanismanRaw : activeAudit.phase2KacakDanismanRaw) || [];
+
+    // Determine target entities:
+    // If in Phase 2 (Kontrol), we ONLY evaluate entities that were problematic in Phase 1 (activeAudit.phase1ProblematicOffices)
+    const isPhase2 = currentPhase === "Kontrol";
+    const phase1Problematic = activeAudit.phase1ProblematicOffices || [];
+
+    // --- 1. DANİŞMAN DENETİMİ RAPORU HESAPLAMA ---
+    const danismanMap: { 
+      [entityId: string]: { 
+        code: string; 
+        name: string; 
+        ownerName: string; 
+        countOwner: number; 
+        countBroker: number; 
+        countDanisman: number; 
+        countOfficialTotal: number; 
+        countKacak: number; 
+        sumKacakPortfolio: number;
+        names: string[]; 
+        status: "Sorunlu" | "Uyumlu" 
+      } 
+    } = {};
+
+    // Initialize map with all offices/groups
+    const initializeDanismanMap = (id: string, name: string, ownerName: string) => {
+      if (!danismanMap[id]) {
+        danismanMap[id] = {
+          code: id,
+          name,
+          ownerName,
+          countOwner: 0,
+          countBroker: 0,
+          countDanisman: 0,
+          countOfficialTotal: 0,
+          countKacak: 0,
+          sumKacakPortfolio: 0,
+          names: [],
+          status: "Uyumlu"
+        };
+      }
+    };
+
+    // Populate offices and groups
+    offices.forEach(o => {
+      if (isPhase2 && !phase1Problematic.includes(o.groupId || o.id)) return; // Only problematic ones in Phase 2
+      
+      if (o.groupId) {
+        const group = groups.find(g => g.id === o.groupId);
+        if (group) initializeDanismanMap(group.id, `${group.name} (Grup)`, group.ownerName);
+      } else {
+        initializeDanismanMap(o.id, o.name, o.ownerName);
+      }
+    });
+
+    // Populate official panel advisor numbers from danismanRaw (Kullanıcı Raporu)
+    danismanRaw.forEach(row => {
+      const officeId = getNormalizedValue(row, ["ofiskodu", "ofis kodu", "id", "kod"]).toUpperCase().trim();
+      if (!officeId) return;
+
+      const rowBrand = getBrandFromRow(row, offices);
+      let office = offices.find(o => o.id === officeId && (rowBrand ? brandsMatch(o.brand || "", rowBrand) : true) && o.status !== "Silinmiş");
+      if (!office) {
+        office = offices.find(o => o.id === officeId && (rowBrand ? brandsMatch(o.brand || "", rowBrand) : true));
+      }
+      if (!office) {
+        office = offices.find(o => o.id === officeId && o.status !== "Silinmiş");
+      }
+      if (!office) {
+        office = offices.find(o => o.id === officeId);
+      }
+      if (!office) return;
+
+      const entityId = office.groupId || office.id;
+      if (isPhase2 && !phase1Problematic.includes(entityId)) return;
+
+      const entity = danismanMap[entityId];
+      if (entity) {
+        const ownerVal = Number(getNormalizedValue(row, ["owner", "sahip", "ofissahibi"]) || 0);
+        const brokerVal = Number(getNormalizedValue(row, ["broker"]) || 0);
+        const danismanVal = Number(getNormalizedValue(row, ["danisman", "danismanlar", "danismantoplami", "advisor", "agent"]) || 0);
+
+        entity.countOwner += ownerVal;
+        entity.countBroker += brokerVal;
+        entity.countDanisman += danismanVal;
+        entity.countOfficialTotal += (ownerVal + brokerVal + danismanVal);
+      }
+    });
+
+    // Populate Kaçak Danışman from kacakDanismanRaw (Kaçak Sahibinden Raporu)
+    kacakDanismanRaw.forEach(row => {
+      const officeId = getNormalizedValue(row, ["ofiskodu", "ofis kodu", "id", "kod"]).toUpperCase().trim();
+      if (!officeId) return;
+
+      const rowBrand = getBrandFromRow(row, offices);
+      let office = offices.find(o => o.id === officeId && (rowBrand ? brandsMatch(o.brand || "", rowBrand) : true));
+      if (!office) {
+        office = offices.find(o => o.id === officeId);
+      }
+      if (!office) return;
+
+      const entityId = office.groupId || office.id;
+      if (isPhase2 && !phase1Problematic.includes(entityId)) return;
+
+      const entity = danismanMap[entityId];
+      if (entity) {
+        const name = getNormalizedValue(row, ["danismanadi", "danisman adi", "danisman adisoyadi", "danisman adi soyadi", "adsoyad", "ad soyad", "danismanadisoyadi", "danismanadisoyadi"]) || "Bilinmeyen Danışman";
+        const portfolio = Number(getNormalizedValue(row, ["portfoysayisi", "portfoy", "ilansayisi", "ilan sayisi"]) || 1);
+        
+        const displayLabel = `${name} (${portfolio} Portföy)`;
+        if (name && !entity.names.includes(displayLabel)) {
+          entity.names.push(displayLabel);
+          entity.countKacak += 1;
+          entity.sumKacakPortfolio += portfolio;
+          entity.status = "Sorunlu";
+        }
+      }
+    });
+
+    const danismanArr = Object.values(danismanMap);
+    setDanismanReport(danismanArr);
+
+    // --- 2. İLAN DENETİMİ RAPORU HESAPLAMA ---
+    const ilanMap: { 
+      [entityId: string]: { 
+        code: string; 
+        name: string; 
+        ownerName: string; 
+        countSatilik: number; 
+        countKiralik: number; 
+        countPanelTotal: number; 
+        countSahibinden: number; 
+        difference: number; 
+        status: "Sorunlu" | "Uyumlu" 
+      } 
+    } = {};
+
+    offices.forEach(o => {
+      const targetId = o.groupId || o.id;
+      if (isPhase2 && !phase1Problematic.includes(targetId)) return;
+
+      if (!ilanMap[targetId]) {
+        if (o.groupId) {
+          const group = groups.find(g => g.id === o.groupId);
+          ilanMap[targetId] = {
+            code: targetId,
+            name: group ? `${group.name} (Grup)` : "Grup Ofis",
+            ownerName: group ? group.ownerName : o.ownerName,
+            countSatilik: 0,
+            countKiralik: 0,
+            countPanelTotal: 0,
+            countSahibinden: 0,
+            difference: 0,
+            status: "Uyumlu"
+          };
+        } else {
+          ilanMap[targetId] = {
+            code: targetId,
+            name: o.name,
+            ownerName: o.ownerName,
+            countSatilik: 0,
+            countKiralik: 0,
+            countPanelTotal: 0,
+            countSahibinden: 0,
+            difference: 0,
+            status: "Uyumlu"
+          };
+        }
+      }
+    });
+
+    // Populate Panel Counts (Satılık, Kiralık)
+    ilanPanelRaw.forEach(row => {
+      const officeId = getNormalizedValue(row, ["ofiskodu", "ofis kodu", "id", "kod"]).toUpperCase().trim();
+      if (!officeId) return;
+
+      const rowBrand = getBrandFromRow(row, offices);
+      let office = offices.find(o => o.id === officeId && (rowBrand ? brandsMatch(o.brand || "", rowBrand) : true) && o.status !== "Silinmiş");
+      if (!office) {
+        office = offices.find(o => o.id === officeId && (rowBrand ? brandsMatch(o.brand || "", rowBrand) : true));
+      }
+      if (!office) {
+        office = offices.find(o => o.id === officeId && o.status !== "Silinmiş");
+      }
+      if (!office) {
+        office = offices.find(o => o.id === officeId);
+      }
+      if (!office) return;
+
+      const targetId = office.groupId || office.id;
+      if (ilanMap[targetId]) {
+        const satilik = Number(getNormalizedValue(row, ["satilik", "satılık", "sale"]) || 0);
+        const kiralik = Number(getNormalizedValue(row, ["kiralik", "kiralık", "rent"]) || 0);
+        
+        ilanMap[targetId].countSatilik += satilik;
+        ilanMap[targetId].countKiralik += kiralik;
+        ilanMap[targetId].countPanelTotal += (satilik + kiralik);
+      }
+    });
+
+    // Populate Sahibinden Counts (Consolidated Portföy Sayısı)
+    ilanSahibindenRaw.forEach(row => {
+      const officeId = getNormalizedValue(row, ["ofiskodu", "ofis kodu", "id", "kod"]).toUpperCase().trim();
+      if (!officeId) return;
+
+      const rowBrand = getBrandFromRow(row, offices);
+      let office = offices.find(o => o.id === officeId && (rowBrand ? brandsMatch(o.brand || "", rowBrand) : true) && o.status !== "Silinmiş");
+      if (!office) {
+        office = offices.find(o => o.id === officeId && (rowBrand ? brandsMatch(o.brand || "", rowBrand) : true));
+      }
+      if (!office) {
+        office = offices.find(o => o.id === officeId && o.status !== "Silinmiş");
+      }
+      if (!office) {
+        office = offices.find(o => o.id === officeId);
+      }
+      if (!office) return;
+
+      const targetId = office.groupId || office.id;
+      if (ilanMap[targetId]) {
+        const portfoy = Number(getNormalizedValue(row, ["portfoysayisi", "portfoy", "ilansayisi", "ilan sayisi"]) || 0);
+        ilanMap[targetId].countSahibinden += portfoy;
+      }
+    });
+
+    // Apply tolerances rules to consolidated totals
+    Object.keys(ilanMap).forEach(key => {
+      const item = ilanMap[key];
+      const s = item.countSahibinden;
+      const p = item.countPanelTotal;
+      const diff = s - p; // Excess on Sahibinden portal
+      item.difference = diff;
+
+      // Rule:
+      // If Total Sahibinden Listings <= 100: Max 10 listings difference tolerance. (Problematic if diff > 10)
+      // If Total Sahibinden Listings > 100: Max 10% excess tolerance. (Problematic if diff > p * 0.10)
+      let isProblematic = false;
+      if (s <= 100) {
+        if (diff > 10) isProblematic = true;
