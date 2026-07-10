@@ -1013,6 +1013,39 @@ app.post("/api/audits/active/upload", (req, res) => {
   res.json(active);
 });
 
+// Reset uploaded data for active audit period
+app.post("/api/audits/active/reset", (req, res) => {
+  const db = readDB();
+  const activeIdx = db.audits.findIndex((a) => a.status === "Aktif");
+  if (activeIdx === -1) {
+    return res.status(404).json({ error: "Aktif bir denetim dönemi bulunamadı." });
+  }
+
+  const active = db.audits[activeIdx];
+  if (active.currentPhase === "Tespit") {
+    active.phase1DanismanRaw = [];
+    active.phase1IlanPanelRaw = [];
+    active.phase1IlanSahibindenRaw = [];
+    active.phase1KacakDanismanRaw = [];
+    active.phase1Uploaded = false;
+    active.phase1ProblematicOffices = [];
+    active.phase1ApprovedOffices = [];
+  } else if (active.currentPhase === "Kontrol") {
+    active.phase2DanismanRaw = [];
+    active.phase2IlanPanelRaw = [];
+    active.phase2IlanSahibindenRaw = [];
+    active.phase2KacakDanismanRaw = [];
+    active.phase2Uploaded = false;
+    active.phase2ProblematicOffices = [];
+    active.phase2ApprovedOffices = [];
+  }
+
+  active.updatedAt = new Date().toISOString();
+  db.audits[activeIdx] = active;
+  writeDB(db);
+  res.json(active);
+});
+
 // Update problematic state of active audit phase without advancing
 app.post("/api/audits/active/problematic", (req, res) => {
   const db = readDB();

@@ -357,7 +357,104 @@ Object.defineProperty(window, 'fetch', {
 
       // --- 12. POST /api/audits/active/upload ---
       if (url === "/api/audits/active/upload" && method === "POST") {
-        const { type, rows } = JSON.parse(init?.body as string);
+        const parsed = JSON.parse(init?.body as string);
+        const type = parsed.type;
+        const incoming = parsed.data || parsed.rows || [];
+        const secondary = parsed.secondaryData || [];
+
+        const audits = getLocalAudits();
+        const activeIdx = audits.findIndex((a: any) => a.status === "Aktif");
+        if (activeIdx === -1) {
+          return makeResponse({ error: "Aktif denetim yok" }, 404);
+        }
+        const active = audits[activeIdx];
+        const phase = active.currentPhase;
+
+        const getNormValLocal = (row: any, searchKeys: string[]): string => {
+          if (!row || typeof row !== "object") return "";
+          const normSearchKeys = searchKeys.map(k =>
+            k.toLowerCase().replace(/[\s\-_]+/g, "").replace(/ı/g, "i").replace(/ğ/g, "g").replace(/ü/g, "u").replace(/ş/g, "s").replace(/ö/g, "o").replace(/ç/g, "c")
+          );
+          for (const rowKey of Object.keys(row)) {
+            const normRowKey = rowKey.toLowerCase().replace(/[\s\-_]+/g, "").replace(/ı/g, "i").replace(/ğ/g, "g").replace(/ü/g, "u").replace(/ş/g, "s").replace(/ö/g, "o").replace(/ç/g, "c");
+            if (normSearchKeys.includes(normRowKey)) {
+              return String(row[rowKey] ?? "").trim();
+            }
+          }
+          return "";
+        };
+
+        const mergeByOfficeCodeLocal = (existing: any[], incomingRows: any[]) => {
+          const ex = Array.isArray(existing) ? existing : [];
+          const inc = Array.isArray(incomingRows) ? incomingRows : [];
+          const map = new Map<string, any>();
+          ex.forEach(row => {
+            const key = getNormValLocal(row, ["ofiskodu", "ofis kodu", "id", "kod"]).toUpperCase().trim();
+            if (key) map.set(key, row);
+          });
+          inc.forEach(row => {
+            const key = getNormValLocal(row, ["ofiskodu", "ofis kodu", "id", "kod"]).toUpperCase().trim();
+            if (key) map.set(key, row);
+          });
+          return Array.from(map.values());
+        };
+
+        const mergeKacakDanismanLocal = (existing: any[], incomingRows: any[]) => {
+          const ex = Array.isArray(existing) ? existing : [];
+          const inc = Array.isArray(incomingRows) ? incomingRows : [];
+          const map = new Map<string, any>();
+          ex.forEach(row => {
+            const offId = getNormValLocal(row, ["ofiskodu", "ofis kodu", "id", "kod"]).toUpperCase().trim();
+            const name = getNormValLocal(row, ["danismanadi", "danisman adi", "danisman adisoyadi", "danisman adi soyadi", "adsoyad", "ad soyad", "danismanadisoyadi"]).toUpperCase().trim();
+            const key = `${offId}:::${name}`;
+            if (offId && name) map.set(key, row);
+          });
+          inc.forEach(row => {
+            const offId = getNormValLocal(row, ["ofiskodu", "ofis kodu", "id", "kod"]).toUpperCase().trim();
+            const name = getNormValLocal(row, ["danismanadi", "danisman adi", "danisman adisoyadi", "danisman adi soyadi", "adsoyad", "ad soyad", "danismanadisoyadi"]).toUpperCase().trim();
+            const key = `${offId}:::${name}`;
+            if (offId && name) map.set(key, row);
+          });
+          return Array.from(map.values());
+        };
+
+        if (phase === "Tespit") {
+          if (type === "danisman") {
+            active.phase1DanismanRaw = mergeByOfficeCodeLocal(active.phase1DanismanRaw, incoming);
+          }
+          if (type === "ilan_panel") {
+            active.phase1IlanPanelRaw = mergeByOfficeCodeLocal(active.phase1IlanPanelRaw, incoming);
+          }
+          if (type === "ilan_sahibinden") {
+            active.phase1IlanSahibindenRaw = mergeByOfficeCodeLocal(active.phase1IlanSahibindenRaw, incoming);
+            if (Array.isArray(secondary) && secondary.length > 0) {
+              active.phase1KacakDanismanRaw = mergeKacakDanismanLocal(active.phase1KacakDanismanRaw || [], secondary);
+            }
+          }
+          active.phase1Uploaded = true;
+        } else if (phase === "Kontrol") {
+          if (type === "danisman") {
+            active.phase2DanismanRaw = mergeByOfficeCodeLocal(active.phase2DanismanRaw, incoming);
+          }
+          if (type === "ilan_panel") {
+            active.phase2IlanPanelRaw = mergeByOfficeCodeLocal(active.phase2IlanPanelRaw, incoming);
+          }
+          if (type === "ilan_sahibinden") {
+            active.phase2IlanSahibindenRaw = mergeByOfficeCodeLocal(active.phase2IlanSahibindenRaw, incoming);
+            if (Array.isArray(secondary) && secondary.length > 0) {
+              active.phase2KacakDanismanRaw = mergeKacakDanismanLocal(active.phase2KacakDanismanRaw || [], secondary);
+            }
+          }
+          active.phase2Uploaded = true;
+        }
+        active.updatedAt = new Date().toISOString();
+        audits[activeIdx] = active;
+        localStorage.setItem("db_audits", JSON.stringify(audits));
+        return makeResponse(active);
+      }
+
+      // --- 12b. POST /api/audits/active/reset ---
+      if (url === "/api/audits/active/reset" && method === "POST") {
         const audits = getLocalAudits();
         const activeIdx = audits.findIndex((a: any) => a.status === "Aktif");
         if (activeIdx === -1) {
@@ -367,13 +464,21 @@ Object.defineProperty(window, 'fetch', {
         const phase = active.currentPhase;
 
         if (phase === "Tespit") {
-          if (type === "danisman") active.phase1DanismanRaw = rows;
-          if (type === "ilan_panel") active.phase1IlanPanelRaw = rows;
-          if (type === "ilan_sahibinden") active.phase1IlanSahibindenRaw = rows;
+          active.phase1DanismanRaw = [];
+          active.phase1IlanPanelRaw = [];
+          active.phase1IlanSahibindenRaw = [];
+          active.phase1KacakDanismanRaw = [];
+          active.phase1Uploaded = false;
+          active.phase1ProblematicOffices = [];
+          active.phase1ApprovedOffices = [];
         } else if (phase === "Kontrol") {
-          if (type === "danisman") active.phase2DanismanRaw = rows;
-          if (type === "ilan_panel") active.phase2IlanPanelRaw = rows;
-          if (type === "ilan_sahibinden") active.phase2IlanSahibindenRaw = rows;
+          active.phase2DanismanRaw = [];
+          active.phase2IlanPanelRaw = [];
+          active.phase2IlanSahibindenRaw = [];
+          active.phase2KacakDanismanRaw = [];
+          active.phase2Uploaded = false;
+          active.phase2ProblematicOffices = [];
+          active.phase2ApprovedOffices = [];
         }
         active.updatedAt = new Date().toISOString();
         audits[activeIdx] = active;

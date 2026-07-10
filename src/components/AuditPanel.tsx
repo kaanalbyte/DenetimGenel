@@ -391,87 +391,58 @@ export default function AuditPanel({ offices, groups, activeAudit, onRefresh, on
     let sahibindenIlanMock: any[] = [];
     let kacakDanismanMock: any[] = [];
 
-    if (activeAudit.currentPhase === "Tespit") {
-      // PHASE 1 SAMPLE DATA
-      danismanMock = [
-        { "Ofis Kodu": "OF1001", "Owner": 1, "Broker": 1, "Danışman": 10 },
-        { "Ofis Kodu": "OF1002", "Owner": 1, "Broker": 0, "Danışman": 5 },
-        { "Ofis Kodu": "OF1003", "Owner": 0, "Broker": 1, "Danışman": 8 },
-        { "Ofis Kodu": "OF1004", "Owner": 1, "Broker": 1, "Danışman": 15 },
-        { "Ofis Kodu": "OF1005", "Owner": 1, "Broker": 0, "Danışman": 6 },
-        { "Ofis Kodu": "OF1006", "Owner": 1, "Broker": 1, "Danışman": 7 },
-        { "Ofis Kodu": "OF1007", "Owner": 1, "Broker": 0, "Danışman": 4 },
-        { "Ofis Kodu": "OF1008", "Owner": 1, "Broker": 1, "Danışman": 9 }
-      ];
+    // Map to actual office codes in db.json (OF10605, OF10610, OF10611, OF10612, OF10615, OF10620, OF10621, OF10630, OF10631, OF10632)
+    danismanMock = [
+      { "Ofis Kodu": "OF10605", "Owner": 1, "Broker": 1, "Danışman": 12, "_sourceFile": "cb_akullanici.xlsx" },
+      { "Ofis Kodu": "OF10610", "Owner": 1, "Broker": 0, "Danışman": 5, "_sourceFile": "cb_akullanici.xlsx" },
+      { "Ofis Kodu": "OF10611", "Owner": 1, "Broker": 1, "Danışman": 8, "_sourceFile": "cb_akullanici.xlsx" },
+      { "Ofis Kodu": "OF10612", "Owner": 1, "Broker": 1, "Danışman": 4, "_sourceFile": "cb_akullanici.xlsx" },
+      
+      { "Ofis Kodu": "OF10615", "Owner": 1, "Broker": 1, "Danışman": 15, "_sourceFile": "c21_akullanici.xlsx" },
+      { "Ofis Kodu": "OF10620", "Owner": 1, "Broker": 0, "Danışman": 6, "_sourceFile": "c21_akullanici.xlsx" },
+      { "Ofis Kodu": "OF10621", "Owner": 1, "Broker": 1, "Danışman": 7, "_sourceFile": "c21_akullanici.xlsx" },
+      
+      { "Ofis Kodu": "OF10630", "Owner": 1, "Broker": 1, "Danışman": 5, "_sourceFile": "era_akullanici.xlsx" },
+      { "Ofis Kodu": "OF10631", "Owner": 1, "Broker": 0, "Danışman": 8, "_sourceFile": "era_akullanici.xlsx" },
+      { "Ofis Kodu": "OF10632", "Owner": 1, "Broker": 1, "Danışman": 9, "_sourceFile": "era_akullanici.xlsx" }
+    ];
 
-      panelIlanMock = [
-        { "Ofis Kodu": "OF1001", "Satılık": 50, "Kiralık": 30 },
-        { "Ofis Kodu": "OF1002", "Satılık": 25, "Kiralık": 15 },
-        { "Ofis Kodu": "OF1003", "Satılık": 30, "Kiralık": 15 },
-        { "Ofis Kodu": "OF1004", "Satılık": 35, "Kiralık": 15 },
-        { "Ofis Kodu": "OF1005", "Satılık": 20, "Kiralık": 10 },
-        { "Ofis Kodu": "OF1006", "Satılık": 20, "Kiralık": 15 },
-        { "Ofis Kodu": "OF1007", "Satılık": 15, "Kiralık": 10 },
-        { "Ofis Kodu": "OF1008", "Satılık": 30, "Kiralık": 20 }
-      ];
+    panelIlanMock = [
+      { "Ofis Kodu": "OF10605", "Satılık": 45, "Kiralık": 25, "_sourceFile": "cb_ilan.xlsx" },
+      { "Ofis Kodu": "OF10610", "Satılık": 20, "Kiralık": 10, "_sourceFile": "cb_ilan.xlsx" },
+      { "Ofis Kodu": "OF10611", "Satılık": 35, "Kiralık": 15, "_sourceFile": "cb_ilan.xlsx" },
+      { "Ofis Kodu": "OF10612", "Satılık": 40, "Kiralık": 10, "_sourceFile": "cb_ilan.xlsx" },
+      
+      { "Ofis Kodu": "OF10615", "Satılık": 38, "Kiralık": 15, "_sourceFile": "c21_ilan.xlsx" },
+      { "Ofis Kodu": "OF10620", "Satılık": 12, "Kiralık": 8, "_sourceFile": "c21_ilan.xlsx" },
+      { "Ofis Kodu": "OF10621", "Satılık": 22, "Kiralık": 12, "_sourceFile": "c21_ilan.xlsx" },
+      
+      { "Ofis Kodu": "OF10630", "Satılık": 24, "Kiralık": 8, "_sourceFile": "era_ilan.xlsx" },
+      { "Ofis Kodu": "OF10631", "Satılık": 28, "Kiralık": 18, "_sourceFile": "era_ilan.xlsx" },
+      { "Ofis Kodu": "OF10632", "Satılık": 18, "Kiralık": 12, "_sourceFile": "era_ilan.xlsx" }
+    ];
 
-      sahibindenIlanMock = [
-        { "Ofis Kodu": "OF1001", "Portföy Sayısı": 95 },
-        { "Ofis Kodu": "OF1002", "Portföy Sayısı": 35 },
-        { "Ofis Kodu": "OF1003", "Portföy Sayısı": 60 },
-        { "Ofis Kodu": "OF1004", "Portföy Sayısı": 55 },
-        { "Ofis Kodu": "OF1005", "Portföy Sayısı": 40 },
-        { "Ofis Kodu": "OF1006", "Portföy Sayısı": 38 },
-        { "Ofis Kodu": "OF1007", "Portföy Sayısı": 40 },
-        { "Ofis Kodu": "OF1008", "Portföy Sayısı": 55 }
-      ];
+    sahibindenIlanMock = [
+      { "Ofis Kodu": "OF10605", "Portföy Sayısı": 98, "_sourceFile": "platform_icerik_ozetleri.xlsx" },
+      { "Ofis Kodu": "OF10610", "Portföy Sayısı": 32, "_sourceFile": "platform_icerik_ozetleri.xlsx" },
+      { "Ofis Kodu": "OF10611", "Portföy Sayısı": 62, "_sourceFile": "platform_icerik_ozetleri.xlsx" },
+      { "Ofis Kodu": "OF10612", "Portföy Sayısı": 52, "_sourceFile": "platform_icerik_ozetleri.xlsx" },
+      
+      { "Ofis Kodu": "OF10615", "Portföy Sayısı": 78, "_sourceFile": "platform_icerik_ozetleri.xlsx" },
+      { "Ofis Kodu": "OF10620", "Portföy Sayısı": 30, "_sourceFile": "platform_icerik_ozetleri.xlsx" },
+      { "Ofis Kodu": "OF10621", "Portföy Sayısı": 50, "_sourceFile": "platform_icerik_ozetleri.xlsx" },
+      
+      { "Ofis Kodu": "OF10630", "Portföy Sayısı": 44, "_sourceFile": "platform_icerik_ozetleri.xlsx" },
+      { "Ofis Kodu": "OF10631", "Portföy Sayısı": 68, "_sourceFile": "platform_icerik_ozetleri.xlsx" },
+      { "Ofis Kodu": "OF10632", "Portföy Sayısı": 30, "_sourceFile": "platform_icerik_ozetleri.xlsx" }
+    ];
 
-      kacakDanismanMock = [
-        { "Ofis Kodu": "OF1001", "Danışman Adı Soyadı": "Kaan Arslan", "Portföy Sayısı": 1 },
-        { "Ofis Kodu": "OF1001", "Danışman Adı Soyadı": "Zeynep Tekin", "Portföy Sayısı": 2 },
-        { "Ofis Kodu": "OF1003", "Danışman Adı Soyadı": "Mert Demir", "Portföy Sayısı": 1 },
-        { "Ofis Kodu": "OF1007", "Danışman Adı Soyadı": "Selin Bakır", "Portföy Sayısı": 3 }
-      ];
-    } else if (activeAudit.currentPhase === "Kontrol") {
-      // PHASE 2 SAMPLE DATA
-      danismanMock = [
-        { "Ofis Kodu": "OF1001", "Owner": 1, "Broker": 1, "Danışman": 10 },
-        { "Ofis Kodu": "OF1002", "Owner": 1, "Broker": 0, "Danışman": 5 },
-        { "Ofis Kodu": "OF1003", "Owner": 0, "Broker": 1, "Danışman": 8 },
-        { "Ofis Kodu": "OF1004", "Owner": 1, "Broker": 1, "Danışman": 15 },
-        { "Ofis Kodu": "OF1005", "Owner": 1, "Broker": 0, "Danışman": 6 },
-        { "Ofis Kodu": "OF1006", "Owner": 1, "Broker": 1, "Danışman": 7 },
-        { "Ofis Kodu": "OF1007", "Owner": 1, "Broker": 0, "Danışman": 4 },
-        { "Ofis Kodu": "OF1008", "Owner": 1, "Broker": 1, "Danışman": 9 }
-      ];
-
-      panelIlanMock = [
-        { "Ofis Kodu": "OF1001", "Satılık": 50, "Kiralık": 30 },
-        { "Ofis Kodu": "OF1002", "Satılık": 25, "Kiralık": 15 },
-        { "Ofis Kodu": "OF1003", "Satılık": 30, "Kiralık": 15 },
-        { "Ofis Kodu": "OF1004", "Satılık": 35, "Kiralık": 15 },
-        { "Ofis Kodu": "OF1005", "Satılık": 20, "Kiralık": 10 },
-        { "Ofis Kodu": "OF1006", "Satılık": 20, "Kiralık": 15 },
-        { "Ofis Kodu": "OF1007", "Satılık": 15, "Kiralık": 10 },
-        { "Ofis Kodu": "OF1008", "Satılık": 30, "Kiralık": 20 }
-      ];
-
-      sahibindenIlanMock = [
-        { "Ofis Kodu": "OF1001", "Portföy Sayısı": 95 },
-        { "Ofis Kodu": "OF1002", "Portföy Sayısı": 35 },
-        { "Ofis Kodu": "OF1003", "Portföy Sayısı": 60 },
-        { "Ofis Kodu": "OF1004", "Portföy Sayısı": 55 },
-        { "Ofis Kodu": "OF1005", "Portföy Sayısı": 40 },
-        { "Ofis Kodu": "OF1006", "Portföy Sayısı": 38 },
-        { "Ofis Kodu": "OF1007", "Portföy Sayısı": 40 },
-        { "Ofis Kodu": "OF1008", "Portföy Sayısı": 55 }
-      ];
-
-      kacakDanismanMock = [
-        { "Ofis Kodu": "OF1003", "Danışman Adı Soyadı": "Mert Demir", "Portföy Sayısı": 1 },
-        { "Ofis Kodu": "OF1007", "Danışman Adı Soyadı": "Selin Bakır", "Portföy Sayısı": 3 }
-      ];
-    }
+    kacakDanismanMock = [
+      { "Ofis Kodu": "OF10605", "Danışman Adı Soyadı": "Kaan Arslan", "Portföy Sayısı": 2, "_sourceFile": "platform_icerik_ozetleri.xlsx" },
+      { "Ofis Kodu": "OF10605", "Danışman Adı Soyadı": "Zeynep Tekin", "Portföy Sayısı": 1, "_sourceFile": "platform_icerik_ozetleri.xlsx" },
+      { "Ofis Kodu": "OF10611", "Danışman Adı Soyadı": "Mert Demir", "Portföy Sayısı": 1, "_sourceFile": "platform_icerik_ozetleri.xlsx" },
+      { "Ofis Kodu": "OF10631", "Danışman Adı Soyadı": "Selin Bakır", "Portföy Sayısı": 3, "_sourceFile": "platform_icerik_ozetleri.xlsx" }
+    ];
 
     try {
       await fetch("/api/audits/active/upload", {
@@ -496,6 +467,119 @@ export default function AuditPanel({ offices, groups, activeAudit, onRefresh, on
       }
     } catch (err) {
       showMsg("error", "Hata oluştu.");
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  const getUploadDetails = () => {
+    if (!activeAudit) return {
+      cbDanisman: { uploaded: false, count: 0 },
+      c21Danisman: { uploaded: false, count: 0 },
+      eraDanisman: { uploaded: false, count: 0 },
+      cbIlan: { uploaded: false, count: 0 },
+      c21Ilan: { uploaded: false, count: 0 },
+      eraIlan: { uploaded: false, count: 0 },
+      sahibinden: { uploaded: false, count: 0 },
+      kacak: { uploaded: false, count: 0 },
+      uploadedFiles: [],
+      hasAnyData: false
+    };
+
+    const currentPhase = activeAudit.currentPhase || "Tespit";
+    const danismanRaw = (currentPhase === "Tespit" ? activeAudit.phase1DanismanRaw : activeAudit.phase2DanismanRaw) || [];
+    const ilanPanelRaw = (currentPhase === "Tespit" ? activeAudit.phase1IlanPanelRaw : activeAudit.phase2IlanPanelRaw) || [];
+    const ilanSahibindenRaw = (currentPhase === "Tespit" ? activeAudit.phase1IlanSahibindenRaw : activeAudit.phase2IlanSahibindenRaw) || [];
+    const kacakDanismanRaw = (currentPhase === "Tespit" ? activeAudit.phase1KacakDanismanRaw : activeAudit.phase2KacakDanismanRaw) || [];
+
+    const getOfficeBrand = (id: string) => {
+      const office = offices.find(o => o.id === id);
+      return office?.brand || null;
+    };
+
+    let cbDanismanCount = 0;
+    let c21DanismanCount = 0;
+    let eraDanismanCount = 0;
+
+    let cbIlanCount = 0;
+    let c21IlanCount = 0;
+    let eraIlanCount = 0;
+
+    let sahibindenCount = ilanSahibindenRaw.length;
+    let kacakCount = kacakDanismanRaw.length;
+
+    danismanRaw.forEach(r => {
+      const id = getNormalizedValue(r, ["ofiskodu", "ofis kodu", "id", "kod"]).toUpperCase().trim();
+      const brand = getOfficeBrand(id);
+      if (brand === "Coldwell Banker") cbDanismanCount++;
+      else if (brand === "Century 21") c21DanismanCount++;
+      else if (brand === "ERA") eraDanismanCount++;
+      else {
+        const src = String(r._sourceFile || "").toLowerCase();
+        if (src.includes("cb")) cbDanismanCount++;
+        else if (src.includes("c21") || src.includes("century")) c21DanismanCount++;
+        else if (src.includes("era")) eraDanismanCount++;
+      }
+    });
+
+    ilanPanelRaw.forEach(r => {
+      const id = getNormalizedValue(r, ["ofiskodu", "ofis kodu", "id", "kod"]).toUpperCase().trim();
+      const brand = getOfficeBrand(id);
+      if (brand === "Coldwell Banker") cbIlanCount++;
+      else if (brand === "Century 21") c21IlanCount++;
+      else if (brand === "ERA") eraIlanCount++;
+      else {
+        const src = String(r._sourceFile || "").toLowerCase();
+        if (src.includes("cb")) cbIlanCount++;
+        else if (src.includes("c21") || src.includes("century")) c21IlanCount++;
+        else if (src.includes("era")) eraIlanCount++;
+      }
+    });
+
+    const uploadedFilesSet = new Set<string>();
+    const addFile = (rows: any[]) => {
+      if (Array.isArray(rows)) {
+        rows.forEach(r => {
+          if (r._sourceFile) uploadedFilesSet.add(r._sourceFile);
+        });
+      }
+    };
+    addFile(danismanRaw);
+    addFile(ilanPanelRaw);
+    addFile(ilanSahibindenRaw);
+    addFile(kacakDanismanRaw);
+    const uploadedFiles = Array.from(uploadedFilesSet);
+
+    return {
+      cbDanisman: { uploaded: cbDanismanCount > 0, count: cbDanismanCount },
+      c21Danisman: { uploaded: c21DanismanCount > 0, count: c21DanismanCount },
+      eraDanisman: { uploaded: eraDanismanCount > 0, count: eraDanismanCount },
+      cbIlan: { uploaded: cbIlanCount > 0, count: cbIlanCount },
+      c21Ilan: { uploaded: c21IlanCount > 0, count: c21IlanCount },
+      eraIlan: { uploaded: eraIlanCount > 0, count: eraIlanCount },
+      sahibinden: { uploaded: sahibindenCount > 0, count: sahibindenCount },
+      kacak: { uploaded: kacakCount > 0, count: kacakCount },
+      uploadedFiles,
+      hasAnyData: danismanRaw.length > 0 || ilanPanelRaw.length > 0 || ilanSahibindenRaw.length > 0
+    };
+  };
+
+  const handleResetData = async () => {
+    if (!activeAudit) return;
+    if (!window.confirm("Bu döneme ait yüklenmiş tüm Excel verilerini silmek ve baştan başlamak istediğinize emin misiniz?")) return;
+    setLoading(true);
+    try {
+      const res = await fetch("/api/audits/active/reset", {
+        method: "POST"
+      });
+      if (res.ok) {
+        showMsg("success", "Yüklenen tüm veriler sıfırlandı!");
+        onRefresh();
+      } else {
+        showMsg("error", "Veriler sıfırlanamadı.");
+      }
+    } catch (err) {
+      showMsg("error", "Sunucuya bağlanılamadı.");
     } finally {
       setLoading(false);
     }
@@ -737,49 +821,255 @@ export default function AuditPanel({ offices, groups, activeAudit, onRefresh, on
           {activeAudit.currentPhase === "Tespit" || activeAudit.currentPhase === "Kontrol" ? (
             <div className="space-y-6">
               
-              {/* Upload Zone & Guide */}
-              <div className="bg-white rounded-lg p-5 border border-slate-200 shadow-xs grid grid-cols-1 md:grid-cols-12 gap-4 items-center">
-                <div className="md:col-span-8 space-y-1">
-                  <div className="text-[10px] font-bold text-blue-600 uppercase tracking-wider font-mono">Aşama Eylemi</div>
-                  <h3 className="text-xs font-bold text-slate-800">
-                    {activeAudit.currentPhase === "Tespit" 
-                      ? "1. Adım: Denetim Raporlarını İçeri Aktarın" 
-                      : "2. Adım: Kontrol Excel Verilerini Yükleyin"}
-                  </h3>
-                  <p className="text-[11px] text-slate-500 leading-relaxed">
-                    Sistem, yüklediğiniz verileri otomatik olarak veritabanında kayıtlı grup ofis ilişkilerine göre konsolide edecek ve tolerans kurallarını işletecektir.
-                  </p>
+              {/* BRAND-BY-BRAND AUDIT DASHBOARD */}
+              <div className="bg-white rounded-lg border border-slate-200 shadow-xs overflow-hidden">
+                <div className="p-4 border-b border-slate-150 bg-slate-50/50 flex flex-wrap items-center justify-between gap-3">
+                  <div className="space-y-0.5">
+                    <span className="text-[10px] font-bold text-blue-600 uppercase tracking-wider font-mono">Dönem Veri Entegrasyonu</span>
+                    <h3 className="text-xs font-bold text-slate-800">Ofis ve Marka Bazlı Veri Takip Paneli</h3>
+                  </div>
+                  <div className="flex flex-wrap gap-2">
+                    <button
+                      onClick={handleLoadMockData}
+                      disabled={loading}
+                      className="bg-blue-50 hover:bg-blue-100 text-blue-700 border border-blue-200 rounded text-[11px] font-bold py-1.5 px-3 transition flex items-center gap-1 cursor-pointer"
+                    >
+                      <Sparkles className="w-3.5 h-3.5" />
+                      Örnek Veri Seti Yükle
+                    </button>
+                    {getUploadDetails().hasAnyData && (
+                      <button
+                        onClick={handleResetData}
+                        disabled={loading}
+                        className="bg-rose-50 hover:bg-rose-100 text-rose-700 border border-rose-200 rounded text-[11px] font-bold py-1.5 px-3 transition flex items-center gap-1 cursor-pointer"
+                      >
+                        <XCircle className="w-3.5 h-3.5" />
+                        Verileri Temizle
+                      </button>
+                    )}
+                  </div>
                 </div>
-                
-                <div className="md:col-span-4 flex flex-col sm:flex-row gap-2 md:justify-end">
-                  <button
-                    onClick={handleLoadMockData}
-                    disabled={loading}
-                    className="w-full sm:w-auto bg-blue-50 hover:bg-blue-100 text-blue-700 border border-blue-200 rounded text-xs font-bold py-2 px-3.5 transition flex items-center justify-center gap-1.5 cursor-pointer"
-                  >
-                    <Sparkles className="w-3.5 h-3.5 text-blue-600" />
-                    Örnek Veri Seti Yükle
-                  </button>
+
+                <div className="p-5 grid grid-cols-1 md:grid-cols-3 gap-6">
+                  {/* 1. Resmi Kadro Card */}
+                  <div className="bg-slate-50/50 rounded-lg p-4 border border-slate-150 space-y-3.5">
+                    <div className="flex items-center gap-2 border-b border-slate-100 pb-2">
+                      <div className="w-6 h-6 bg-blue-100 text-blue-700 rounded flex items-center justify-center font-bold text-xs shrink-0">📋</div>
+                      <div>
+                        <h4 className="text-xs font-bold text-slate-800">1. Resmi Kadro</h4>
+                        <p className="text-[9px] text-slate-400 font-mono">Kullanıcı Raporu (akullanici)</p>
+                      </div>
+                    </div>
+                    
+                    <div className="space-y-2">
+                      {/* CB */}
+                      <div className="flex items-center justify-between text-xs p-1.5 bg-white rounded border border-slate-100">
+                        <span className="font-semibold text-slate-700 flex items-center gap-1.5">
+                          <span className="w-1.5 h-1.5 rounded-full bg-blue-600"></span>
+                          Coldwell Banker
+                        </span>
+                        {getUploadDetails().cbDanisman.uploaded ? (
+                          <span className="text-[10px] font-bold text-emerald-700 bg-emerald-50 px-1.5 py-0.5 rounded border border-emerald-100">
+                            ✓ {getUploadDetails().cbDanisman.count} Satır
+                          </span>
+                        ) : (
+                          <span className="text-[10px] font-bold text-slate-400 bg-slate-100 px-1.5 py-0.5 rounded">
+                            Bekleniyor
+                          </span>
+                        )}
+                      </div>
+
+                      {/* C21 */}
+                      <div className="flex items-center justify-between text-xs p-1.5 bg-white rounded border border-slate-100">
+                        <span className="font-semibold text-slate-700 flex items-center gap-1.5">
+                          <span className="w-1.5 h-1.5 rounded-full bg-orange-500"></span>
+                          Century 21
+                        </span>
+                        {getUploadDetails().c21Danisman.uploaded ? (
+                          <span className="text-[10px] font-bold text-emerald-700 bg-emerald-50 px-1.5 py-0.5 rounded border border-emerald-100">
+                            ✓ {getUploadDetails().c21Danisman.count} Satır
+                          </span>
+                        ) : (
+                          <span className="text-[10px] font-bold text-slate-400 bg-slate-100 px-1.5 py-0.5 rounded">
+                            Bekleniyor
+                          </span>
+                        )}
+                      </div>
+
+                      {/* ERA */}
+                      <div className="flex items-center justify-between text-xs p-1.5 bg-white rounded border border-slate-100">
+                        <span className="font-semibold text-slate-700 flex items-center gap-1.5">
+                          <span className="w-1.5 h-1.5 rounded-full bg-red-600"></span>
+                          ERA
+                        </span>
+                        {getUploadDetails().eraDanisman.uploaded ? (
+                          <span className="text-[10px] font-bold text-emerald-700 bg-emerald-50 px-1.5 py-0.5 rounded border border-emerald-100">
+                            ✓ {getUploadDetails().eraDanisman.count} Satır
+                          </span>
+                        ) : (
+                          <span className="text-[10px] font-bold text-slate-400 bg-slate-100 px-1.5 py-0.5 rounded">
+                            Bekleniyor
+                          </span>
+                        )}
+                      </div>
+                    </div>
+                  </div>
+
+                  {/* 2. Resmi Portföy Card */}
+                  <div className="bg-slate-50/50 rounded-lg p-4 border border-slate-150 space-y-3.5">
+                    <div className="flex items-center gap-2 border-b border-slate-100 pb-2">
+                      <div className="w-6 h-6 bg-emerald-100 text-emerald-700 rounded flex items-center justify-center font-bold text-xs shrink-0">🏡</div>
+                      <div>
+                        <h4 className="text-xs font-bold text-slate-800">2. Resmi Portföy</h4>
+                        <p className="text-[9px] text-slate-400 font-mono">İlan Raporu (ilan)</p>
+                      </div>
+                    </div>
+
+                    <div className="space-y-2">
+                      {/* CB */}
+                      <div className="flex items-center justify-between text-xs p-1.5 bg-white rounded border border-slate-100">
+                        <span className="font-semibold text-slate-700 flex items-center gap-1.5">
+                          <span className="w-1.5 h-1.5 rounded-full bg-blue-600"></span>
+                          Coldwell Banker
+                        </span>
+                        {getUploadDetails().cbIlan.uploaded ? (
+                          <span className="text-[10px] font-bold text-emerald-700 bg-emerald-50 px-1.5 py-0.5 rounded border border-emerald-100">
+                            ✓ {getUploadDetails().cbIlan.count} Satır
+                          </span>
+                        ) : (
+                          <span className="text-[10px] font-bold text-slate-400 bg-slate-100 px-1.5 py-0.5 rounded">
+                            Bekleniyor
+                          </span>
+                        )}
+                      </div>
+
+                      {/* C21 */}
+                      <div className="flex items-center justify-between text-xs p-1.5 bg-white rounded border border-slate-100">
+                        <span className="font-semibold text-slate-700 flex items-center gap-1.5">
+                          <span className="w-1.5 h-1.5 rounded-full bg-orange-500"></span>
+                          Century 21
+                        </span>
+                        {getUploadDetails().c21Ilan.uploaded ? (
+                          <span className="text-[10px] font-bold text-emerald-700 bg-emerald-50 px-1.5 py-0.5 rounded border border-emerald-100">
+                            ✓ {getUploadDetails().c21Ilan.count} Satır
+                          </span>
+                        ) : (
+                          <span className="text-[10px] font-bold text-slate-400 bg-slate-100 px-1.5 py-0.5 rounded">
+                            Bekleniyor
+                          </span>
+                        )}
+                      </div>
+
+                      {/* ERA */}
+                      <div className="flex items-center justify-between text-xs p-1.5 bg-white rounded border border-slate-100">
+                        <span className="font-semibold text-slate-700 flex items-center gap-1.5">
+                          <span className="w-1.5 h-1.5 rounded-full bg-red-600"></span>
+                          ERA
+                        </span>
+                        {getUploadDetails().eraIlan.uploaded ? (
+                          <span className="text-[10px] font-bold text-emerald-700 bg-emerald-50 px-1.5 py-0.5 rounded border border-emerald-100">
+                            ✓ {getUploadDetails().eraIlan.count} Satır
+                          </span>
+                        ) : (
+                          <span className="text-[10px] font-bold text-slate-400 bg-slate-100 px-1.5 py-0.5 rounded">
+                            Bekleniyor
+                          </span>
+                        )}
+                      </div>
+                    </div>
+                  </div>
+
+                  {/* 3. Portal Verileri Card */}
+                  <div className="bg-slate-50/50 rounded-lg p-4 border border-slate-150 space-y-3.5">
+                    <div className="flex items-center gap-2 border-b border-slate-100 pb-2">
+                      <div className="w-6 h-6 bg-amber-100 text-amber-700 rounded flex items-center justify-center font-bold text-xs shrink-0">🌐</div>
+                      <div>
+                        <h4 className="text-xs font-bold text-slate-800">3. Portal Raporu</h4>
+                        <p className="text-[9px] text-slate-400 font-mono">Sahibinden Çift Sayfalı</p>
+                      </div>
+                    </div>
+
+                    <div className="space-y-2">
+                      {/* Sahibinden İlanlar */}
+                      <div className="flex items-center justify-between text-xs p-1.5 bg-white rounded border border-slate-100">
+                        <span className="font-semibold text-slate-700 flex items-center gap-1.5">
+                          <span className="w-1.5 h-1.5 rounded-full bg-yellow-500"></span>
+                          Sahibinden_Danismanlar
+                        </span>
+                        {getUploadDetails().sahibinden.uploaded ? (
+                          <span className="text-[10px] font-bold text-emerald-700 bg-emerald-50 px-1.5 py-0.5 rounded border border-emerald-100">
+                            ✓ {getUploadDetails().sahibinden.count} Satır
+                          </span>
+                        ) : (
+                          <span className="text-[10px] font-bold text-slate-400 bg-slate-100 px-1.5 py-0.5 rounded">
+                            Bekleniyor
+                          </span>
+                        )}
+                      </div>
+
+                      {/* Kaçak Danışmanlar */}
+                      <div className="flex items-center justify-between text-xs p-1.5 bg-white rounded border border-slate-100">
+                        <span className="font-semibold text-slate-700 flex items-center gap-1.5">
+                          <span className="w-1.5 h-1.5 rounded-full bg-rose-600"></span>
+                          Kacak_Sahibinden
+                        </span>
+                        {getUploadDetails().kacak.uploaded ? (
+                          <span className="text-[10px] font-bold text-emerald-700 bg-emerald-50 px-1.5 py-0.5 rounded border border-emerald-100">
+                            ✓ {getUploadDetails().kacak.count} Danışman
+                          </span>
+                        ) : (
+                          <span className="text-[10px] font-bold text-slate-400 bg-slate-100 px-1.5 py-0.5 rounded">
+                            Bekleniyor
+                          </span>
+                        )}
+                      </div>
+                    </div>
+                  </div>
                 </div>
+
+                {/* YÜKLENEN DOSYA LİSTESİ */}
+                {getUploadDetails().uploadedFiles.length > 0 && (
+                  <div className="px-5 py-3.5 bg-slate-50 border-t border-slate-150 flex flex-wrap items-center gap-2">
+                    <span className="text-[10px] font-bold text-slate-500 uppercase tracking-wider font-mono">Sistemde Aktif Dosyalar:</span>
+                    <div className="flex flex-wrap gap-1.5">
+                      {getUploadDetails().uploadedFiles.map((file, idx) => (
+                        <span key={idx} className="bg-white border border-slate-200 text-slate-700 px-2 py-1 rounded text-[10px] font-mono flex items-center gap-1">
+                          <FileSpreadsheet className="w-3 h-3 text-emerald-600" />
+                          {file}
+                        </span>
+                      ))}
+                    </div>
+                  </div>
+                )}
               </div>
 
+              {/* UPLOADER TRIGGER BOX */}
               <ExcelUploader 
                 onDataLoaded={handleRealDataLoad} 
                 isLoading={loading} 
-                title="Dönem Denetim Verisi Yükleme"
+                title="Yeni Dosya Sürükleyin veya Seçin (Otomatik Kategori Algılama)"
                 fileTypes={[
-                  { id: "danisman", label: "1. Kullanıcı Raporu (Resmi Kadro)" },
-                  { id: "ilan_panel", label: "2. İlan Raporu (Resmi Portföy)" },
-                  { id: "ilan_sahibinden", label: "3. Sahibinden İlan & Kaçak Danışman (Çift Sayfalı)" }
+                  { id: "danisman", label: "📋 Kullanıcı Raporu (Resmi Kadro)" },
+                  { id: "ilan_panel", label: "🏡 İlan Raporu (Resmi Portföy)" },
+                  { id: "ilan_sahibinden", label: "🌐 Sahibinden İlan & Kaçak Danışman (Çift Sayfalı)" }
                 ]}
                 hints={
-                  <div className="space-y-1.5 text-slate-500 text-[11px]">
-                    <p><strong>1. Kullanıcı Raporu:</strong> <em>Ofis Kodu, Owner, Broker, Danışman</em> kolonlarını içermelidir (Resmi kadro toplamını bulur).</p>
-                    <p><strong>2. İlan Raporu:</strong> <em>Ofis Kodu, Satılık, Kiralık</em> kolonlarını içermelidir (Resmi ilan toplamını bulur).</p>
-                    <p><strong>3. Sahibinden Raporu (Çift Sayfalı):</strong> 
-                      <span className="block pl-3 mt-0.5">• <strong>Sahibinden_Danismanlar</strong> sayfası: <em>Ofis Kodu, Portföy Sayısı</em> (Aynı ofis kodları toplanır).</span>
-                      <span className="block pl-3 mt-0.5">• <strong>Kacak_Sahibinden</strong> sayfası: <em>Ofis Kodu, Danışman Adı Soyadı, Portföy Sayısı</em> (Kaçak yetkisiz portföyleri listeler).</span>
-                    </p>
+                  <div className="grid grid-cols-1 md:grid-cols-3 gap-4 text-slate-500 text-[11px] pt-2 border-t border-slate-100 mt-2">
+                    <div>
+                      <h5 className="font-bold text-slate-700 mb-0.5">📋 Resmi Kadro Dosyası</h5>
+                      <p>Örnek dosya adı: <code className="font-mono bg-slate-100 px-1 text-slate-800 rounded">cb_akullanici.xlsx</code>, <code className="font-mono bg-slate-100 px-1 text-slate-800 rounded">c21_akullanici</code></p>
+                      <span className="block mt-1 text-[10px] text-slate-400">Kolonlar: Ofis Kodu, Owner, Broker, Danışman</span>
+                    </div>
+                    <div>
+                      <h5 className="font-bold text-slate-700 mb-0.5">🏡 Resmi Portföy Dosyası</h5>
+                      <p>Örnek dosya adı: <code className="font-mono bg-slate-100 px-1 text-slate-800 rounded">cb_ilan.xlsx</code>, <code className="font-mono bg-slate-100 px-1 text-slate-800 rounded">era_ilan</code></p>
+                      <span className="block mt-1 text-[10px] text-slate-400">Kolonlar: Ofis Kodu, Satılık, Kiralık</span>
+                    </div>
+                    <div>
+                      <h5 className="font-bold text-slate-700 mb-0.5">🌐 Sahibinden Portal</h5>
+                      <p>Dosya adı: <code className="font-mono bg-slate-100 px-1 text-slate-800 rounded">platform_icerik_ozetleri.xlsx</code></p>
+                      <span className="block mt-1 text-[10px] text-slate-400">Çift sayfa: 1. Sahibinden_Danismanlar, 2. Kacak_Sahibinden</span>
+                    </div>
                   </div>
                 }
               />

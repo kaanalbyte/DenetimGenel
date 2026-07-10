@@ -28,7 +28,18 @@ export const ExcelUploader: React.FC<ExcelUploaderProps> = ({
 
   const handleFileChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     if (e.target.files && e.target.files.length > 0) {
-      setSelectedFiles(Array.from(e.target.files));
+      const files = Array.from(e.target.files) as File[];
+      setSelectedFiles(files);
+      
+      // Auto detect fileType based on first filename
+      const name = files[0].name.toLowerCase();
+      if (name.includes("kullanici") || name.includes("akullanici") || name.includes("kadro") || name.includes("danisman")) {
+        setFileType("danisman");
+      } else if (name.includes("ilan") || name.includes("panel") || name.includes("portfoy")) {
+        setFileType("ilan_panel");
+      } else if (name.includes("platform_icerik") || name.includes("sahibinden") || name.includes("kacak") || name.includes("ozet")) {
+        setFileType("ilan_sahibinden");
+      }
     }
   };
 
