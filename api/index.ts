@@ -1183,21 +1183,30 @@ app.post("/api/audits/active/problematic", (req, res) => {
 
 // Helper: Get Office or Group Name/Details
 function getEntityInfo(id: string, offices: Office[], groups: Group[]) {
-  if (id.startsWith("G")) {
-    const group = groups.find(g => g.id === id);
+  const safeOffices = Array.isArray(offices) ? offices : [];
+  const safeGroups = Array.isArray(groups) ? groups : [];
+
+  let cleanId = id || "";
+  if (cleanId.includes(":::")) {
+    cleanId = cleanId.split(":::")[0];
+  }
+  cleanId = cleanId.toUpperCase().trim();
+
+  if (cleanId.startsWith("G")) {
+    const group = safeGroups.find(g => g && g.id && g.id.toUpperCase().trim() === cleanId);
     return {
       id: id,
       name: group ? `${group.name} (Grup Ofis)` : "Tanımsız Grup",
-      ownerName: group ? group.ownerName : "Bilinmiyor",
-      ownerEmail: group ? group.ownerEmail : ""
+      ownerName: (group && group.ownerName && group.ownerName.trim()) || "Bilinmiyor",
+      ownerEmail: (group && group.ownerEmail && group.ownerEmail.trim()) || ""
     };
   } else {
-    const off = offices.find(o => o.id === id);
+    const off = safeOffices.find(o => o && o.id && o.id.toUpperCase().trim() === cleanId);
     return {
       id: id,
       name: off ? off.name : "Tanımsız Ofis",
-      ownerName: off ? off.ownerName : "Bilinmiyor",
-      ownerEmail: off ? off.ownerEmail : ""
+      ownerName: (off && off.ownerName && off.ownerName.trim()) || "Bilinmiyor",
+      ownerEmail: (off && off.ownerEmail && off.ownerEmail.trim()) || ""
     };
   }
 }
@@ -1471,10 +1480,17 @@ app.post("/api/audits/active/advance", async (req, res) => {
       return res.status(404).json({ error: "Aktif bir denetim dönemi bulunamadı." });
     }
 
-    const { approvedDanismanIds = [], approvedIlanIds = [], detailsMap = {}, extraEmailsMap = {} } = req.body;
-    const offices = req.body.offices || db.offices;
-    const groups = req.body.groups || db.groups;
-    const config = req.body.config || db.config;
+    // Explicitly make sure these are arrays and objects
+    const rawDanismanIds = req.body.approvedDanismanIds;
+    const rawIlanIds = req.body.approvedIlanIds;
+    const approvedDanismanIds = Array.isArray(rawDanismanIds) ? rawDanismanIds : [];
+    const approvedIlanIds = Array.isArray(rawIlanIds) ? rawIlanIds : [];
+
+    const detailsMap = req.body.detailsMap || {};
+    const extraEmailsMap = req.body.extraEmailsMap || {};
+    const offices = req.body.offices || db.offices || [];
+    const groups = req.body.groups || db.groups || [];
+    const config = req.body.config || db.config || {};
     
     // Combine all approved IDs to flag as problematic for this phase
     const allApprovedIds = Array.from(new Set([...approvedDanismanIds, ...approvedIlanIds])) as string[];
@@ -1483,8 +1499,17 @@ app.post("/api/audits/active/advance", async (req, res) => {
 
     // Send e-mails for Danışman
     for (const entityId of approvedDanismanIds) {
+      if (!entityId) continue;
       const info = getEntityInfo(entityId, offices, groups);
-      const detailText = detailsMap[entityId + "_danisman"] || "Yetkisiz / Kaçak Danışman tespiti yapılmıştır.";
+
+      // Clean the entityId to look up detailsMap keyed by clean officeId as fallback
+      let cleanOfficeId = entityId;
+      if (entityId.includes(":::")) {
+        cleanOfficeId = entityId.split(":::")[0];
+      }
+      cleanOfficeId = cleanOfficeId.toUpperCase().trim();
+
+      const detailText = detailsMap[entityId + "_danisman"] || detailsMap[cleanOfficeId + "_danisman"] || "Yetkisiz / Kaçak Danışman tespiti yapılmıştır.";
       
       const mailTemplate = generateHTMLTemplate(
         active.currentPhase as any,
@@ -1494,7 +1519,7 @@ app.post("/api/audits/active/advance", async (req, res) => {
         detailText
       );
 
-      // Resolve all recipients based on the 4-tier rules
+      // Resolve all recipients based on the 5-tier rules
       const recipientsList = resolveAllRecipients(entityId, active, offices, groups, config, extraEmailsMap);
       const recipientString = recipientsList.length > 0 ? recipientsList.join(", ") : (info.ownerEmail || "destek@masterturk.com");
 
@@ -1523,8 +1548,17 @@ app.post("/api/audits/active/advance", async (req, res) => {
 
     // Send e-mails for İlan
     for (const entityId of approvedIlanIds) {
+      if (!entityId) continue;
       const info = getEntityInfo(entityId, offices, groups);
-      const detailText = detailsMap[entityId + "_ilan"] || "İlan portföy sayıları limit fark toleransını aşmaktadır.";
+
+      // Clean the entityId to look up detailsMap keyed by clean officeId as fallback
+      let cleanOfficeId = entityId;
+      if (entityId.includes(":::")) {
+        cleanOfficeId = entityId.split(":::")[0];
+      }
+      cleanOfficeId = cleanOfficeId.toUpperCase().trim();
+
+      const detailText = detailsMap[entityId + "_ilan"] || detailsMap[cleanOfficeId + "_ilan"] || "İlan portföy sayıları limit fark toleransını aşmaktadır.";
 
       const mailTemplate = generateHTMLTemplate(
         active.currentPhase as any,
@@ -1534,7 +1568,7 @@ app.post("/api/audits/active/advance", async (req, res) => {
         detailText
       );
 
-      // Resolve all recipients based on the 4-tier rules
+      // Resolve all recipients based on the 5-tier rules
       const recipientsList = resolveAllRecipients(entityId, active, offices, groups, config, extraEmailsMap);
       const recipientString = recipientsList.length > 0 ? recipientsList.join(", ") : (info.ownerEmail || "destek@masterturk.com");
 
@@ -1578,7 +1612,7 @@ app.post("/api/audits/active/advance", async (req, res) => {
 
     // If we are using server database state, write to db
     if (!isClientState && activeIdx !== -1) {
-      db.emails = [...newEmails, ...db.emails];
+      db.emails = [...newEmails, ...(db.emails || [])];
       db.audits[activeIdx] = active;
       writeDB(db);
     }
