@@ -785,7 +785,7 @@ export default function AuditPanel({ offices, groups, activeAudit, onRefresh, on
 
     danismanReport.forEach(item => {
       if (selectedDanismanIds.includes(item.code)) {
-        detailsMap[item.code + "_danisman"] = `Portallerde yapılan eşleştirmelerde, ofisiniz bünyesinde çalışan ancak resmi panelde kaydı bulunmayan yetkisiz (kaçak) danışmanlar tespit edilmiştir:\n\nKaçak Danışman Listesi: ${item.names.join(", ")}\n\nResmi Kadro Sayısı: ${item.countOfficialTotal} (Owner: ${item.countOwner}, Broker: ${item.countBroker}, Danışman: ${item.countDanisman})`;
+        detailsMap[item.code + "_danisman"] = `Portallerde yapılan eşleştirmelerde, ofisiniz bünyesinde çalışan ancak resmi panelde kaydı bulunmayan yetkisiz (kaçak) danışmanlar tespit edilmiştir:\n\nKaçak Danışman Listesi: ${item.names.join(", ")}\n\nPanel Kişi Sayısı: ${item.countOfficialTotal} (Owner: ${item.countOwner}, Broker: ${item.countBroker}, Danışman: ${item.countDanisman})`;
       }
     });
 
@@ -1175,12 +1175,12 @@ export default function AuditPanel({ offices, groups, activeAudit, onRefresh, on
                 </div>
 
                 <div className="p-5 grid grid-cols-1 md:grid-cols-3 gap-6">
-                  {/* 1. Resmi Kadro Card */}
+                  {/* 1. Panel Kişi Card */}
                   <div className="bg-slate-50/50 rounded-lg p-4 border border-slate-150 space-y-3.5">
                     <div className="flex items-center gap-2 border-b border-slate-100 pb-2">
                       <div className="w-6 h-6 bg-blue-100 text-blue-700 rounded flex items-center justify-center font-bold text-xs shrink-0">📋</div>
                       <div>
-                        <h4 className="text-xs font-bold text-slate-800">1. Resmi Kadro</h4>
+                        <h4 className="text-xs font-bold text-slate-800">1. Panel Kişi</h4>
                         <p className="text-[9px] text-slate-400 font-mono">Kullanıcı Raporu (akullanici)</p>
                       </div>
                     </div>
@@ -1239,12 +1239,12 @@ export default function AuditPanel({ offices, groups, activeAudit, onRefresh, on
                     </div>
                   </div>
 
-                  {/* 2. Resmi Portföy Card */}
+                  {/* 2. İlan Portföy Card */}
                   <div className="bg-slate-50/50 rounded-lg p-4 border border-slate-150 space-y-3.5">
                     <div className="flex items-center gap-2 border-b border-slate-100 pb-2">
                       <div className="w-6 h-6 bg-emerald-100 text-emerald-700 rounded flex items-center justify-center font-bold text-xs shrink-0">🏡</div>
                       <div>
-                        <h4 className="text-xs font-bold text-slate-800">2. Resmi Portföy</h4>
+                        <h4 className="text-xs font-bold text-slate-800">2. İlan Portföy</h4>
                         <p className="text-[9px] text-slate-400 font-mono">İlan Raporu (ilan)</p>
                       </div>
                     </div>
@@ -1373,19 +1373,19 @@ export default function AuditPanel({ offices, groups, activeAudit, onRefresh, on
                 isLoading={loading} 
                 title="Yeni Dosya Sürükleyin veya Seçin (Otomatik Kategori Algılama)"
                 fileTypes={[
-                  { id: "danisman", label: "📋 Kullanıcı Raporu (Resmi Kadro)" },
-                  { id: "ilan_panel", label: "🏡 İlan Raporu (Resmi Portföy)" },
+                  { id: "danisman", label: "📋 Kullanıcı Raporu (Panel Kişi)" },
+                  { id: "ilan_panel", label: "🏡 İlan Raporu (İlan Portföy)" },
                   { id: "ilan_sahibinden", label: "🌐 Sahibinden İlan & Kaçak Danışman (Çift Sayfalı)" }
                 ]}
                 hints={
                   <div className="grid grid-cols-1 md:grid-cols-3 gap-4 text-slate-500 text-[11px] pt-2 border-t border-slate-100 mt-2">
                     <div>
-                      <h5 className="font-bold text-slate-700 mb-0.5">📋 Resmi Kadro Dosyası</h5>
+                      <h5 className="font-bold text-slate-700 mb-0.5">📋 Panel Kişi Dosyası</h5>
                       <p>Örnek dosya adı: <code className="font-mono bg-slate-100 px-1 text-slate-800 rounded">cb_akullanici.xlsx</code>, <code className="font-mono bg-slate-100 px-1 text-slate-800 rounded">c21_akullanici</code></p>
                       <span className="block mt-1 text-[10px] text-slate-400">Kolonlar: Ofis Kodu, Owner, Broker, Danışman</span>
                     </div>
                     <div>
-                      <h5 className="font-bold text-slate-700 mb-0.5">🏡 Resmi Portföy Dosyası</h5>
+                      <h5 className="font-bold text-slate-700 mb-0.5">🏡 İlan Portföy Dosyası</h5>
                       <p>Örnek dosya adı: <code className="font-mono bg-slate-100 px-1 text-slate-800 rounded">cb_ilan.xlsx</code>, <code className="font-mono bg-slate-100 px-1 text-slate-800 rounded">era_ilan</code></p>
                       <span className="block mt-1 text-[10px] text-slate-400">Kolonlar: Ofis Kodu, Satılık, Kiralık</span>
                     </div>
@@ -1443,11 +1443,11 @@ export default function AuditPanel({ offices, groups, activeAudit, onRefresh, on
 
                       {/* DATA SECTION TABLES */}
                       <div className="space-y-4">
-                        {/* 1. Resmi Kadro Ham Verileri */}
+                        {/* 1. Panel Kişi Ham Verileri */}
                         <div>
                           <h5 className="text-[11px] font-bold text-slate-700 mb-1.5 flex items-center gap-1">
                             <span className="w-1.5 h-1.5 rounded-full bg-blue-500"></span>
-                            📋 Ham Resmi Kadro Verileri ({
+                            📋 Ham Panel Kişi Verileri ({
                               ((activeAudit.currentPhase === "Tespit" ? activeAudit.phase1DanismanRaw : activeAudit.phase2DanismanRaw) || []).length
                             } Satır)
                           </h5>
@@ -1539,11 +1539,11 @@ export default function AuditPanel({ offices, groups, activeAudit, onRefresh, on
                           </div>
                         </div>
 
-                        {/* 2. Resmi Portföy Ham Verileri */}
+                        {/* 2. İlan Portföy Ham Verileri */}
                         <div>
                           <h5 className="text-[11px] font-bold text-slate-700 mb-1.5 flex items-center gap-1">
                             <span className="w-1.5 h-1.5 rounded-full bg-emerald-500"></span>
-                            🏡 Ham Resmi Portföy Verileri ({
+                            🏡 Ham İlan Portföy Verileri ({
                               ((activeAudit.currentPhase === "Tespit" ? activeAudit.phase1IlanPanelRaw : activeAudit.phase2IlanPanelRaw) || []).length
                             } Satır)
                           </h5>
@@ -1713,8 +1713,8 @@ export default function AuditPanel({ offices, groups, activeAudit, onRefresh, on
                           >
                             <option value="name_asc">Sıralama: İsim (A-Z)</option>
                             <option value="name_desc">Sıralama: İsim (Z-A)</option>
-                            <option value="resmi_kadro_desc">Sıralama: Resmi Kadro (Yüksek)</option>
-                            <option value="resmi_kadro_asc">Sıralama: Resmi Kadro (Düşük)</option>
+                            <option value="resmi_kadro_desc">Sıralama: Panel Kişi (Yüksek)</option>
+                            <option value="resmi_kadro_asc">Sıralama: Panel Kişi (Düşük)</option>
                             <option value="kacak_desc">Sıralama: Kaçak Sayısı (Yüksek)</option>
                             <option value="kacak_asc">Sıralama: Kaçak Sayısı (Düşük)</option>
                           </select>
@@ -1734,7 +1734,7 @@ export default function AuditPanel({ offices, groups, activeAudit, onRefresh, on
                             <tr>
                               <th className="px-3 py-2">Seç</th>
                               <th className="px-3 py-2">Ofis/Grup Kodu & Adı</th>
-                              <th className="px-3 py-2 text-center">Resmi Kadro (Panel)</th>
+                              <th className="px-3 py-2 text-center">Panel Kişi (Portföy)</th>
                               <th className="px-3 py-2">Durumu</th>
                               <th className="px-3 py-2">Kaçak Danışmanlar (Portföylü)</th>
                             </tr>
@@ -1840,7 +1840,7 @@ export default function AuditPanel({ offices, groups, activeAudit, onRefresh, on
                                 <td className="px-3 py-2.5"></td>
                                 <td className="px-3 py-2.5 text-slate-800 text-xs">TOPLAM ({processedDanismanReport.length} Ofis)</td>
                                 <td className="px-3 py-2.5 text-center">
-                                  <div className="text-xs text-slate-950">Kadro: {totalOfficial}</div>
+                                  <div className="text-xs text-slate-950">Panel Kişi: {totalOfficial}</div>
                                   <div className="text-[9px] text-slate-500 font-normal">
                                     O: {totalOwner} | B: {totalBroker} | D: {totalDanisman}
                                   </div>
@@ -1928,8 +1928,8 @@ export default function AuditPanel({ offices, groups, activeAudit, onRefresh, on
                           >
                             <option value="name_asc">Sıralama: İsim (A-Z)</option>
                             <option value="name_desc">Sıralama: İsim (Z-A)</option>
-                            <option value="resmi_panel_desc">Sıralama: Resmi Panel (Yüksek)</option>
-                            <option value="resmi_panel_asc">Sıralama: Resmi Panel (Düşük)</option>
+                            <option value="resmi_panel_desc">Sıralama: Panel İlan (Yüksek)</option>
+                            <option value="resmi_panel_asc">Sıralama: Panel İlan (Düşük)</option>
                             <option value="sahibinden_desc">Sıralama: Sahibinden (Yüksek)</option>
                             <option value="sahibinden_asc">Sıralama: Sahibinden (Düşük)</option>
                             <option value="fark_desc">Sıralama: Fark (Yüksek)</option>
@@ -1952,7 +1952,7 @@ export default function AuditPanel({ offices, groups, activeAudit, onRefresh, on
                             <tr>
                               <th className="px-3 py-2">Seç</th>
                               <th className="px-3 py-2">Ofis/Grup Kodu & Adı</th>
-                              <th className="px-3 py-2 text-center">Resmi Panel (Portföy)</th>
+                              <th className="px-3 py-2 text-center">Panel İlan (Portföy)</th>
                               <th className="px-3 py-2 text-center">Sahibinden</th>
                               <th className="px-3 py-2 text-center">Fark</th>
                               <th className="px-3 py-2">Durumu</th>
@@ -2045,7 +2045,7 @@ export default function AuditPanel({ offices, groups, activeAudit, onRefresh, on
                                 <td className="px-3 py-2.5"></td>
                                 <td className="px-3 py-2.5 text-slate-800 text-xs">TOPLAM ({processedIlanReport.length} Ofis)</td>
                                 <td className="px-3 py-2.5 text-center">
-                                  <div className="text-xs text-slate-950">Resmi Panel: {totalPanel}</div>
+                                  <div className="text-xs text-slate-950">Panel İlan: {totalPanel}</div>
                                   <div className="text-[9px] text-slate-500 font-normal">
                                     Satılık: {totalSatilik} | Kiralık: {totalKiralik}
                                   </div>
