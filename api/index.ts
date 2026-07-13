@@ -1286,20 +1286,34 @@ function generateHTMLTemplate(
   return { subject, html };
 }
 
-// Helper function to resolve all recipients based on the 4-tier routing rules
-function resolveAllRecipients(
-  entityId: string,
+// Helper function to resolve recipients for a single office
+function resolveOfficeRecipients(
+  officeId: string,
   active: any,
   offices: any[],
-  groups: any[],
   config: any,
   extraEmailsMap: { [key: string]: string } = {}
 ): string[] {
   const recipients = new Set<string>();
 
-  // 1. Get Office info
-  const officeInfo = offices.find(o => o.id === entityId);
+  // Clean the officeId (in case it contains ":::")
+  let cleanOfficeId = officeId;
+  if (officeId.includes(":::")) {
+    cleanOfficeId = officeId.split(":::")[0];
+  }
+  cleanOfficeId = cleanOfficeId.toUpperCase().trim();
+
+  // Find the office in the master list (marka_ofis database)
+  const officeInfo = offices.find(o => o.id.toUpperCase().trim() === cleanOfficeId);
   const brand = officeInfo?.brand || "";
+
+  // 1. ALWAYS add the office's own email from the master list (Rule 5: marka_ofis E-Posta)
+  if (officeInfo?.ownerEmail) {
+    const ofisMail = officeInfo.ownerEmail.trim().toLowerCase();
+    if (ofisMail && ofisMail.includes("@")) {
+      recipients.add(ofisMail);
+    }
+  }
 
   // 2. Broker and Owner e-mails from raw Excel ofis_kullanicilari
   const kullaniciRaw = (active.currentPhase === "Tespit" ? active.phase1KullaniciRaw : active.phase2KullaniciRaw) || active.phase1KullaniciRaw || active.phase2KullaniciRaw || [];
@@ -1308,7 +1322,7 @@ function resolveAllRecipients(
   if (Array.isArray(kullaniciRaw) && kullaniciRaw.length > 0) {
     kullaniciRaw.forEach(row => {
       const rowOfficeId = getNormalizedValue(row, ["ofiskodu", "ofis kodu", "id", "kod"]).toUpperCase().trim();
-      if (rowOfficeId === entityId.toUpperCase().trim()) {
+      if (rowOfficeId === cleanOfficeId) {
         const rowBrand = getBrandFromRowBackend(row);
         // Brand is matched or fallback to matching office code directly
         if (!rowBrand || rowBrand.toLowerCase() === brand.toLowerCase() || brand === "") {
@@ -1332,11 +1346,11 @@ function resolveAllRecipients(
     });
   }
 
-  // Fallback to default ownerEmail if no excel users found
-  if (!foundFromExcel) {
-    const fallbackEmail = officeInfo?.ownerEmail;
+  // Fallback to default ownerEmail if no excel users found and not already added
+  if (!foundFromExcel && officeInfo?.ownerEmail) {
+    const fallbackEmail = officeInfo.ownerEmail.trim().toLowerCase();
     if (fallbackEmail && fallbackEmail.includes("@")) {
-      recipients.add(fallbackEmail.toLowerCase().trim());
+      recipients.add(fallbackEmail);
     }
   }
 
@@ -1358,14 +1372,8 @@ function resolveAllRecipients(
     }
   }
 
-  // 4. Fixed Manager Email (CC / Admin Copy)
-  const managerEmail = config.managerEmail || "nilufer.perkim@masterturk.com.tr";
-  if (managerEmail && managerEmail.includes("@")) {
-    recipients.add(managerEmail.toLowerCase().trim());
-  }
-
-  // 5. Extra Custom Recipients from UI input
-  const extraStr = extraEmailsMap[entityId] || "";
+  // 4. Extra Custom Recipients from UI input (specific to this office)
+  const extraStr = extraEmailsMap[officeId] || extraEmailsMap[cleanOfficeId] || "";
   if (extraStr) {
     extraStr.split(/[\s,;]+/).forEach(email => {
       const cleaned = email.trim().toLowerCase();
@@ -1373,6 +1381,68 @@ function resolveAllRecipients(
         recipients.add(cleaned);
       }
     });
+  }
+
+  return Array.from(recipients);
+}
+
+// Helper function to resolve all recipients based on the 5-tier routing rules
+function resolveAllRecipients(
+  entityId: string,
+  active: any,
+  offices: any[],
+  groups: any[],
+  config: any,
+  extraEmailsMap: { [key: string]: string } = {}
+): string[] {
+  const recipients = new Set<string>();
+
+  // Determine if entity is a group
+  let targetId = entityId;
+  if (entityId.includes(":::")) {
+    targetId = entityId.split(":::")[0];
+  }
+  targetId = targetId.toUpperCase().trim();
+
+  const isGroup = targetId.startsWith("G");
+
+  if (isGroup) {
+    // 1. Get Group info
+    const group = groups.find(g => g.id.toUpperCase().trim() === targetId);
+    if (group?.ownerEmail) {
+      const grpMail = group.ownerEmail.trim().toLowerCase();
+      if (grpMail && grpMail.includes("@")) {
+        recipients.add(grpMail);
+      }
+    }
+
+    // 2. Resolve for all member offices
+    const memberOffices = offices.filter(o => o.groupId && o.groupId.toUpperCase().trim() === targetId);
+    memberOffices.forEach(m => {
+      const officeRecipients = resolveOfficeRecipients(m.id, active, offices, config, extraEmailsMap);
+      officeRecipients.forEach(email => recipients.add(email));
+    });
+
+    // 3. Extra Custom Recipients for the group itself
+    const extraStr = extraEmailsMap[entityId] || extraEmailsMap[targetId] || "";
+    if (extraStr) {
+      extraStr.split(/[\s,;]+/).forEach(email => {
+        const cleaned = email.trim().toLowerCase();
+        if (cleaned && cleaned.includes("@")) {
+          recipients.add(cleaned);
+        }
+      });
+    }
+  } else {
+    // Single office
+    const officeRecipients = resolveOfficeRecipients(entityId, active, offices, config, extraEmailsMap);
+    officeRecipients.forEach(email => recipients.add(email));
+  }
+
+  // 4. Fixed Manager Email (CC / Admin Copy) - added to all dispatches
+  const managerEmail = config.managerEmail || "nilufer.perkim@masterturk.com.tr";
+  if (managerEmail && managerEmail.includes("@")) {
+    recipients.add(managerEmail.toLowerCase().trim());
   }
 
   return Array.from(recipients);
