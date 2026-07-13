@@ -1734,7 +1734,7 @@ export default function AuditPanel({ offices, groups, activeAudit, onRefresh, on
                             <tr>
                               <th className="px-3 py-2">Seç</th>
                               <th className="px-3 py-2">Ofis/Grup Kodu & Adı</th>
-                              <th className="px-3 py-2 text-center">Panel Kişi (Portföy)</th>
+                              <th className="px-3 py-2 text-center">Panel Kişi</th>
                               <th className="px-3 py-2">Durumu</th>
                               <th className="px-3 py-2">Kaçak Danışmanlar (Portföylü)</th>
                             </tr>
