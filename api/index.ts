@@ -80,6 +80,7 @@ interface AuditPeriod {
   phase1IlanPanelRaw: any[];
   phase1IlanSahibindenRaw: any[];
   phase1KacakDanismanRaw?: any[];
+  phase1KullaniciRaw?: any[];
   phase1ProblematicOffices: string[]; // List of problematic office/group IDs
   phase1ApprovedOffices: string[]; // List of offices/groups user approved to send mails
   
@@ -89,6 +90,7 @@ interface AuditPeriod {
   phase2IlanPanelRaw: any[];
   phase2IlanSahibindenRaw: any[];
   phase2KacakDanismanRaw?: any[];
+  phase2KullaniciRaw?: any[];
   phase2ProblematicOffices: string[]; // Problematic in control
   phase2ApprovedOffices: string[]; // List of offices/groups user approved in Phase 2
   
@@ -107,6 +109,8 @@ interface AppConfig {
   smtpSecure?: boolean;
   smtpUser?: string;
   smtpPass?: string;
+  managerEmail?: string;
+  fieldStaffEmails?: { [name: string]: string };
 }
 
 interface Database {
@@ -149,7 +153,13 @@ const DEFAULT_DB: Database = {
     smtpPort: 587,
     smtpSecure: false,
     smtpUser: "denetim@masterturk.com.tr",
-    smtpPass: "fucaupikpfrrhzzs"
+    smtpPass: "fucaupikpfrrhzzs",
+    managerEmail: "nilufer.perkim@masterturk.com.tr",
+    fieldStaffEmails: {
+      "Tunç Süzer": "tunc.suzer@masterturk.com.tr",
+      "Nilüfer Perkim": "nilufer.perkim@masterturk.com.tr",
+      "Kaan Albayrak": "kaan.albayrak@masterturk.com.tr"
+    }
   }
 };
 
@@ -188,7 +198,7 @@ function getMatchedKey(row: any, searchKeys: string[]): string | null {
   return null;
 }
 
-function pruneRow(row: any, type: "danisman" | "ilan_panel" | "ilan_sahibinden" | "kacak_danisman") {
+function pruneRow(row: any, type: "danisman" | "ilan_panel" | "ilan_sahibinden" | "kacak_danisman" | "ofis_kullanicilari") {
   if (!row || typeof row !== "object") return row;
   const pruned: any = {};
   
@@ -224,6 +234,15 @@ function pruneRow(row: any, type: "danisman" | "ilan_panel" | "ilan_sahibinden" 
     if (nameKey) pruned[nameKey] = String(row[nameKey]).trim();
     const countKey = getMatchedKey(row, ["portfoy", "portfoysayisi", "portfoy sayisi", "ilan", "ilansayisi", "ilan sayisi", "count", "sahibinden"]);
     if (countKey) pruned[countKey] = Number(row[countKey] || 0);
+  } else if (type === "ofis_kullanicilari") {
+    const durumKey = getMatchedKey(row, ["durum", "status", "ofisdurumu", "kullanicidurumu", "kullanicidurum"]);
+    if (durumKey) pruned[durumKey] = String(row[durumKey]).trim();
+    const unvanKey = getMatchedKey(row, ["unvan", "rol", "görev", "title", "role"]);
+    if (unvanKey) pruned[unvanKey] = String(row[unvanKey]).trim();
+    const epostaKey = getMatchedKey(row, ["e-posta", "eposta", "email", "mail", "kullanicieposta", "kullanicimail"]);
+    if (epostaKey) pruned[epostaKey] = String(row[epostaKey]).trim();
+    const adSoyadKey = getMatchedKey(row, ["adsoyad", "ad soyad", "ad soyadi", "adisoyadi", "adi soyadi", "kullaniciadi", "kullanici adi", "kullanici adisoyadi", "name", "full name"]);
+    if (adSoyadKey) pruned[adSoyadKey] = String(row[adSoyadKey]).trim();
   }
 
   if (row._sourceFile) {
@@ -996,6 +1015,35 @@ function mergeKacakDanisman(existing: any[], incoming: any[]) {
   return Array.from(existingMap.values());
 }
 
+// Helper to merge detailed office users
+function mergeByOfisKullanicilari(existing: any[], incoming: any[]) {
+  if (!Array.isArray(existing)) existing = [];
+  if (!Array.isArray(incoming)) incoming = [];
+
+  const existingMap = new Map<string, any>();
+  existing.forEach(row => {
+    const officeId = getNormalizedValue(row, ["ofiskodu", "ofis kodu", "id", "kod"]).toUpperCase().trim();
+    if (officeId) {
+      const brand = getBrandFromRowBackend(row);
+      const name = getNormalizedValue(row, ["adsoyad", "ad soyad", "ad soyadi", "adisoyadi", "adi soyadi", "kullaniciadi", "kullanici adi", "kullanici adisoyadi", "name", "full name"]).toUpperCase().trim();
+      const key = `${officeId}:::${brand}:::${name}`;
+      existingMap.set(key, row);
+    }
+  });
+
+  incoming.forEach(row => {
+    const officeId = getNormalizedValue(row, ["ofiskodu", "ofis kodu", "id", "kod"]).toUpperCase().trim();
+    if (officeId) {
+      const brand = getBrandFromRowBackend(row);
+      const name = getNormalizedValue(row, ["adsoyad", "ad soyad", "ad soyadi", "adisoyadi", "adi soyadi", "kullaniciadi", "kullanici adi", "kullanici adisoyadi", "name", "full name"]).toUpperCase().trim();
+      const key = `${officeId}:::${brand}:::${name}`;
+      existingMap.set(key, row); // Overwrite existing or add new
+    }
+  });
+
+  return Array.from(existingMap.values());
+}
+
 // Upload CSV/Excel data for the active phase
 app.post("/api/audits/active/upload", (req, res) => {
   const db = readDB();
@@ -1004,7 +1052,7 @@ app.post("/api/audits/active/upload", (req, res) => {
     return res.status(404).json({ error: "Aktif bir denetim dönemi bulunamadı." });
   }
 
-  const { type, data, secondaryData } = req.body; // type: 'danisman' | 'ilan_panel' | 'ilan_sahibinden'
+  const { type, data, secondaryData } = req.body; // type: 'danisman' | 'ilan_panel' | 'ilan_sahibinden' | 'ofis_kullanicilari'
   const active = db.audits[activeIdx];
 
   let processedData = data;
@@ -1017,6 +1065,8 @@ app.post("/api/audits/active/upload", (req, res) => {
       processedData = data.map(r => pruneRow(r, "ilan_panel"));
     } else if (type === "ilan_sahibinden") {
       processedData = data.map(r => pruneRow(r, "ilan_sahibinden"));
+    } else if (type === "ofis_kullanicilari") {
+      processedData = data.map(r => pruneRow(r, "ofis_kullanicilari"));
     }
   }
 
@@ -1037,6 +1087,9 @@ app.post("/api/audits/active/upload", (req, res) => {
         active.phase1KacakDanismanRaw = mergeKacakDanisman(active.phase1KacakDanismanRaw || [], processedSecondary);
       }
     }
+    if (type === "ofis_kullanicilari") {
+      active.phase1KullaniciRaw = mergeByOfisKullanicilari(active.phase1KullaniciRaw || [], processedData);
+    }
     
     active.phase1Uploaded = true;
   } else if (active.currentPhase === "Kontrol") {
@@ -1051,6 +1104,9 @@ app.post("/api/audits/active/upload", (req, res) => {
       if (Array.isArray(processedSecondary)) {
         active.phase2KacakDanismanRaw = mergeKacakDanisman(active.phase2KacakDanismanRaw || [], processedSecondary);
       }
+    }
+    if (type === "ofis_kullanicilari") {
+      active.phase2KullaniciRaw = mergeByOfisKullanicilari(active.phase2KullaniciRaw || [], processedData);
     }
     
     active.phase2Uploaded = true;
@@ -1076,6 +1132,7 @@ app.post("/api/audits/active/reset", (req, res) => {
     active.phase1IlanPanelRaw = [];
     active.phase1IlanSahibindenRaw = [];
     active.phase1KacakDanismanRaw = [];
+    active.phase1KullaniciRaw = [];
     active.phase1Uploaded = false;
     active.phase1ProblematicOffices = [];
     active.phase1ApprovedOffices = [];
@@ -1084,6 +1141,7 @@ app.post("/api/audits/active/reset", (req, res) => {
     active.phase2IlanPanelRaw = [];
     active.phase2IlanSahibindenRaw = [];
     active.phase2KacakDanismanRaw = [];
+    active.phase2KullaniciRaw = [];
     active.phase2Uploaded = false;
     active.phase2ProblematicOffices = [];
     active.phase2ApprovedOffices = [];
@@ -1228,6 +1286,98 @@ function generateHTMLTemplate(
   return { subject, html };
 }
 
+// Helper function to resolve all recipients based on the 4-tier routing rules
+function resolveAllRecipients(
+  entityId: string,
+  active: any,
+  offices: any[],
+  groups: any[],
+  config: any,
+  extraEmailsMap: { [key: string]: string } = {}
+): string[] {
+  const recipients = new Set<string>();
+
+  // 1. Get Office info
+  const officeInfo = offices.find(o => o.id === entityId);
+  const brand = officeInfo?.brand || "";
+
+  // 2. Broker and Owner e-mails from raw Excel ofis_kullanicilari
+  const kullaniciRaw = (active.currentPhase === "Tespit" ? active.phase1KullaniciRaw : active.phase2KullaniciRaw) || active.phase1KullaniciRaw || active.phase2KullaniciRaw || [];
+  let foundFromExcel = false;
+
+  if (Array.isArray(kullaniciRaw) && kullaniciRaw.length > 0) {
+    kullaniciRaw.forEach(row => {
+      const rowOfficeId = getNormalizedValue(row, ["ofiskodu", "ofis kodu", "id", "kod"]).toUpperCase().trim();
+      if (rowOfficeId === entityId.toUpperCase().trim()) {
+        const rowBrand = getBrandFromRowBackend(row);
+        // Brand is matched or fallback to matching office code directly
+        if (!rowBrand || rowBrand.toLowerCase() === brand.toLowerCase() || brand === "") {
+          const rowStatus = getNormalizedValue(row, ["durum", "status", "ofisdurumu", "kullanicidurumu", "kullanicidurum"]).toUpperCase().trim();
+          const isAktif = rowStatus === "AKTIF" || rowStatus.includes("AKTIF") || rowStatus === "ACTIVE" || rowStatus.includes("ACTIVE");
+          
+          if (isAktif) {
+            const rowUnvan = getNormalizedValue(row, ["unvan", "rol", "görev", "title", "role"]).toUpperCase().trim();
+            const isBrokerOrOwner = rowUnvan.includes("BROKER") || rowUnvan.includes("OWNER") || rowUnvan.includes("ORTAK");
+            
+            if (isBrokerOrOwner) {
+              const rowEmail = getNormalizedValue(row, ["e-posta", "eposta", "email", "mail", "kullanicieposta", "kullanicimail"]).trim();
+              if (rowEmail && rowEmail.includes("@")) {
+                recipients.add(rowEmail.toLowerCase());
+                foundFromExcel = true;
+              }
+            }
+          }
+        }
+      }
+    });
+  }
+
+  // Fallback to default ownerEmail if no excel users found
+  if (!foundFromExcel) {
+    const fallbackEmail = officeInfo?.ownerEmail;
+    if (fallbackEmail && fallbackEmail.includes("@")) {
+      recipients.add(fallbackEmail.toLowerCase().trim());
+    }
+  }
+
+  // 3. Sorumlu Sistem Kullanıcısı (Field Staff) email lookup
+  const staffName = officeInfo?.responsibleUser || officeInfo?.ownerName || "";
+  if (staffName) {
+    let staffEmail = "";
+    if (config.fieldStaffEmails && typeof config.fieldStaffEmails === "object") {
+      const normStaffName = staffName.trim().toLowerCase();
+      for (const [name, email] of Object.entries(config.fieldStaffEmails)) {
+        if (name.trim().toLowerCase() === normStaffName) {
+          staffEmail = String(email).trim();
+          break;
+        }
+      }
+    }
+    if (staffEmail && staffEmail.includes("@")) {
+      recipients.add(staffEmail.toLowerCase());
+    }
+  }
+
+  // 4. Fixed Manager Email (CC / Admin Copy)
+  const managerEmail = config.managerEmail || "nilufer.perkim@masterturk.com.tr";
+  if (managerEmail && managerEmail.includes("@")) {
+    recipients.add(managerEmail.toLowerCase().trim());
+  }
+
+  // 5. Extra Custom Recipients from UI input
+  const extraStr = extraEmailsMap[entityId] || "";
+  if (extraStr) {
+    extraStr.split(/[\s,;]+/).forEach(email => {
+      const cleaned = email.trim().toLowerCase();
+      if (cleaned && cleaned.includes("@")) {
+        recipients.add(cleaned);
+      }
+    });
+  }
+
+  return Array.from(recipients);
+}
+
 // 5. Advance Active Audit Period & Dispatch Mails
 app.post("/api/audits/active/advance", async (req, res) => {
   try {
@@ -1251,7 +1401,7 @@ app.post("/api/audits/active/advance", async (req, res) => {
       return res.status(404).json({ error: "Aktif bir denetim dönemi bulunamadı." });
     }
 
-    const { approvedDanismanIds = [], approvedIlanIds = [], detailsMap = {} } = req.body;
+    const { approvedDanismanIds = [], approvedIlanIds = [], detailsMap = {}, extraEmailsMap = {} } = req.body;
     const offices = req.body.offices || db.offices;
     const groups = req.body.groups || db.groups;
     const config = req.body.config || db.config;
@@ -1274,9 +1424,13 @@ app.post("/api/audits/active/advance", async (req, res) => {
         detailText
       );
 
+      // Resolve all recipients based on the 4-tier rules
+      const recipientsList = resolveAllRecipients(entityId, active, offices, groups, config, extraEmailsMap);
+      const recipientString = recipientsList.length > 0 ? recipientsList.join(", ") : (info.ownerEmail || "destek@masterturk.com");
+
       const dispatchResult = await dispatchEmail(
         config,
-        info.ownerEmail || "destek@masterturk.com",
+        recipientString,
         mailTemplate.subject,
         mailTemplate.html
       );
@@ -1289,7 +1443,7 @@ app.post("/api/audits/active/advance", async (req, res) => {
         type: "Danışman",
         officeId: entityId,
         officeName: info.name,
-        recipient: info.ownerEmail || "destek@masterturk.com",
+        recipient: recipientString,
         subject: mailTemplate.subject,
         bodyHtml: mailTemplate.html,
         status: dispatchResult.status,
@@ -1310,9 +1464,13 @@ app.post("/api/audits/active/advance", async (req, res) => {
         detailText
       );
 
+      // Resolve all recipients based on the 4-tier rules
+      const recipientsList = resolveAllRecipients(entityId, active, offices, groups, config, extraEmailsMap);
+      const recipientString = recipientsList.length > 0 ? recipientsList.join(", ") : (info.ownerEmail || "destek@masterturk.com");
+
       const dispatchResult = await dispatchEmail(
         config,
-        info.ownerEmail || "destek@masterturk.com",
+        recipientString,
         mailTemplate.subject,
         mailTemplate.html
       );
@@ -1325,7 +1483,7 @@ app.post("/api/audits/active/advance", async (req, res) => {
         type: "İlan",
         officeId: entityId,
         officeName: info.name,
-        recipient: info.ownerEmail || "destek@masterturk.com",
+        recipient: recipientString,
         subject: mailTemplate.subject,
         bodyHtml: mailTemplate.html,
         status: dispatchResult.status,

@@ -677,6 +677,7 @@ export default function AuditPanel({ offices, groups, activeAudit, onRefresh, on
       eraIlan: { uploaded: false, count: 0 },
       sahibinden: { uploaded: false, count: 0 },
       kacak: { uploaded: false, count: 0 },
+      ofisKullanicilari: { uploaded: false, count: 0 },
       uploadedFiles: [],
       hasAnyData: false
     };
@@ -686,6 +687,7 @@ export default function AuditPanel({ offices, groups, activeAudit, onRefresh, on
     const ilanPanelRaw = (currentPhase === "Tespit" ? activeAudit.phase1IlanPanelRaw : activeAudit.phase2IlanPanelRaw) || [];
     const ilanSahibindenRaw = (currentPhase === "Tespit" ? activeAudit.phase1IlanSahibindenRaw : activeAudit.phase2IlanSahibindenRaw) || [];
     const kacakDanismanRaw = (currentPhase === "Tespit" ? activeAudit.phase1KacakDanismanRaw : activeAudit.phase2KacakDanismanRaw) || [];
+    const kullaniciRaw = (currentPhase === "Tespit" ? activeAudit.phase1KullaniciRaw : activeAudit.phase2KullaniciRaw) || [];
 
     let cbDanismanCount = 0;
     let c21DanismanCount = 0;
@@ -697,6 +699,7 @@ export default function AuditPanel({ offices, groups, activeAudit, onRefresh, on
 
     let sahibindenCount = ilanSahibindenRaw.length;
     let kacakCount = kacakDanismanRaw.length;
+    let ofisKullaniciCount = kullaniciRaw.length;
 
     danismanRaw.forEach(r => {
       const id = getNormalizedValue(r, ["ofiskodu", "ofis kodu", "id", "kod"]).toUpperCase().trim();
@@ -738,6 +741,7 @@ export default function AuditPanel({ offices, groups, activeAudit, onRefresh, on
     addFile(ilanPanelRaw);
     addFile(ilanSahibindenRaw);
     addFile(kacakDanismanRaw);
+    addFile(kullaniciRaw);
     const uploadedFiles = Array.from(uploadedFilesSet);
 
     return {
@@ -749,8 +753,9 @@ export default function AuditPanel({ offices, groups, activeAudit, onRefresh, on
       eraIlan: { uploaded: eraIlanCount > 0, count: eraIlanCount },
       sahibinden: { uploaded: sahibindenCount > 0, count: sahibindenCount },
       kacak: { uploaded: kacakCount > 0, count: kacakCount },
+      ofisKullanicilari: { uploaded: ofisKullaniciCount > 0, count: ofisKullaniciCount },
       uploadedFiles,
-      hasAnyData: danismanRaw.length > 0 || ilanPanelRaw.length > 0 || ilanSahibindenRaw.length > 0
+      hasAnyData: danismanRaw.length > 0 || ilanPanelRaw.length > 0 || ilanSahibindenRaw.length > 0 || kullaniciRaw.length > 0
     };
   };
 
@@ -1375,24 +1380,30 @@ export default function AuditPanel({ offices, groups, activeAudit, onRefresh, on
                 fileTypes={[
                   { id: "danisman", label: "📋 Kullanıcı Raporu (Panel Kişi)" },
                   { id: "ilan_panel", label: "🏡 İlan Raporu (İlan Portföy)" },
-                  { id: "ilan_sahibinden", label: "🌐 Sahibinden İlan & Kaçak Danışman (Çift Sayfalı)" }
+                  { id: "ilan_sahibinden", label: "🌐 Sahibinden İlan & Kaçak Danışman (Çift Sayfalı)" },
+                  { id: "ofis_kullanicilari", label: "👥 Ofis Kullanıcıları Detay Raporu (cb_kullanici, c21_kullanici, era_kullanici)" }
                 ]}
                 hints={
-                  <div className="grid grid-cols-1 md:grid-cols-3 gap-4 text-slate-500 text-[11px] pt-2 border-t border-slate-100 mt-2">
+                  <div className="grid grid-cols-1 md:grid-cols-4 gap-4 text-slate-500 text-[11px] pt-2 border-t border-slate-100 mt-2">
                     <div>
                       <h5 className="font-bold text-slate-700 mb-0.5">📋 Panel Kişi Dosyası</h5>
-                      <p>Örnek dosya adı: <code className="font-mono bg-slate-100 px-1 text-slate-800 rounded">cb_akullanici.xlsx</code>, <code className="font-mono bg-slate-100 px-1 text-slate-800 rounded">c21_akullanici</code></p>
+                      <p>Örnek: <code className="font-mono bg-slate-100 px-1 text-slate-800 rounded">cb_akullanici.xlsx</code></p>
                       <span className="block mt-1 text-[10px] text-slate-400">Kolonlar: Ofis Kodu, Owner, Broker, Danışman</span>
                     </div>
                     <div>
                       <h5 className="font-bold text-slate-700 mb-0.5">🏡 İlan Portföy Dosyası</h5>
-                      <p>Örnek dosya adı: <code className="font-mono bg-slate-100 px-1 text-slate-800 rounded">cb_ilan.xlsx</code>, <code className="font-mono bg-slate-100 px-1 text-slate-800 rounded">era_ilan</code></p>
+                      <p>Örnek: <code className="font-mono bg-slate-100 px-1 text-slate-800 rounded">cb_ilan.xlsx</code></p>
                       <span className="block mt-1 text-[10px] text-slate-400">Kolonlar: Ofis Kodu, Satılık, Kiralık</span>
                     </div>
                     <div>
                       <h5 className="font-bold text-slate-700 mb-0.5">🌐 Sahibinden Portal</h5>
                       <p>Dosya adı: <code className="font-mono bg-slate-100 px-1 text-slate-800 rounded">platform_icerik_ozetleri.xlsx</code></p>
-                      <span className="block mt-1 text-[10px] text-slate-400">Çift sayfa: 1. Sahibinden_Danismanlar, 2. Kacak_Sahibinden</span>
+                      <span className="block mt-1 text-[10px] text-slate-400">Çift sayfa: Sahibinden_Danismanlar, Kacak_Sahibinden</span>
+                    </div>
+                    <div>
+                      <h5 className="font-bold text-slate-700 mb-0.5">👥 Ofis Kullanıcıları Listesi</h5>
+                      <p>Örnek: <code className="font-mono bg-slate-100 px-1 text-slate-800 rounded">cb_kullanici.xlsx</code></p>
+                      <span className="block mt-1 text-[10px] text-slate-400">Mail yönlendirme için Broker/Owner eşleştirir: Ofis Kodu, Durum, Unvan, E-Posta</span>
                     </div>
                   </div>
                 }
@@ -1621,6 +1632,82 @@ export default function AuditPanel({ offices, groups, activeAudit, onRefresh, on
                                           S: {getNormalizedValue(row, ["satilik", "satılık", "sale"]) || 0} / 
                                           K: {getNormalizedValue(row, ["kiralik", "kiralık", "rent"]) || 0}
                                         </td>
+                                      </tr>
+                                    );
+                                  });
+                                })()}
+                              </tbody>
+                            </table>
+                          </div>
+                        </div>
+
+                        {/* 3. Detaylı Ofis Kullanıcıları Verileri */}
+                        <div>
+                          <h5 className="text-[11px] font-bold text-slate-700 mb-1.5 flex items-center gap-1">
+                            <span className="w-1.5 h-1.5 rounded-full bg-indigo-500"></span>
+                            👥 Ham Ofis Kullanıcıları Detay Verileri ({
+                              ((activeAudit.currentPhase === "Tespit" ? activeAudit.phase1KullaniciRaw : activeAudit.phase2KullaniciRaw) || []).length
+                            } Satır)
+                          </h5>
+                          <div className="overflow-x-auto border border-slate-200 rounded bg-white max-h-64 overflow-y-auto">
+                            <table className="w-full text-left text-[11px] text-slate-600">
+                              <thead className="bg-slate-50 text-[10px] uppercase font-bold text-slate-500 border-b border-slate-200 sticky top-0">
+                                <tr>
+                                  <th className="px-3 py-1.5">Dosya</th>
+                                  <th className="px-3 py-1.5">Excel Ofis Kodu</th>
+                                  <th className="px-3 py-1.5">Ad Soyad</th>
+                                  <th className="px-3 py-1.5">Unvan</th>
+                                  <th className="px-3 py-1.5">Durum</th>
+                                  <th className="px-3 py-1.5">E-Posta</th>
+                                </tr>
+                              </thead>
+                              <tbody className="divide-y divide-slate-150">
+                                {(() => {
+                                  const rawList = (activeAudit.currentPhase === "Tespit" ? activeAudit.phase1KullaniciRaw : activeAudit.phase2KullaniciRaw) || activeAudit.phase1KullaniciRaw || activeAudit.phase2KullaniciRaw || [];
+                                  const filtered = rawList.filter(row => {
+                                    const officeId = getNormalizedValue(row, ["ofiskodu", "ofis kodu", "id", "kod"]).toUpperCase().trim();
+                                    const name = getNormalizedValue(row, ["adsoyad", "ad soyad", "ad soyadi", "adisoyadi", "adi soyadi", "kullaniciadi", "kullanici adi", "kullanici adisoyadi", "name", "full name"]).toLowerCase();
+                                    
+                                    const matchesSearch = officeId.toLowerCase().includes(diagnosticSearch.toLowerCase()) || name.includes(diagnosticSearch.toLowerCase());
+                                    const brand = getOfficeBrand(officeId, row._sourceFile) || "";
+                                    const matchesBrand = diagnosticBrand === "all" || 
+                                      (diagnosticBrand === "not_found" && !brand) ||
+                                      brand === diagnosticBrand;
+                                      
+                                    return matchesSearch && matchesBrand;
+                                  });
+
+                                  if (filtered.length === 0) {
+                                    return (
+                                      <tr>
+                                        <td colSpan={6} className="text-center py-4 text-slate-400">Veri bulunamadı veya arama kriterleriyle eşleşen kayıt yok.</td>
+                                      </tr>
+                                    );
+                                  }
+
+                                  return filtered.map((row, idx) => {
+                                    const officeId = getNormalizedValue(row, ["ofiskodu", "ofis kodu", "id", "kod"]).toUpperCase().trim();
+                                    const adSoyad = getNormalizedValue(row, ["adsoyad", "ad soyad", "ad soyadi", "adisoyadi", "adi soyadi", "kullaniciadi", "kullanici adi", "kullanici adisoyadi", "name", "full name"]) || "-";
+                                    const unvan = getNormalizedValue(row, ["unvan", "rol", "görev", "title", "role"]) || "-";
+                                    const durum = getNormalizedValue(row, ["durum", "status", "ofisdurumu", "kullanicidurumu", "kullanicidurum"]) || "-";
+                                    const eposta = getNormalizedValue(row, ["e-posta", "eposta", "email", "mail", "kullanicieposta", "kullanicimail"]) || "-";
+
+                                    return (
+                                      <tr key={idx} className="hover:bg-slate-50/50">
+                                        <td className="px-3 py-1.5 text-slate-400 max-w-[120px] truncate" title={row._sourceFile}>{row._sourceFile || "-"}</td>
+                                        <td className="px-3 py-1.5 font-bold font-mono text-slate-800">{officeId}</td>
+                                        <td className="px-3 py-1.5 text-slate-700 font-semibold">{adSoyad}</td>
+                                        <td className="px-3 py-1.5 text-slate-600">{unvan}</td>
+                                        <td className="px-3 py-1.5">
+                                          <span className={`px-1.5 py-0.2 rounded text-[9px] font-bold ${
+                                            durum.toLowerCase().includes("aktif") || durum.toLowerCase().includes("active")
+                                              ? "bg-emerald-50 text-emerald-700 border border-emerald-100"
+                                              : "bg-slate-50 text-slate-500 border border-slate-200"
+                                          }`}>
+                                            {durum}
+                                          </span>
+                                        </td>
+                                        <td className="px-3 py-1.5 text-blue-600 font-mono text-[10px]">{eposta}</td>
                                       </tr>
                                     );
                                   });

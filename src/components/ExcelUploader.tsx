@@ -50,7 +50,11 @@ const formatSize = (bytes: number) => {
 
 const detectCategory = (filename: string): string => {
   const name = filename.toLowerCase();
-  if (name.includes("kullanici") || name.includes("akullanici") || name.includes("kadro") || name.includes("danisman") || name.includes("personel") || name.includes("user")) {
+  if (name.includes("akullanici")) {
+    return "danisman";
+  } else if (name.includes("cb_kullanici") || name.includes("c21_kullanici") || name.includes("era_kullanici") || name.includes("ofis_kullanici") || name.includes("ofiskullanici")) {
+    return "ofis_kullanicilari";
+  } else if (name.includes("kullanici") || name.includes("kadro") || name.includes("danisman") || name.includes("personel") || name.includes("user")) {
     return "danisman";
   } else if (name.includes("ilan") || name.includes("panel") || name.includes("portfoy") || name.includes("portfolio") || name.includes("listing")) {
     return "ilan_panel";
@@ -252,7 +256,8 @@ export const ExcelUploader: React.FC<ExcelUploaderProps> = ({
     const groups: { [key: string]: { primary: any[], secondary: any[], itemIds: string[] } } = {
       danisman: { primary: [], secondary: [], itemIds: [] },
       ilan_panel: { primary: [], secondary: [], itemIds: [] },
-      ilan_sahibinden: { primary: [], secondary: [], itemIds: [] }
+      ilan_sahibinden: { primary: [], secondary: [], itemIds: [] },
+      ofis_kullanicilari: { primary: [], secondary: [], itemIds: [] }
     };
 
     validItems.forEach(item => {

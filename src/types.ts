@@ -45,6 +45,7 @@ export interface AuditPeriod {
   phase1IlanPanelRaw: any[];
   phase1IlanSahibindenRaw: any[];
   phase1KacakDanismanRaw?: any[];
+  phase1KullaniciRaw?: any[];
   phase1ProblematicOffices: string[];
   phase1ApprovedOffices: string[];
   
@@ -54,6 +55,7 @@ export interface AuditPeriod {
   phase2IlanPanelRaw: any[];
   phase2IlanSahibindenRaw: any[];
   phase2KacakDanismanRaw?: any[];
+  phase2KullaniciRaw?: any[];
   phase2ProblematicOffices: string[];
   phase2ApprovedOffices: string[];
   
@@ -72,4 +74,6 @@ export interface AppConfig {
   smtpSecure?: boolean;
   smtpUser?: string;
   smtpPass?: string;
+  managerEmail?: string;
+  fieldStaffEmails?: { [name: string]: string };
 }
