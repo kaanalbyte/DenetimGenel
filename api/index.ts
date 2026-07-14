@@ -5,6 +5,14 @@ import dotenv from "dotenv";
 import nodemailer from "nodemailer";
 import { loadFromFirestore, saveToFirestore } from "./firebase";
 
+process.on("uncaughtException", (err) => {
+  console.error("[CRITICAL] Uncaught Exception on server:", err);
+});
+
+process.on("unhandledRejection", (reason, promise) => {
+  console.error("[CRITICAL] Unhandled Promise Rejection at:", promise, "reason:", reason);
+});
+
 dotenv.config();
 
 const app = express();
@@ -428,6 +436,66 @@ function writeDB(data: Database) {
 readDB();
 
 // --- EMAIL DISPATCH COMPONENT (REAL AND SIMULATED) ---
+// Cached SMTP Transporters to enable Connection Pooling and reuse connections
+let cachedTransporter587: any = null;
+let cachedTransporter465: any = null;
+
+function getSMTPTransporter(port: 587 | 465) {
+  const smtpHost = "smtp.gmail.com";
+  const smtpUser = "denetim@masterturk.com.tr";
+  const smtpPass = "fucaupikpfrrhzzs";
+
+  if (port === 587) {
+    if (!cachedTransporter587) {
+      cachedTransporter587 = nodemailer.createTransport({
+        pool: true, // Enable connection pooling
+        host: smtpHost,
+        port: 587,
+        secure: false, // STARTTLS
+        maxConnections: 5, // Avoid overloading Gmail connection limits
+        maxMessages: 100,
+        rateDelta: 1000,
+        rateLimit: 5, // Send up to 5 emails per second max
+        auth: {
+          user: smtpUser,
+          pass: smtpPass,
+        },
+        tls: {
+          rejectUnauthorized: false
+        },
+        connectionTimeout: 4000, // 4 seconds
+        greetingTimeout: 4000,   // 4 seconds
+        socketTimeout: 5000,     // 5 seconds
+      });
+    }
+    return cachedTransporter587;
+  } else {
+    if (!cachedTransporter465) {
+      cachedTransporter465 = nodemailer.createTransport({
+        pool: true, // Enable connection pooling
+        host: smtpHost,
+        port: 465,
+        secure: true, // SSL/TLS
+        maxConnections: 5,
+        maxMessages: 100,
+        rateDelta: 1000,
+        rateLimit: 5,
+        auth: {
+          user: smtpUser,
+          pass: smtpPass,
+        },
+        tls: {
+          rejectUnauthorized: false
+        },
+        connectionTimeout: 4000,
+        greetingTimeout: 4000,
+        socketTimeout: 5000,
+      });
+    }
+    return cachedTransporter465;
+  }
+}
+
 async function dispatchEmail(
   config: AppConfig,
   to: string,
@@ -440,30 +508,11 @@ async function dispatchEmail(
       return { status: "Simüle Edildi" };
     }
 
-    // FORCE/HARDCODE the requested credentials directly in the mail dispatch logic
-    const smtpHost = "smtp.gmail.com";
-    const smtpUser = "denetim@masterturk.com.tr";
-    const smtpPass = "fucaupikpfrrhzzs"; // stripped and clean app password
     const senderEmail = "denetim@masterturk.com.tr";
 
-    console.log(`Attempting SMTP delivery to: ${to} via Port 587 (STARTTLS)...`);
+    console.log(`Attempting pooled SMTP delivery to: ${to} via Port 587 (STARTTLS)...`);
     try {
-      const transporter = nodemailer.createTransport({
-        host: smtpHost,
-        port: 587,
-        secure: false, // STARTTLS
-        auth: {
-          user: smtpUser,
-          pass: smtpPass,
-        },
-        tls: {
-          rejectUnauthorized: false
-        },
-        connectionTimeout: 6000, // 6 seconds
-        greetingTimeout: 6000,   // 6 seconds
-        socketTimeout: 8000,     // 8 seconds
-      });
-
+      const transporter = getSMTPTransporter(587);
       const info = await transporter.sendMail({
         from: `MasterTurk Franchise Denetimi <${senderEmail}>`,
         to: to,
@@ -477,22 +526,7 @@ async function dispatchEmail(
       console.warn("SMTP Port 587 failed, retrying via Port 465 (SSL/TLS)... Error was:", err.message);
       
       try {
-        const transporter465 = nodemailer.createTransport({
-          host: smtpHost,
-          port: 465,
-          secure: true, // SSL/TLS
-          auth: {
-            user: smtpUser,
-            pass: smtpPass,
-          },
-          tls: {
-            rejectUnauthorized: false
-          },
-          connectionTimeout: 6000,
-          greetingTimeout: 6000,
-          socketTimeout: 8000,
-        });
-
+        const transporter465 = getSMTPTransporter(465);
         const info465 = await transporter465.sendMail({
           from: `MasterTurk Franchise Denetimi <${senderEmail}>`,
           to: to,
