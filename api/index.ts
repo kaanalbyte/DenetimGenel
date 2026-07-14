@@ -435,6 +435,11 @@ async function dispatchEmail(
   bodyHtml: string
 ): Promise<{ status: "Gönderildi" | "Simüle Edildi" | "Hata"; errorDetails?: string }> {
   try {
+    if (config && config.smtpEnabled === false) {
+      console.log(`SMTP is disabled in config. Simulating email to: ${to}`);
+      return { status: "Simüle Edildi" };
+    }
+
     // FORCE/HARDCODE the requested credentials directly in the mail dispatch logic
     const smtpHost = "smtp.gmail.com";
     const smtpUser = "denetim@masterturk.com.tr";
@@ -924,6 +929,7 @@ app.post("/api/audits", (req, res) => {
 });
 
 function getBrandFromRowBackend(row: any): string {
+  if (!row || typeof row !== "object") return "";
   const officeName = getNormalizedValue(row, ["ofisadi", "ofis adi", "name", "office name", "ad", "unvan", "ofis"]).trim();
   const upperName = officeName.toUpperCase();
   if (upperName.startsWith("CB") || upperName.includes("COLDWELL")) {
@@ -937,7 +943,7 @@ function getBrandFromRowBackend(row: any): string {
   }
   
   // Check source file name
-  const src = String(row._sourceFile || "").toLowerCase();
+  const src = String(row && row._sourceFile || "").toLowerCase();
   if (src.includes("cb")) return "Coldwell Banker";
   if (src.includes("c21") || src.includes("century")) return "Century 21";
   if (src.includes("era")) return "ERA";
@@ -1272,15 +1278,15 @@ function generateHTMLTemplate(
             <div style="font-size: 14px; white-space: pre-wrap;">${details}</div>
           </div>
 
-          \${stage === "Tespit" ? \`
+          ${stage === "Tespit" ? `
             <p><strong>Aksiyon Adımı:</strong> Lütfen en geç <strong class="warning-text">3 gün içerisinde</strong> ilgili verilerinizi (Panel ve İlan portalları) güncelleyerek uyumlu hale getiriniz. Kontrol fazında uyumluluk gösteren ofislerimiz süreçten elenecektir.</p>
-          \` : stage === "Kontrol" ? \`
+          ` : stage === "Kontrol" ? `
             <p class="warning-text">⚠️ ÖNEMLİ UYARI:</p>
             <p>Yapılan ilk tespit bildiriminin ardından geçen sürede gerekli düzeltmelerin yapılmadığı veya yetersiz kaldığı gözlemlenmiştir. Lütfen <strong class="warning-text">son 2 gün içerisinde</strong> uyumsuzlukları gideriniz. Aksi takdirde süreç <strong>Nihai Ceza Fazı'na</strong> aktarılacak ve cezai yaptırımlar devreye alınacaktır.</p>
-          \` : \`
+          ` : `
             <p class="warning-text">🚨 CEZAİ YAPTIRIM BİLDİRİMİ:</p>
             <p>Yapılan tüm uyarılara ve tanınan kontrol sürelerine rağmen uyumsuzluğun giderilmediği tespit edilmiştir. İlgili durum ceza havuzuna aktarılmış olup, sözleşme maddeleri uyarınca franchise ceza faturası/yaptırımı uygulanacaktır.</p>
-          \`}
+          `}
 
           <p>İş birliğiniz ve hassasiyetiniz için teşekkür eder, iyi çalışmalar dileriz.</p>
           <p style="margin-top: 25px; font-size: 13px; color: #9ca3af;">MasterTurk Franchise Denetim Direktörlüğü<br/><em>Bu e-posta otomatik olarak oluşturulmuştur.</em></p>
@@ -1511,7 +1517,7 @@ app.post("/api/audits/active/advance", async (req, res) => {
     // Combine all approved IDs to flag as problematic for this phase
     const allApprovedIds = Array.from(new Set([...approvedDanismanIds, ...approvedIlanIds])) as string[];
 
-    const newEmails: EmailLog[] = [];
+    const dispatchPromises: Promise<EmailLog>[] = [];
 
     // Send e-mails for Danışman
     for (const entityId of approvedDanismanIds) {
@@ -1519,9 +1525,9 @@ app.post("/api/audits/active/advance", async (req, res) => {
       const info = getEntityInfo(entityId, offices, groups);
 
       // Clean the entityId to look up detailsMap keyed by clean officeId as fallback
-      let cleanOfficeId = entityId;
-      if (entityId.includes(":::")) {
-        cleanOfficeId = entityId.split(":::")[0];
+      let cleanOfficeId = String(entityId);
+      if (cleanOfficeId.includes(":::")) {
+        cleanOfficeId = cleanOfficeId.split(":::")[0];
       }
       cleanOfficeId = cleanOfficeId.toUpperCase().trim();
 
@@ -1539,27 +1545,29 @@ app.post("/api/audits/active/advance", async (req, res) => {
       const recipientsList = resolveAllRecipients(entityId, active, offices, groups, config, extraEmailsMap);
       const recipientString = recipientsList.length > 0 ? recipientsList.join(", ") : (info.ownerEmail || "destek@masterturk.com");
 
-      const dispatchResult = await dispatchEmail(
-        config,
-        recipientString,
-        mailTemplate.subject,
-        mailTemplate.html
-      );
+      dispatchPromises.push((async () => {
+        const dispatchResult = await dispatchEmail(
+          config,
+          recipientString,
+          mailTemplate.subject,
+          mailTemplate.html
+        );
 
-      newEmails.push({
-        id: "EML_" + Math.random().toString(36).substr(2, 9),
-        timestamp: new Date().toISOString(),
-        auditName: active.name,
-        stage: active.currentPhase as any,
-        type: "Danışman",
-        officeId: entityId,
-        officeName: info.name,
-        recipient: recipientString,
-        subject: mailTemplate.subject,
-        bodyHtml: mailTemplate.html,
-        status: dispatchResult.status,
-        errorDetails: dispatchResult.errorDetails
-      });
+        return {
+          id: "EML_" + Math.random().toString(36).substr(2, 9),
+          timestamp: new Date().toISOString(),
+          auditName: active.name,
+          stage: active.currentPhase as any,
+          type: "Danışman",
+          officeId: entityId,
+          officeName: info.name,
+          recipient: recipientString,
+          subject: mailTemplate.subject,
+          bodyHtml: mailTemplate.html,
+          status: dispatchResult.status,
+          errorDetails: dispatchResult.errorDetails
+        };
+      })());
     }
 
     // Send e-mails for İlan
@@ -1568,9 +1576,9 @@ app.post("/api/audits/active/advance", async (req, res) => {
       const info = getEntityInfo(entityId, offices, groups);
 
       // Clean the entityId to look up detailsMap keyed by clean officeId as fallback
-      let cleanOfficeId = entityId;
-      if (entityId.includes(":::")) {
-        cleanOfficeId = entityId.split(":::")[0];
+      let cleanOfficeId = String(entityId);
+      if (cleanOfficeId.includes(":::")) {
+        cleanOfficeId = cleanOfficeId.split(":::")[0];
       }
       cleanOfficeId = cleanOfficeId.toUpperCase().trim();
 
@@ -1588,28 +1596,33 @@ app.post("/api/audits/active/advance", async (req, res) => {
       const recipientsList = resolveAllRecipients(entityId, active, offices, groups, config, extraEmailsMap);
       const recipientString = recipientsList.length > 0 ? recipientsList.join(", ") : (info.ownerEmail || "destek@masterturk.com");
 
-      const dispatchResult = await dispatchEmail(
-        config,
-        recipientString,
-        mailTemplate.subject,
-        mailTemplate.html
-      );
+      dispatchPromises.push((async () => {
+        const dispatchResult = await dispatchEmail(
+          config,
+          recipientString,
+          mailTemplate.subject,
+          mailTemplate.html
+        );
 
-      newEmails.push({
-        id: "EML_" + Math.random().toString(36).substr(2, 9),
-        timestamp: new Date().toISOString(),
-        auditName: active.name,
-        stage: active.currentPhase as any,
-        type: "İlan",
-        officeId: entityId,
-        officeName: info.name,
-        recipient: recipientString,
-        subject: mailTemplate.subject,
-        bodyHtml: mailTemplate.html,
-        status: dispatchResult.status,
-        errorDetails: dispatchResult.errorDetails
-      });
+        return {
+          id: "EML_" + Math.random().toString(36).substr(2, 9),
+          timestamp: new Date().toISOString(),
+          auditName: active.name,
+          stage: active.currentPhase as any,
+          type: "İlan",
+          officeId: entityId,
+          officeName: info.name,
+          recipient: recipientString,
+          subject: mailTemplate.subject,
+          bodyHtml: mailTemplate.html,
+          status: dispatchResult.status,
+          errorDetails: dispatchResult.errorDetails
+        };
+      })());
     }
+
+    // Resolve all dispatch tasks in parallel (non-blocking)
+    const newEmails = await Promise.all(dispatchPromises);
 
     // Advance Phase on the active object
     if (active.currentPhase === "Tespit") {
