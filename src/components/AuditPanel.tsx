@@ -821,8 +821,17 @@ export default function AuditPanel({ offices, groups, activeAudit, onRefresh, on
         showMsg("success", `${emailCount} Adet E-Posta Gönderildi/Simüle Edildi. Aşama İlerletildi.`);
         onRefresh();
       } else {
-        const errData = await res.json().catch(() => ({}));
-        showMsg("error", errData.error || errData.message || "Faz ilerletilirken hata oluştu.");
+        const text = await res.text().catch(() => "");
+        let errMsg = "Faz ilerletilirken hata oluştu.";
+        try {
+          const parsed = JSON.parse(text);
+          errMsg = parsed.error || parsed.message || errMsg;
+        } catch {
+          if (text) {
+            errMsg = text.length > 200 ? text.substring(0, 200) + "..." : text;
+          }
+        }
+        showMsg("error", errMsg);
       }
     } catch (err) {
       showMsg("error", "İletişim hatası.");
@@ -2356,6 +2365,18 @@ export default function AuditPanel({ offices, groups, activeAudit, onRefresh, on
                                   if (res.ok) {
                                     showMsg("success", "Nihai Ceza Maili Gönderildi!");
                                     onRefresh();
+                                  } else {
+                                    const text = await res.text().catch(() => "");
+                                    let errMsg = "Ceza maili gönderilirken hata oluştu.";
+                                    try {
+                                      const parsed = JSON.parse(text);
+                                      errMsg = parsed.error || parsed.message || errMsg;
+                                    } catch {
+                                      if (text) {
+                                        errMsg = text.length > 200 ? text.substring(0, 200) + "..." : text;
+                                      }
+                                    }
+                                    showMsg("error", errMsg);
                                   }
                                 } catch (err) {
                                   showMsg("error", "İletişim hatası.");
