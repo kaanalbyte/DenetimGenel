@@ -875,7 +875,7 @@ app.get("/api/audits", (req, res) => {
 // Get currently active audit period
 app.get("/api/audits/active", (req, res) => {
   const db = readDB();
-  const active = db.audits.find((a) => a.status === "Aktif");
+  const active = db.audits.find((a) => a && a.status === "Aktif");
   res.json(active || null);
 });
 
@@ -947,7 +947,7 @@ function getBrandFromRowBackend(row: any): string {
   if (officeId) {
     try {
       const db = readDB();
-      const office = db.offices.find((o: any) => o.id === officeId && o.status !== "Silinmiş") || db.offices.find((o: any) => o.id === officeId);
+      const office = db.offices.find((o: any) => o && o.id === officeId && o.status !== "Silinmiş") || db.offices.find((o: any) => o && o.id === officeId);
       if (office?.brand) return office.brand;
     } catch (e) {
       // ignore
@@ -1305,15 +1305,28 @@ function resolveOfficeRecipients(
 ): string[] {
   const recipients = new Set<string>();
 
+  const safeOfficeId = String(officeId || "");
+
   // Clean the officeId (in case it contains ":::")
-  let cleanOfficeId = officeId;
-  if (officeId.includes(":::")) {
-    cleanOfficeId = officeId.split(":::")[0];
+  let cleanOfficeId = safeOfficeId;
+  let cleanOfficeName = "";
+  if (safeOfficeId.includes(":::")) {
+    const parts = safeOfficeId.split(":::");
+    cleanOfficeId = parts[0].toUpperCase().trim();
+    cleanOfficeName = parts[1].toUpperCase().trim();
+  } else {
+    cleanOfficeId = cleanOfficeId.toUpperCase().trim();
   }
-  cleanOfficeId = cleanOfficeId.toUpperCase().trim();
 
   // Find the office in the master list (marka_ofis database)
-  const officeInfo = offices.find(o => o.id.toUpperCase().trim() === cleanOfficeId);
+  let officeInfo = null;
+  if (cleanOfficeName) {
+    officeInfo = offices.find(o => o && o.id && String(o.id).toUpperCase().trim() === cleanOfficeId && o.name && String(o.name).toUpperCase().trim() === cleanOfficeName);
+  }
+  if (!officeInfo) {
+    officeInfo = offices.find(o => o && o.id && String(o.id).toUpperCase().trim() === cleanOfficeId);
+  }
+
   const brand = officeInfo?.brand || "";
 
   // 1. ALWAYS add the office's own email from the master list (Rule 5: marka_ofis E-Posta)
@@ -1325,7 +1338,7 @@ function resolveOfficeRecipients(
   }
 
   // 2. Broker and Owner e-mails from raw Excel ofis_kullanicilari
-  const kullaniciRaw = (active.currentPhase === "Tespit" ? active.phase1KullaniciRaw : active.phase2KullaniciRaw) || active.phase1KullaniciRaw || active.phase2KullaniciRaw || [];
+  const kullaniciRaw = (active && (active.currentPhase === "Tespit" ? active.phase1KullaniciRaw : active.phase2KullaniciRaw)) || (active && active.phase1KullaniciRaw) || (active && active.phase2KullaniciRaw) || [];
   let foundFromExcel = false;
 
   if (Array.isArray(kullaniciRaw) && kullaniciRaw.length > 0) {
@@ -1367,7 +1380,7 @@ function resolveOfficeRecipients(
   const staffName = officeInfo?.responsibleUser || officeInfo?.ownerName || "";
   if (staffName) {
     let staffEmail = "";
-    if (config.fieldStaffEmails && typeof config.fieldStaffEmails === "object") {
+    if (config && config.fieldStaffEmails && typeof config.fieldStaffEmails === "object") {
       const normStaffName = staffName.trim().toLowerCase();
       for (const [name, email] of Object.entries(config.fieldStaffEmails)) {
         if (name.trim().toLowerCase() === normStaffName) {
@@ -1382,7 +1395,7 @@ function resolveOfficeRecipients(
   }
 
   // 4. Extra Custom Recipients from UI input (specific to this office)
-  const extraStr = extraEmailsMap[officeId] || extraEmailsMap[cleanOfficeId] || "";
+  const extraStr = String(extraEmailsMap[officeId] || extraEmailsMap[cleanOfficeId] || "");
   if (extraStr) {
     extraStr.split(/[\s,;]+/).forEach(email => {
       const cleaned = email.trim().toLowerCase();
@@ -1406,10 +1419,12 @@ function resolveAllRecipients(
 ): string[] {
   const recipients = new Set<string>();
 
+  const safeEntityId = String(entityId || "");
+
   // Determine if entity is a group
-  let targetId = entityId;
-  if (entityId.includes(":::")) {
-    targetId = entityId.split(":::")[0];
+  let targetId = safeEntityId;
+  if (safeEntityId.includes(":::")) {
+    targetId = safeEntityId.split(":::")[0];
   }
   targetId = targetId.toUpperCase().trim();
 
@@ -1417,7 +1432,7 @@ function resolveAllRecipients(
 
   if (isGroup) {
     // 1. Get Group info
-    const group = groups.find(g => g.id.toUpperCase().trim() === targetId);
+    const group = groups.find(g => g && g.id && String(g.id).toUpperCase().trim() === targetId);
     if (group?.ownerEmail) {
       const grpMail = group.ownerEmail.trim().toLowerCase();
       if (grpMail && grpMail.includes("@")) {
@@ -1426,14 +1441,15 @@ function resolveAllRecipients(
     }
 
     // 2. Resolve for all member offices
-    const memberOffices = offices.filter(o => o.groupId && o.groupId.toUpperCase().trim() === targetId);
+    const memberOffices = offices.filter(o => o && o.groupId && String(o.groupId).toUpperCase().trim() === targetId);
     memberOffices.forEach(m => {
-      const officeRecipients = resolveOfficeRecipients(m.id, active, offices, config, extraEmailsMap);
+      // Pass both id and name as m.id:::m.name to resolve the exact correct office/brand
+      const officeRecipients = resolveOfficeRecipients(`${m.id}:::${m.name}`, active, offices, config, extraEmailsMap);
       officeRecipients.forEach(email => recipients.add(email));
     });
 
     // 3. Extra Custom Recipients for the group itself
-    const extraStr = extraEmailsMap[entityId] || extraEmailsMap[targetId] || "";
+    const extraStr = String(extraEmailsMap[entityId] || extraEmailsMap[targetId] || "");
     if (extraStr) {
       extraStr.split(/[\s,;]+/).forEach(email => {
         const cleaned = email.trim().toLowerCase();
@@ -1443,13 +1459,13 @@ function resolveAllRecipients(
       });
     }
   } else {
-    // Single office
-    const officeRecipients = resolveOfficeRecipients(entityId, active, offices, config, extraEmailsMap);
+    // Single office - pass full safeEntityId to preserve the name for exact matching
+    const officeRecipients = resolveOfficeRecipients(safeEntityId, active, offices, config, extraEmailsMap);
     officeRecipients.forEach(email => recipients.add(email));
   }
 
   // 4. Fixed Manager Email (CC / Admin Copy) - added to all dispatches
-  const managerEmail = config.managerEmail || "nilufer.perkim@masterturk.com.tr";
+  const managerEmail = config?.managerEmail || "nilufer.perkim@masterturk.com.tr";
   if (managerEmail && managerEmail.includes("@")) {
     recipients.add(managerEmail.toLowerCase().trim());
   }
