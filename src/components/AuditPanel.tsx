@@ -507,9 +507,9 @@ export default function AuditPanel({ offices, groups, activeAudit, onRefresh, on
     const ilanArr = Object.values(ilanMap);
     setIlanReport(ilanArr);
 
-    // Auto select problematic ones
-    const badDanismanIds = danismanArr.filter(i => i.status === "Sorunlu").map(i => i.code);
-    const badIlanIds = ilanArr.filter(i => i.status === "Sorunlu").map(i => i.code);
+    // Auto select problematic ones using unique entityId
+    const badDanismanIds = danismanArr.filter(i => i.status === "Sorunlu").map(i => i.entityId);
+    const badIlanIds = ilanArr.filter(i => i.status === "Sorunlu").map(i => i.entityId);
 
     setSelectedDanismanIds(badDanismanIds);
     setSelectedIlanIds(badIlanIds);
@@ -789,18 +789,18 @@ export default function AuditPanel({ offices, groups, activeAudit, onRefresh, on
     const detailsMap: { [key: string]: string } = {};
 
     danismanReport.forEach(item => {
-      if (selectedDanismanIds.includes(item.code)) {
-        detailsMap[item.code + "_danisman"] = `Portallerde yapılan eşleştirmelerde, ofisiniz bünyesinde çalışan ancak resmi panelde kaydı bulunmayan yetkisiz (kaçak) danışmanlar tespit edilmiştir:\n\nKaçak Danışman Listesi: ${item.names.join(", ")}\n\nPanel Kişi Sayısı: ${item.countOfficialTotal} (Owner: ${item.countOwner}, Broker: ${item.countBroker}, Danışman: ${item.countDanisman})`;
+      if (selectedDanismanIds.includes(item.entityId)) {
+        detailsMap[item.entityId + "_danisman"] = `Portallerde yapılan eşleştirmelerde, ofisiniz bünyesinde çalışan ancak resmi panelde kaydı bulunmayan yetkisiz (kaçak) danışmanlar tespit edilmiştir:\n\nKaçak Danışman Listesi: ${item.names.join(", ")}\n\nPanel Kişi Sayısı: ${item.countOfficialTotal} (Owner: ${item.countOwner}, Broker: ${item.countBroker}, Danışman: ${item.countDanisman})`;
       }
     });
 
     ilanReport.forEach(item => {
-      if (selectedIlanIds.includes(item.code)) {
+      if (selectedIlanIds.includes(item.entityId)) {
         const thresholdText = item.countSahibinden <= 100 
           ? "Sahibinden ilan sayısı <= 100 olduğu için en fazla 10 adet ilan farkı toleransı mevcuttur." 
           : `Sahibinden ilan sayısı > 100 olduğu için en fazla %10 fazla ilan toleransı mevcuttur (Limit: ${Math.floor(item.countPanelTotal * 0.10)} ilan).`;
 
-        detailsMap[item.code + "_ilan"] = `Yapılan ilan denetimlerinde, resmi paneliniz ile Sahibinden.com portalındaki ilan adetlerinizin uyumsuz olduğu tespit edilmiştir.\n\nSahibinden Toplam İlan Sayısı: ${item.countSahibinden}\nPanel Toplam İlan Sayısı: ${item.countPanelTotal} (Satılık: ${item.countSatilik}, Kiralık: ${item.countKiralik})\nFark: +${item.difference}\n\nAçıklama: ${thresholdText}`;
+        detailsMap[item.entityId + "_ilan"] = `Yapılan ilan denetimlerinde, resmi paneliniz ile Sahibinden.com portalındaki ilan adetlerinizin uyumsuz olduğu tespit edilmiştir.\n\nSahibinden Toplam İlan Sayısı: ${item.countSahibinden}\nPanel Toplam İlan Sayısı: ${item.countPanelTotal} (Satılık: ${item.countSatilik}, Kiralık: ${item.countKiralik})\nFark: +${item.difference}\n\nAçıklama: ${thresholdText}`;
       }
     });
 
@@ -870,15 +870,19 @@ export default function AuditPanel({ offices, groups, activeAudit, onRefresh, on
     // Filter by search text
     if (danismanSearch.trim()) {
       const searchLower = danismanSearch.toLowerCase();
-      result = result.filter(item => 
-        item.name.toLowerCase().includes(searchLower) || 
-        item.code.toLowerCase().includes(searchLower) || 
-        item.ownerName.toLowerCase().includes(searchLower) ||
-        (item.subOffices && item.subOffices.some(sub => 
-          sub.name.toLowerCase().includes(searchLower) || 
-          sub.code.toLowerCase().includes(searchLower)
-        ))
-      );
+      result = result.filter(item => {
+        const nameVal = String(item.name || "").toLowerCase();
+        const codeVal = String(item.code || "").toLowerCase();
+        const ownerVal = String(item.ownerName || "").toLowerCase();
+        const matchesMain = nameVal.includes(searchLower) || 
+                            codeVal.includes(searchLower) || 
+                            ownerVal.includes(searchLower);
+        const matchesSub = !!(item.subOffices && item.subOffices.some(sub => 
+          String(sub.name || "").toLowerCase().includes(searchLower) || 
+          String(sub.code || "").toLowerCase().includes(searchLower)
+        ));
+        return matchesMain || matchesSub;
+      });
     }
 
     // Filter by brand
@@ -902,9 +906,9 @@ export default function AuditPanel({ offices, groups, activeAudit, onRefresh, on
     result.sort((a, b) => {
       switch (danismanSort) {
         case "name_asc":
-          return a.name.localeCompare(b.name, "tr");
+          return (a.name || "").localeCompare(b.name || "", "tr");
         case "name_desc":
-          return b.name.localeCompare(a.name, "tr");
+          return (b.name || "").localeCompare(a.name || "", "tr");
         case "resmi_kadro_desc":
           return b.countOfficialTotal - a.countOfficialTotal;
         case "resmi_kadro_asc":
@@ -913,6 +917,12 @@ export default function AuditPanel({ offices, groups, activeAudit, onRefresh, on
           return b.countKacak - a.countKacak;
         case "kacak_asc":
           return a.countKacak - b.countKacak;
+        case "status_desc": // Sorunlu first
+          if (a.status === b.status) return (a.name || "").localeCompare(b.name || "", "tr");
+          return a.status === "Sorunlu" ? -1 : 1;
+        case "status_asc": // Uyumlu first
+          if (a.status === b.status) return (a.name || "").localeCompare(b.name || "", "tr");
+          return a.status === "Uyumlu" ? -1 : 1;
         default:
           return 0;
       }
@@ -936,15 +946,19 @@ export default function AuditPanel({ offices, groups, activeAudit, onRefresh, on
     // Filter by search text
     if (ilanSearch.trim()) {
       const searchLower = ilanSearch.toLowerCase();
-      result = result.filter(item => 
-        item.name.toLowerCase().includes(searchLower) || 
-        item.code.toLowerCase().includes(searchLower) || 
-        item.ownerName.toLowerCase().includes(searchLower) ||
-        (item.subOffices && item.subOffices.some(sub => 
-          sub.name.toLowerCase().includes(searchLower) || 
-          sub.code.toLowerCase().includes(searchLower)
-        ))
-      );
+      result = result.filter(item => {
+        const nameVal = String(item.name || "").toLowerCase();
+        const codeVal = String(item.code || "").toLowerCase();
+        const ownerVal = String(item.ownerName || "").toLowerCase();
+        const matchesMain = nameVal.includes(searchLower) || 
+                            codeVal.includes(searchLower) || 
+                            ownerVal.includes(searchLower);
+        const matchesSub = !!(item.subOffices && item.subOffices.some(sub => 
+          String(sub.name || "").toLowerCase().includes(searchLower) || 
+          String(sub.code || "").toLowerCase().includes(searchLower)
+        ));
+        return matchesMain || matchesSub;
+      });
     }
 
     // Filter by brand
@@ -968,9 +982,9 @@ export default function AuditPanel({ offices, groups, activeAudit, onRefresh, on
     result.sort((a, b) => {
       switch (ilanSort) {
         case "name_asc":
-          return a.name.localeCompare(b.name, "tr");
+          return (a.name || "").localeCompare(b.name || "", "tr");
         case "name_desc":
-          return b.name.localeCompare(a.name, "tr");
+          return (b.name || "").localeCompare(a.name || "", "tr");
         case "resmi_panel_desc":
           return b.countPanelTotal - a.countPanelTotal;
         case "resmi_panel_asc":
@@ -983,6 +997,12 @@ export default function AuditPanel({ offices, groups, activeAudit, onRefresh, on
           return b.difference - a.difference;
         case "fark_asc":
           return a.difference - b.difference;
+        case "status_desc": // Sorunlu first
+          if (a.status === b.status) return (a.name || "").localeCompare(b.name || "", "tr");
+          return a.status === "Sorunlu" ? -1 : 1;
+        case "status_asc": // Uyumlu first
+          if (a.status === b.status) return (a.name || "").localeCompare(b.name || "", "tr");
+          return a.status === "Uyumlu" ? -1 : 1;
         default:
           return 0;
       }
@@ -1804,6 +1824,8 @@ export default function AuditPanel({ offices, groups, activeAudit, onRefresh, on
                             <option value="resmi_kadro_asc">Sıralama: Panel Kişi (Düşük)</option>
                             <option value="kacak_desc">Sıralama: Kaçak Sayısı (Yüksek)</option>
                             <option value="kacak_asc">Sıralama: Kaçak Sayısı (Düşük)</option>
+                            <option value="status_desc">Sıralama: Durum (Sorunlu Önce)</option>
+                            <option value="status_asc">Sıralama: Durum (Uyumlu Önce)</option>
                           </select>
                         </div>
                       </div>
@@ -1819,11 +1841,51 @@ export default function AuditPanel({ offices, groups, activeAudit, onRefresh, on
                           </colgroup>
                           <thead className="bg-slate-50 text-[10px] uppercase font-bold text-slate-500 border-b border-slate-200 sticky top-0 z-10 shadow-xs">
                             <tr>
-                              <th className="px-3 py-2">Seç</th>
-                              <th className="px-3 py-2">Ofis/Grup Kodu & Adı</th>
-                              <th className="px-3 py-2 text-center">Panel Kişi</th>
-                              <th className="px-3 py-2">Durumu</th>
-                              <th className="px-3 py-2">Kaçak Danışmanlar (Portföylü)</th>
+                              <th className="px-3 py-2 text-left w-10">Seç</th>
+                              <th 
+                                className="px-3 py-2 cursor-pointer select-none hover:bg-slate-100 transition-colors text-left group"
+                                onClick={() => setDanismanSort(prev => prev === "name_asc" ? "name_desc" : "name_asc")}
+                              >
+                                <div className="flex items-center gap-1">
+                                  Ofis/Grup Kodu & Adı
+                                  {danismanSort === "name_asc" && <span className="text-blue-600 font-bold">▲</span>}
+                                  {danismanSort === "name_desc" && <span className="text-blue-600 font-bold">▼</span>}
+                                  {danismanSort !== "name_asc" && danismanSort !== "name_desc" && <span className="text-slate-300 group-hover:text-slate-400 transition-colors">▲▼</span>}
+                                </div>
+                              </th>
+                              <th 
+                                className="px-3 py-2 cursor-pointer select-none hover:bg-slate-100 transition-colors text-center group"
+                                onClick={() => setDanismanSort(prev => prev === "resmi_kadro_desc" ? "resmi_kadro_asc" : "resmi_kadro_desc")}
+                              >
+                                <div className="flex items-center justify-center gap-1">
+                                  Panel Kişi
+                                  {danismanSort === "resmi_kadro_asc" && <span className="text-blue-600 font-bold">▲</span>}
+                                  {danismanSort === "resmi_kadro_desc" && <span className="text-blue-600 font-bold">▼</span>}
+                                  {danismanSort !== "resmi_kadro_asc" && danismanSort !== "resmi_kadro_desc" && <span className="text-slate-300 group-hover:text-slate-400 transition-colors">▲▼</span>}
+                                </div>
+                              </th>
+                              <th 
+                                className="px-3 py-2 cursor-pointer select-none hover:bg-slate-100 transition-colors text-left group"
+                                onClick={() => setDanismanSort(prev => prev === "status_desc" ? "status_asc" : "status_desc")}
+                              >
+                                <div className="flex items-center gap-1">
+                                  Durumu
+                                  {danismanSort === "status_asc" && <span className="text-blue-600 font-bold">▲</span>}
+                                  {danismanSort === "status_desc" && <span className="text-blue-600 font-bold">▼</span>}
+                                  {danismanSort !== "status_asc" && danismanSort !== "status_desc" && <span className="text-slate-300 group-hover:text-slate-400 transition-colors">▲▼</span>}
+                                </div>
+                              </th>
+                              <th 
+                                className="px-3 py-2 cursor-pointer select-none hover:bg-slate-100 transition-colors text-left group"
+                                onClick={() => setDanismanSort(prev => prev === "kacak_desc" ? "kacak_asc" : "kacak_desc")}
+                              >
+                                <div className="flex items-center gap-1">
+                                  Kaçak Danışmanlar (Portföylü)
+                                  {danismanSort === "kacak_asc" && <span className="text-blue-600 font-bold">▲</span>}
+                                  {danismanSort === "kacak_desc" && <span className="text-blue-600 font-bold">▼</span>}
+                                  {danismanSort !== "kacak_asc" && danismanSort !== "kacak_desc" && <span className="text-slate-300 group-hover:text-slate-400 transition-colors">▲▼</span>}
+                                </div>
+                              </th>
                             </tr>
                           </thead>
                           <tbody className="divide-y divide-slate-100">
@@ -2021,6 +2083,8 @@ export default function AuditPanel({ offices, groups, activeAudit, onRefresh, on
                             <option value="sahibinden_asc">Sıralama: Sahibinden (Düşük)</option>
                             <option value="fark_desc">Sıralama: Fark (Yüksek)</option>
                             <option value="fark_asc">Sıralama: Fark (Düşük)</option>
+                            <option value="status_desc">Sıralama: Durum (Sorunlu Önce)</option>
+                            <option value="status_asc">Sıralama: Durum (Uyumlu Önce)</option>
                           </select>
                         </div>
                       </div>
@@ -2037,12 +2101,62 @@ export default function AuditPanel({ offices, groups, activeAudit, onRefresh, on
                           </colgroup>
                           <thead className="bg-slate-50 text-[10px] uppercase font-bold text-slate-500 border-b border-slate-200 sticky top-0 z-10 shadow-xs">
                             <tr>
-                              <th className="px-3 py-2">Seç</th>
-                              <th className="px-3 py-2">Ofis/Grup Kodu & Adı</th>
-                              <th className="px-3 py-2 text-center">Panel İlan (Portföy)</th>
-                              <th className="px-3 py-2 text-center">Sahibinden</th>
-                              <th className="px-3 py-2 text-center">Fark</th>
-                              <th className="px-3 py-2">Durumu</th>
+                              <th className="px-3 py-2 text-left w-10">Seç</th>
+                              <th 
+                                className="px-3 py-2 cursor-pointer select-none hover:bg-slate-100 transition-colors text-left group"
+                                onClick={() => setIlanSort(prev => prev === "name_asc" ? "name_desc" : "name_asc")}
+                              >
+                                <div className="flex items-center gap-1">
+                                  Ofis/Grup Kodu & Adı
+                                  {ilanSort === "name_asc" && <span className="text-blue-600 font-bold">▲</span>}
+                                  {ilanSort === "name_desc" && <span className="text-blue-600 font-bold">▼</span>}
+                                  {ilanSort !== "name_asc" && ilanSort !== "name_desc" && <span className="text-slate-300 group-hover:text-slate-400 transition-colors">▲▼</span>}
+                                </div>
+                              </th>
+                              <th 
+                                className="px-3 py-2 cursor-pointer select-none hover:bg-slate-100 transition-colors text-center group"
+                                onClick={() => setIlanSort(prev => prev === "resmi_panel_desc" ? "resmi_panel_asc" : "resmi_panel_desc")}
+                              >
+                                <div className="flex items-center justify-center gap-1">
+                                  Panel İlan (Portföy)
+                                  {ilanSort === "resmi_panel_asc" && <span className="text-blue-600 font-bold">▲</span>}
+                                  {ilanSort === "resmi_panel_desc" && <span className="text-blue-600 font-bold">▼</span>}
+                                  {ilanSort !== "resmi_panel_asc" && ilanSort !== "resmi_panel_desc" && <span className="text-slate-300 group-hover:text-slate-400 transition-colors">▲▼</span>}
+                                </div>
+                              </th>
+                              <th 
+                                className="px-3 py-2 cursor-pointer select-none hover:bg-slate-100 transition-colors text-center group"
+                                onClick={() => setIlanSort(prev => prev === "sahibinden_desc" ? "sahibinden_asc" : "sahibinden_desc")}
+                              >
+                                <div className="flex items-center justify-center gap-1">
+                                  Sahibinden
+                                  {ilanSort === "sahibinden_asc" && <span className="text-blue-600 font-bold">▲</span>}
+                                  {ilanSort === "sahibinden_desc" && <span className="text-blue-600 font-bold">▼</span>}
+                                  {ilanSort !== "sahibinden_asc" && ilanSort !== "sahibinden_desc" && <span className="text-slate-300 group-hover:text-slate-400 transition-colors">▲▼</span>}
+                                </div>
+                              </th>
+                              <th 
+                                className="px-3 py-2 cursor-pointer select-none hover:bg-slate-100 transition-colors text-center group"
+                                onClick={() => setIlanSort(prev => prev === "fark_desc" ? "fark_asc" : "fark_desc")}
+                              >
+                                <div className="flex items-center justify-center gap-1">
+                                  Fark
+                                  {ilanSort === "fark_asc" && <span className="text-blue-600 font-bold">▲</span>}
+                                  {ilanSort === "fark_desc" && <span className="text-blue-600 font-bold">▼</span>}
+                                  {ilanSort !== "fark_asc" && ilanSort !== "fark_desc" && <span className="text-slate-300 group-hover:text-slate-400 transition-colors">▲▼</span>}
+                                </div>
+                              </th>
+                              <th 
+                                className="px-3 py-2 cursor-pointer select-none hover:bg-slate-100 transition-colors text-left group"
+                                onClick={() => setIlanSort(prev => prev === "status_desc" ? "status_asc" : "status_desc")}
+                              >
+                                <div className="flex items-center gap-1">
+                                  Durumu
+                                  {ilanSort === "status_asc" && <span className="text-blue-600 font-bold">▲</span>}
+                                  {ilanSort === "status_desc" && <span className="text-blue-600 font-bold">▼</span>}
+                                  {ilanSort !== "status_asc" && ilanSort !== "status_desc" && <span className="text-slate-300 group-hover:text-slate-400 transition-colors">▲▼</span>}
+                                </div>
+                              </th>
                             </tr>
                           </thead>
                           <tbody className="divide-y divide-slate-100">
