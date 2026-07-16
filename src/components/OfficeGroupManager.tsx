@@ -238,20 +238,52 @@ export default function OfficeGroupManager({ offices, groups, onRefresh, config 
   const handleCloudSync = async () => {
     setLoading(true);
     try {
-      const localOffices = localStorage.getItem("db_offices") ? JSON.parse(localStorage.getItem("db_offices")!) : offices;
-      const localGroups = localStorage.getItem("db_groups") ? JSON.parse(localStorage.getItem("db_groups")!) : groups;
-      const localAudits = localStorage.getItem("db_audits") ? JSON.parse(localStorage.getItem("db_audits")!) : [];
-      const localEmails = localStorage.getItem("db_emails") ? JSON.parse(localStorage.getItem("db_emails")!) : [];
-      const localConfig = localStorage.getItem("db_config") ? JSON.parse(localStorage.getItem("db_config")!) : null;
+      // Determine if we are in local/mock mode (Vercel static hosting)
+      const isLocalMode = window.location.hostname !== "localhost" && 
+                          window.location.hostname !== "127.0.0.1" && 
+                          !window.location.hostname.endsWith(".run.app");
+
+      let finalOffices = offices;
+      let finalGroups = groups;
+      let finalAudits: any[] = [];
+      let finalEmails: any[] = [];
+      let finalConfig = config;
+
+      if (!isLocalMode) {
+        // In server mode, fetch freshest data directly from server to avoid stale localStorage overrides
+        try {
+          const [oRes, gRes, aRes, eRes, cRes] = await Promise.all([
+            fetch("/api/offices"),
+            fetch("/api/groups"),
+            fetch("/api/audits"),
+            fetch("/api/emails"),
+            fetch("/api/config")
+          ]);
+          if (oRes.ok) finalOffices = await oRes.json();
+          if (gRes.ok) finalGroups = await gRes.json();
+          if (aRes.ok) finalAudits = await aRes.json();
+          if (eRes.ok) finalEmails = await eRes.json();
+          if (cRes.ok) finalConfig = await cRes.json();
+        } catch (fetchErr) {
+          console.warn("Could not fetch latest from server for cloud sync, falling back to props:", fetchErr);
+        }
+      } else {
+        // Local mock mode
+        finalOffices = localStorage.getItem("db_offices") ? JSON.parse(localStorage.getItem("db_offices")!) : offices;
+        finalGroups = localStorage.getItem("db_groups") ? JSON.parse(localStorage.getItem("db_groups")!) : groups;
+        finalAudits = localStorage.getItem("db_audits") ? JSON.parse(localStorage.getItem("db_audits")!) : [];
+        finalEmails = localStorage.getItem("db_emails") ? JSON.parse(localStorage.getItem("db_emails")!) : [];
+        finalConfig = localStorage.getItem("db_config") ? JSON.parse(localStorage.getItem("db_config")!) : null;
+      }
 
       // 1. Direct Client-side Firebase Firestore Save - Bypasses Vercel Serverless Function Limits
       const docRef = doc(clientFirestore, "app", "database");
       const dbPayload = {
-        offices: Array.isArray(localOffices) ? localOffices : [],
-        groups: Array.isArray(localGroups) ? localGroups : [],
-        audits: Array.isArray(localAudits) ? localAudits : [],
-        emails: Array.isArray(localEmails) ? localEmails : [],
-        config: localConfig || {
+        offices: Array.isArray(finalOffices) ? finalOffices : [],
+        groups: Array.isArray(finalGroups) ? finalGroups : [],
+        audits: Array.isArray(finalAudits) ? finalAudits : [],
+        emails: Array.isArray(finalEmails) ? finalEmails : [],
+        config: finalConfig || {
           resendApiKey: "",
           brevoApiKey: "",
           senderEmail: "denetim@masterturk.com.tr",
@@ -268,18 +300,20 @@ export default function OfficeGroupManager({ offices, groups, onRefresh, config 
       const serializedData = JSON.parse(JSON.stringify(dbPayload));
       await setDoc(docRef, serializedData);
 
-      // 2. Fallback backend sync (keep backend db.json file up-to-date in Cloud Run environment)
-      try {
-        await fetch("/api/db/sync-from-client", {
-          method: "POST",
-          headers: { "Content-Type": "application/json" },
-          body: JSON.stringify(dbPayload)
-        });
-      } catch (backendErr) {
-        console.warn("Backend local sync fallback failed (non-critical on Vercel):", backendErr);
+      // 2. Fallback backend sync (only for Vercel/local mock modes where backend doesn't save to file automatically)
+      if (isLocalMode) {
+        try {
+          await fetch("/api/db/sync-from-client", {
+            method: "POST",
+            headers: { "Content-Type": "application/json" },
+            body: JSON.stringify(dbPayload)
+          });
+        } catch (backendErr) {
+          console.warn("Backend local sync fallback failed:", backendErr);
+        }
       }
 
-      showMsg("success", "Tüm lokal veriler başarıyla direkt buluta (Firebase Firestore) senkronize edildi!");
+      showMsg("success", "Tüm güncel veriler başarıyla direkt buluta (Firebase Firestore) senkronize edildi!");
       onRefresh();
     } catch (err: any) {
       console.error("Firestore sync error:", err);
