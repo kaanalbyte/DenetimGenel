@@ -1,7 +1,7 @@
 import React, { useState, useRef } from "react";
-import { Office, Group } from "../types";
+import { Office, Group, AppConfig } from "../types";
 import * as xlsx from "xlsx";
-import { Plus, Users, Trash2, Building, Mail, User, Search, RefreshCw, ChevronRight, Upload, X, FileSpreadsheet, CheckCircle, AlertCircle, Cloud } from "lucide-react";
+import { Plus, Users, Trash2, Building, Mail, User, Search, RefreshCw, ChevronRight, Upload, X, FileSpreadsheet, CheckCircle, AlertCircle, Cloud, Pencil } from "lucide-react";
 import { initializeApp, getApps, getApp } from "firebase/app";
 import { getFirestore, doc, setDoc } from "firebase/firestore";
 
@@ -23,9 +23,10 @@ interface OfficeGroupManagerProps {
   offices: Office[];
   groups: Group[];
   onRefresh: () => void;
+  config?: AppConfig;
 }
 
-export default function OfficeGroupManager({ offices, groups, onRefresh }: OfficeGroupManagerProps) {
+export default function OfficeGroupManager({ offices, groups, onRefresh, config }: OfficeGroupManagerProps) {
   // New group state
   const [newGroupName, setNewGroupName] = useState("");
 
@@ -41,6 +42,81 @@ export default function OfficeGroupManager({ offices, groups, onRefresh }: Offic
       }
     });
     return `G${maxNum + 1}`;
+  };
+
+  // Office Editing Modal State
+  const [editingOffice, setEditingOffice] = useState<Office | null>(null);
+  const [isCustomStaff, setIsCustomStaff] = useState(false);
+  const [editForm, setEditForm] = useState<{
+    id: string;
+    name: string;
+    brand: string;
+    ownerEmail: string;
+    brokerEmails: string;
+    responsibleUser: string;
+    status: string;
+  }>({
+    id: "",
+    name: "",
+    brand: "",
+    ownerEmail: "",
+    brokerEmails: "",
+    responsibleUser: "",
+    status: "Aktif"
+  });
+
+  const staffNames = config?.fieldStaffEmails ? Object.keys(config.fieldStaffEmails) : ["Kaan Albayrak", "Tunç Süzer", "Nilüfer Perkim"];
+
+  const handleStartEdit = (office: Office) => {
+    const isStandard = staffNames.includes(office.responsibleUser || "");
+    setIsCustomStaff(!isStandard && !!office.responsibleUser);
+    setEditingOffice(office);
+    setEditForm({
+      id: office.id,
+      name: office.name,
+      brand: office.brand || "ERA",
+      ownerEmail: office.ownerEmail || "",
+      brokerEmails: office.brokerEmails || "",
+      responsibleUser: office.responsibleUser || "",
+      status: office.status || "Aktif"
+    });
+  };
+
+  const handleSaveOffice = async (e: React.FormEvent) => {
+    e.preventDefault();
+    if (!editForm.id || !editForm.name) {
+      showMsg("error", "Ofis kodu ve adı zorunludur.");
+      return;
+    }
+    setLoading(true);
+    try {
+      const res = await fetch("/api/offices", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({
+          id: editForm.id,
+          name: editForm.name,
+          brand: editForm.brand,
+          ownerEmail: editForm.ownerEmail,
+          brokerEmails: editForm.brokerEmails,
+          responsibleUser: editForm.responsibleUser,
+          status: editForm.status
+        })
+      });
+
+      if (res.ok) {
+        showMsg("success", "Ofis bilgileri başarıyla güncellendi.");
+        setEditingOffice(null);
+        onRefresh();
+      } else {
+        const data = await res.json();
+        showMsg("error", data.error || "Ofis güncellenirken hata oluştu.");
+      }
+    } catch (err) {
+      showMsg("error", "Sunucuya bağlanılamadı.");
+    } finally {
+      setLoading(false);
+    }
   };
 
   // Search & Filter State
@@ -1105,7 +1181,14 @@ export default function OfficeGroupManager({ offices, groups, onRefresh }: Offic
                               </select>
                             </div>
                           </td>
-                          <td className="px-3 py-2.5 text-right">
+                          <td className="px-3 py-2.5 text-right flex items-center justify-end gap-1">
+                            <button
+                              onClick={() => handleStartEdit(office)}
+                              className="p-1 text-slate-400 hover:text-blue-600 hover:bg-blue-50 rounded transition cursor-pointer"
+                              title="Ofisi Düzenle"
+                            >
+                              <Pencil className="w-3.5 h-3.5" />
+                            </button>
                             <button
                               onClick={() => handleDeleteOffice(office.id, office.brand || "")}
                               className="p-1 text-slate-400 hover:text-rose-600 hover:bg-rose-50 rounded transition cursor-pointer"
@@ -1126,6 +1209,163 @@ export default function OfficeGroupManager({ offices, groups, onRefresh }: Offic
         </div>
 
       </div>
+
+      {editingOffice && (
+        <div className="fixed inset-0 bg-slate-900/60 backdrop-blur-xs flex items-center justify-center z-50 p-4 animate-fade-in">
+          <div className="bg-white rounded-xl shadow-xl max-w-lg w-full border border-slate-100 overflow-hidden animate-in fade-in zoom-in-95 duration-200">
+            <div className="px-5 py-4 bg-slate-50 border-b border-slate-150 flex items-center justify-between">
+              <div>
+                <h3 className="text-sm font-bold text-slate-800 tracking-tight flex items-center gap-2">
+                  <Pencil className="w-4 h-4 text-blue-600" />
+                  Ofis Bilgilerini Düzenle
+                </h3>
+                <p className="text-[10px] text-slate-400 mt-0.5 font-mono">Ofis Kodu: {editForm.id}</p>
+              </div>
+              <button
+                type="button"
+                onClick={() => setEditingOffice(null)}
+                className="text-slate-400 hover:text-slate-600 transition p-1 cursor-pointer"
+              >
+                <X className="w-4 h-4" />
+              </button>
+            </div>
+
+            <form onSubmit={handleSaveOffice} className="p-5 space-y-4">
+              <div className="grid grid-cols-2 gap-4">
+                <div className="col-span-1">
+                  <label className="block text-[10px] font-bold text-slate-400 uppercase mb-1 font-mono">Marka</label>
+                  <select
+                    value={editForm.brand}
+                    onChange={(e) => setEditForm({ ...editForm, brand: e.target.value })}
+                    className="w-full text-xs border border-slate-300 rounded px-2.5 py-1.5 bg-white text-slate-800 font-medium cursor-pointer outline-none focus:ring-1 focus:ring-blue-500"
+                  >
+                    <option value="Coldwell Banker">Coldwell Banker</option>
+                    <option value="Century 21">Century 21</option>
+                    <option value="ERA">ERA</option>
+                    <option value="Diğer">Diğer</option>
+                  </select>
+                </div>
+
+                <div className="col-span-1">
+                  <label className="block text-[10px] font-bold text-slate-400 uppercase mb-1 font-mono">Durum</label>
+                  <select
+                    value={editForm.status}
+                    onChange={(e) => setEditForm({ ...editForm, status: e.target.value })}
+                    className="w-full text-xs border border-slate-300 rounded px-2.5 py-1.5 bg-white text-slate-800 font-medium cursor-pointer outline-none focus:ring-1 focus:ring-blue-500"
+                  >
+                    <option value="Aktif">Aktif</option>
+                    <option value="Pasif">Pasif</option>
+                  </select>
+                </div>
+              </div>
+
+              <div>
+                <label className="block text-[10px] font-bold text-slate-400 uppercase mb-1 font-mono font-bold">Ofis Adı</label>
+                <input
+                  type="text"
+                  value={editForm.name}
+                  onChange={(e) => setEditForm({ ...editForm, name: e.target.value })}
+                  className="w-full text-xs border border-slate-300 rounded px-2.5 py-1.5 bg-white text-slate-800 font-medium outline-none focus:ring-1 focus:ring-blue-500"
+                  placeholder="örn: ERA GALA"
+                  required
+                />
+              </div>
+
+              {/* Madde 1: Ofis E-Posta */}
+              <div>
+                <div className="flex items-center justify-between mb-1">
+                  <label className="block text-[10px] font-bold text-slate-400 uppercase font-mono font-bold">1. Marka Ofis E-Postası (Madde 1)</label>
+                  <span className="text-[9px] bg-slate-100 text-slate-500 px-1.5 py-0.2 rounded font-mono font-bold">Madde 1</span>
+                </div>
+                <input
+                  type="email"
+                  value={editForm.ownerEmail}
+                  onChange={(e) => setEditForm({ ...editForm, ownerEmail: e.target.value })}
+                  className="w-full text-xs border border-slate-300 rounded px-2.5 py-1.5 bg-white text-slate-800 font-medium outline-none focus:ring-1 focus:ring-blue-500"
+                  placeholder="örn: gala@era.com.tr"
+                />
+                <p className="text-[10px] text-slate-400 mt-1">Bu ofis adına gönderilecek olan 1. Aşama tespit bildirimlerinde alıcı kısmına doğrudan eklenir.</p>
+              </div>
+
+              {/* Madde 2: Broker & Ortaklar */}
+              <div>
+                <div className="flex items-center justify-between mb-1">
+                  <label className="block text-[10px] font-bold text-slate-400 uppercase font-mono font-bold">2. Broker & Owner / Ortak E-Postaları (Madde 2)</label>
+                  <span className="text-[9px] bg-blue-50 text-blue-600 px-1.5 py-0.2 rounded font-mono font-semibold">Madde 2</span>
+                </div>
+                <textarea
+                  value={editForm.brokerEmails}
+                  onChange={(e) => setEditForm({ ...editForm, brokerEmails: e.target.value })}
+                  className="w-full text-xs border border-slate-300 rounded px-2.5 py-1.5 bg-white text-slate-800 font-medium outline-none focus:ring-1 focus:ring-blue-500 font-mono h-16 resize-none"
+                  placeholder="örn: kaan@gala.com, nilufer@gala.com"
+                />
+                <p className="text-[10px] text-slate-400 mt-1 font-sans">Excel kullanıcısı yüklendiğinde otomatik doldurulur. Virgül, noktalı virgül veya boşluk ile ayırarak yeni e-postalar ekleyebilirsiniz.</p>
+              </div>
+
+              {/* Madde 3: Saha Çalışanı */}
+              <div>
+                <div className="flex items-center justify-between mb-1">
+                  <label className="block text-[10px] font-bold text-slate-400 uppercase font-mono font-bold">3. Sorumlu Saha Çalışanı (Sorumlu Sistem Kullanıcısı - Madde 3)</label>
+                  <span className="text-[9px] bg-slate-100 text-slate-500 px-1.5 py-0.2 rounded font-mono font-bold">Madde 3</span>
+                </div>
+                <div className="grid grid-cols-3 gap-2">
+                  <select
+                    value={isCustomStaff ? "CUSTOM" : editForm.responsibleUser}
+                    onChange={(e) => {
+                      const val = e.target.value;
+                      if (val === "CUSTOM") {
+                        setIsCustomStaff(true);
+                        setEditForm({ ...editForm, responsibleUser: "" });
+                      } else {
+                        setIsCustomStaff(false);
+                        setEditForm({ ...editForm, responsibleUser: val });
+                      }
+                    }}
+                    className="col-span-1 text-xs border border-slate-300 rounded px-2.5 py-1.5 bg-white text-slate-800 font-medium cursor-pointer outline-none focus:ring-1 focus:ring-blue-500"
+                  >
+                    <option value="">Seçiniz...</option>
+                    {staffNames.map(name => (
+                      <option key={name} value={name}>{name}</option>
+                    ))}
+                    <option value="CUSTOM font-semibold text-blue-600">Diğer (Manuel)...</option>
+                  </select>
+                  
+                  <div className="col-span-2">
+                    <input
+                      type="text"
+                      value={editForm.responsibleUser}
+                      onChange={(e) => setEditForm({ ...editForm, responsibleUser: e.target.value })}
+                      disabled={!isCustomStaff && staffNames.includes(editForm.responsibleUser)}
+                      className="w-full text-xs border border-slate-300 rounded px-2.5 py-1.5 bg-white text-slate-800 font-medium outline-none focus:ring-1 focus:ring-blue-500 disabled:bg-slate-50 disabled:text-slate-500"
+                      placeholder="Sorumlu saha çalışanı adı"
+                    />
+                  </div>
+                </div>
+                <p className="text-[10px] text-slate-400 mt-1">Sorumlu saha çalışanının e-posta adresi (örn. {config?.fieldStaffEmails?.[editForm.responsibleUser] || "sistem tanımı"}) otomatik olarak alıcı listesine eklenir.</p>
+              </div>
+
+              <div className="pt-3 border-t border-slate-150 flex items-center justify-end gap-2 bg-slate-50 -mx-5 -mb-5 px-5 py-3">
+                <button
+                  type="button"
+                  onClick={() => setEditingOffice(null)}
+                  className="px-3 py-1.5 border border-slate-300 hover:bg-slate-150 text-xs font-semibold rounded text-slate-700 cursor-pointer transition"
+                  disabled={loading}
+                >
+                  Vazgeç
+                </button>
+                <button
+                  type="submit"
+                  className="px-4 py-1.5 bg-blue-600 hover:bg-blue-700 text-white text-xs font-semibold rounded cursor-pointer transition flex items-center gap-1.5"
+                  disabled={loading}
+                >
+                  {loading && <RefreshCw className="w-3.5 h-3.5 animate-spin" />}
+                  Değişiklikleri Kaydet
+                </button>
+              </div>
+            </form>
+          </div>
+        </div>
+      )}
     </div>
   );
 }

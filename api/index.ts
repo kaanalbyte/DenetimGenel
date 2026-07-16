@@ -50,6 +50,7 @@ interface Office {
   status?: string; // Durum
   responsibleUser?: string; // Sorumlu Sistem Kullanıcısı
   brand?: string; // Marka
+  brokerEmails?: string; // Broker & Owner/Ortak E-Postaları
 }
 
 interface Group {
@@ -1125,6 +1126,55 @@ function mergeByOfisKullanicilari(existing: any[], incoming: any[]) {
   return Array.from(existingMap.values());
 }
 
+// Helper to extract active broker/owner emails from Excel and set them on the master offices list
+function populateOfficeBrokerEmails(db: any, rawUsers: any[]) {
+  if (!Array.isArray(rawUsers) || rawUsers.length === 0) return;
+  if (!Array.isArray(db.offices)) db.offices = [];
+
+  const officeBrokerMap = new Map<string, Set<string>>();
+
+  rawUsers.forEach(row => {
+    const officeId = getNormalizedValue(row, ["ofiskodu", "ofis kodu", "id", "kod"]).toUpperCase().trim();
+    if (!officeId) return;
+
+    const brand = getBrandFromRowBackend(row);
+    const rowStatus = getNormalizedValue(row, ["durum", "status", "ofisdurumu", "kullanicidurumu", "kullanicidurum"]).toUpperCase().trim();
+    const isAktif = rowStatus === "AKTIF" || rowStatus.includes("AKTIF") || rowStatus === "ACTIVE" || rowStatus.includes("ACTIVE");
+
+    if (isAktif) {
+      const rowUnvan = getNormalizedValue(row, ["unvan", "rol", "görev", "title", "role"]).toUpperCase().trim();
+      const isBrokerOrOwner = rowUnvan.includes("BROKER") || rowUnvan.includes("OWNER") || rowUnvan.includes("ORTAK");
+
+      if (isBrokerOrOwner) {
+        const rowEmail = getNormalizedValue(row, ["e-posta", "eposta", "email", "mail", "kullanicieposta", "kullanicimail"]).trim().toLowerCase();
+        if (rowEmail && rowEmail.includes("@")) {
+          const key = `${officeId}:::${brand.toUpperCase().trim()}`;
+          if (!officeBrokerMap.has(key)) {
+            officeBrokerMap.set(key, new Set<string>());
+          }
+          officeBrokerMap.get(key)!.add(rowEmail);
+        }
+      }
+    }
+  });
+
+  db.offices = db.offices.map((office: any) => {
+    const brandKey = String(office.brand || "").toUpperCase().trim();
+    const key = `${String(office.id).toUpperCase().trim()}:::${brandKey}`;
+    const keyWithOnlyId = `${String(office.id).toUpperCase().trim()}:::`;
+
+    const emailsSet = officeBrokerMap.get(key) || officeBrokerMap.get(keyWithOnlyId);
+    if (emailsSet && emailsSet.size > 0) {
+      const emailsList = Array.from(emailsSet).join(", ");
+      return {
+        ...office,
+        brokerEmails: emailsList
+      };
+    }
+    return office;
+  });
+}
+
 // Upload CSV/Excel data for the active phase
 app.post("/api/audits/active/upload", async (req, res) => {
   const db = readDB();
@@ -1170,6 +1220,7 @@ app.post("/api/audits/active/upload", async (req, res) => {
     }
     if (type === "ofis_kullanicilari") {
       active.phase1KullaniciRaw = mergeByOfisKullanicilari(active.phase1KullaniciRaw || [], processedData);
+      populateOfficeBrokerEmails(db, active.phase1KullaniciRaw);
     }
     
     active.phase1Uploaded = true;
@@ -1188,6 +1239,7 @@ app.post("/api/audits/active/upload", async (req, res) => {
     }
     if (type === "ofis_kullanicilari") {
       active.phase2KullaniciRaw = mergeByOfisKullanicilari(active.phase2KullaniciRaw || [], processedData);
+      populateOfficeBrokerEmails(db, active.phase2KullaniciRaw);
     }
     
     active.phase2Uploaded = true;
@@ -1418,35 +1470,46 @@ function resolveOfficeRecipients(
     }
   }
 
-  // 2. Broker and Owner e-mails from raw Excel ofis_kullanicilari
-  const kullaniciRaw = (active && (active.currentPhase === "Tespit" ? active.phase1KullaniciRaw : active.phase2KullaniciRaw)) || (active && active.phase1KullaniciRaw) || (active && active.phase2KullaniciRaw) || [];
+  // 2. Broker and Owner e-mails from custom field or raw Excel ofis_kullanicilari
   let foundFromExcel = false;
 
-  if (Array.isArray(kullaniciRaw) && kullaniciRaw.length > 0) {
-    kullaniciRaw.forEach(row => {
-      const rowOfficeId = getNormalizedValue(row, ["ofiskodu", "ofis kodu", "id", "kod"]).toUpperCase().trim();
-      if (rowOfficeId === cleanOfficeId) {
-        const rowBrand = getBrandFromRowBackend(row);
-        // Brand is matched or fallback to matching office code directly
-        if (!rowBrand || rowBrand.toLowerCase() === brand.toLowerCase() || brand === "") {
-          const rowStatus = getNormalizedValue(row, ["durum", "status", "ofisdurumu", "kullanicidurumu", "kullanicidurum"]).toUpperCase().trim();
-          const isAktif = rowStatus === "AKTIF" || rowStatus.includes("AKTIF") || rowStatus === "ACTIVE" || rowStatus.includes("ACTIVE");
-          
-          if (isAktif) {
-            const rowUnvan = getNormalizedValue(row, ["unvan", "rol", "görev", "title", "role"]).toUpperCase().trim();
-            const isBrokerOrOwner = rowUnvan.includes("BROKER") || rowUnvan.includes("OWNER") || rowUnvan.includes("ORTAK");
+  if (officeInfo?.brokerEmails) {
+    const customEmails = officeInfo.brokerEmails.split(/[\s,;]+/).map(e => e.trim().toLowerCase()).filter(e => e && e.includes("@"));
+    customEmails.forEach(email => {
+      recipients.add(email);
+      foundFromExcel = true;
+    });
+  }
+
+  // Fallback to raw Excel users if brokerEmails is not set
+  if (!foundFromExcel) {
+    const kullaniciRaw = (active && (active.currentPhase === "Tespit" ? active.phase1KullaniciRaw : active.phase2KullaniciRaw)) || (active && active.phase1KullaniciRaw) || (active && active.phase2KullaniciRaw) || [];
+    if (Array.isArray(kullaniciRaw) && kullaniciRaw.length > 0) {
+      kullaniciRaw.forEach(row => {
+        const rowOfficeId = getNormalizedValue(row, ["ofiskodu", "ofis kodu", "id", "kod"]).toUpperCase().trim();
+        if (rowOfficeId === cleanOfficeId) {
+          const rowBrand = getBrandFromRowBackend(row);
+          // Brand is matched or fallback to matching office code directly
+          if (!rowBrand || rowBrand.toLowerCase() === brand.toLowerCase() || brand === "") {
+            const rowStatus = getNormalizedValue(row, ["durum", "status", "ofisdurumu", "kullanicidurumu", "kullanicidurum"]).toUpperCase().trim();
+            const isAktif = rowStatus === "AKTIF" || rowStatus.includes("AKTIF") || rowStatus === "ACTIVE" || rowStatus.includes("ACTIVE");
             
-            if (isBrokerOrOwner) {
-              const rowEmail = getNormalizedValue(row, ["e-posta", "eposta", "email", "mail", "kullanicieposta", "kullanicimail"]).trim();
-              if (rowEmail && rowEmail.includes("@")) {
-                recipients.add(rowEmail.toLowerCase());
-                foundFromExcel = true;
+            if (isAktif) {
+              const rowUnvan = getNormalizedValue(row, ["unvan", "rol", "görev", "title", "role"]).toUpperCase().trim();
+              const isBrokerOrOwner = rowUnvan.includes("BROKER") || rowUnvan.includes("OWNER") || rowUnvan.includes("ORTAK");
+              
+              if (isBrokerOrOwner) {
+                const rowEmail = getNormalizedValue(row, ["e-posta", "eposta", "email", "mail", "kullanicieposta", "kullanicimail"]).trim();
+                if (rowEmail && rowEmail.includes("@")) {
+                  recipients.add(rowEmail.toLowerCase());
+                  foundFromExcel = true;
+                }
               }
             }
           }
         }
-      }
-    });
+      });
+    }
   }
 
   // Fallback to default ownerEmail if no excel users found and not already added

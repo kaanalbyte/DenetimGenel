@@ -7,6 +7,7 @@ export interface Office {
   status?: string; // Durum
   responsibleUser?: string; // Sorumlu Sistem Kullanıcısı
   brand?: string; // Marka
+  brokerEmails?: string; // Broker & Owner/Ortak E-Postaları (virgülle ayrılmış, düzenlenebilir)
 }
 
 export interface Group {

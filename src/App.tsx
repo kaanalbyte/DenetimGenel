@@ -614,6 +614,7 @@ export default function App() {
                   offices={offices}
                   groups={groups}
                   onRefresh={refreshData}
+                  config={config}
                 />
               </div>
             )}
