@@ -510,17 +510,59 @@ async function dispatchEmail(
 
     const senderEmail = "denetim@masterturk.com.tr";
 
-    console.log(`Attempting pooled SMTP delivery to: ${to} via Port 587 (STARTTLS)...`);
+    // --- CRITICAL EMAIL SAFETY FILTER (TEST / SANDBOX MODE) ---
+    // Prevent real offices from receiving any test emails.
+    // Safe recipient domain: masterturk.com.tr
+    const allRecipients = to.split(/[\s,;]+/).map(e => e.trim().toLowerCase()).filter(e => e && e.includes("@"));
+    
+    const safeRecipients = allRecipients.filter(email => email.endsWith("@masterturk.com.tr"));
+    const blockedRecipients = allRecipients.filter(email => !email.endsWith("@masterturk.com.tr"));
+
+    let finalTo = safeRecipients.join(", ");
+    let finalBodyHtml = bodyHtml;
+    let finalSubject = subject;
+
+    if (blockedRecipients.length > 0) {
+      console.log(`[SAFETY SHIELD] Blocked sending to external office email(s): ${blockedRecipients.join(", ")}`);
+      
+      // If there are no safe masterturk emails in the list, redirect to Kaan Albayrak so he can safely test
+      if (safeRecipients.length === 0) {
+        finalTo = "kaan.albayrak@masterturk.com.tr";
+      }
+
+      // Inject a professional HTML alert box at the top of the email body to show original recipients
+      const alertBoxHtml = `
+        <div style="background-color: #fffbeb; border: 2px dashed #d97706; padding: 15px; margin: 15px; border-radius: 6px; font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Helvetica, Arial, sans-serif; color: #b45309; font-size: 13px; line-height: 1.5; text-align: left;">
+          <div style="font-weight: bold; font-size: 14px; margin-bottom: 5px;">
+            ⚠️ TEST / GÜVENLİK SİMÜLASYONU AKTİF
+          </div>
+          Bu e-posta normalde şu ofis adres(ler)ine gidecekti: <strong style="color: #be123c; font-family: monospace;">${blockedRecipients.join(", ")}</strong>.<br/>
+          <strong>Gerçek ofislerin mail alıp rahatsız olmaması için</strong> sistem tarafından dış gönderim engellenmiş ve sadece şirket içi test adreslerine yönlendirilmiştir.
+        </div>
+      `;
+
+      // Prepend to email content inside <body> if present, or just at the beginning
+      if (finalBodyHtml.includes("<body>")) {
+        finalBodyHtml = finalBodyHtml.replace("<body>", `<body>${alertBoxHtml}`);
+      } else {
+        finalBodyHtml = alertBoxHtml + finalBodyHtml;
+      }
+
+      // Modify subject to clearly show it's a simulation
+      finalSubject = `[TEST SİMÜLASYONU] ${subject}`;
+    }
+
+    console.log(`Attempting pooled SMTP delivery to: ${finalTo} (Original: ${to}) via Port 587 (STARTTLS)...`);
     try {
       const transporter = getSMTPTransporter(587);
       const info = await transporter.sendMail({
         from: `MasterTurk Franchise Denetimi <${senderEmail}>`,
-        to: to,
-        subject: subject,
-        html: bodyHtml,
+        to: finalTo,
+        subject: finalSubject,
+        html: finalBodyHtml,
       });
 
-      console.log("Email successfully sent via SMTP Port 587 to: %s, Message ID: %s", to, info.messageId);
+      console.log("Email successfully sent via SMTP Port 587 to: %s, Message ID: %s", finalTo, info.messageId);
       return { status: "Gönderildi" };
     } catch (err: any) {
       console.warn("SMTP Port 587 failed, retrying via Port 465 (SSL/TLS)... Error was:", err.message);
@@ -529,12 +571,12 @@ async function dispatchEmail(
         const transporter465 = getSMTPTransporter(465);
         const info465 = await transporter465.sendMail({
           from: `MasterTurk Franchise Denetimi <${senderEmail}>`,
-          to: to,
-          subject: subject,
-          html: bodyHtml,
+          to: finalTo,
+          subject: finalSubject,
+          html: finalBodyHtml,
         });
 
-        console.log("Email successfully sent via fallback SMTP Port 465 to: %s, Message ID: %s", to, info465.messageId);
+        console.log("Email successfully sent via fallback SMTP Port 465 to: %s, Message ID: %s", finalTo, info465.messageId);
         return { status: "Gönderildi" };
       } catch (err465: any) {
         console.error("All SMTP attempts (Port 587 and 465) failed:", err465);
