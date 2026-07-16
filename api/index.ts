@@ -1593,9 +1593,11 @@ app.post("/api/audits/active/advance", async (req, res) => {
     const allApprovedIds = Array.from(new Set([...approvedDanismanIds, ...approvedIlanIds])) as string[];
 
     const dispatchPromises: Promise<EmailLog>[] = [];
+    const skipEmails = !!req.body.skipEmails;
 
-    // Send e-mails for Danışman
-    for (const entityId of approvedDanismanIds) {
+    if (!skipEmails) {
+      // Send e-mails for Danışman
+      for (const entityId of approvedDanismanIds) {
       if (!entityId) continue;
       const info = getEntityInfo(entityId, offices, groups);
 
@@ -1695,6 +1697,7 @@ app.post("/api/audits/active/advance", async (req, res) => {
         };
       })());
     }
+    } // End of !skipEmails check
 
     // Resolve all dispatch tasks in parallel (non-blocking)
     const newEmails = await Promise.all(dispatchPromises);
@@ -1725,6 +1728,71 @@ app.post("/api/audits/active/advance", async (req, res) => {
   } catch (err: any) {
     console.error("Error in audits/active/advance handler:", err);
     res.status(500).json({ error: "Faz ilerletilirken sunucu hatası oluştu: " + err.message });
+  }
+});
+
+// --- NEW API FOR VERCEL TIMEOUT FIX ---
+app.post("/api/audits/active/dispatch-single", async (req, res) => {
+  try {
+    const db = readDB();
+    const { entityId, type, detailText, activeAudit } = req.body;
+    
+    if (!entityId || !type || !activeAudit) {
+      return res.status(400).json({ error: "Eksik parametre." });
+    }
+
+    const offices = db.offices || [];
+    const groups = db.groups || [];
+    const config = (db.config || {}) as any;
+    
+    const info = getEntityInfo(entityId, offices, groups);
+    
+    let cleanOfficeId = String(entityId);
+    if (cleanOfficeId.includes(":::")) {
+      cleanOfficeId = cleanOfficeId.split(":::")[0];
+    }
+    cleanOfficeId = cleanOfficeId.toUpperCase().trim();
+
+    const mailTemplate = generateHTMLTemplate(
+      activeAudit.currentPhase as any,
+      type as any,
+      info.name,
+      info.ownerName,
+      detailText
+    );
+
+    const recipientsList = resolveAllRecipients(entityId, activeAudit, offices, groups, config, {});
+    const recipientString = recipientsList.length > 0 ? recipientsList.join(", ") : (info.ownerEmail || "destek@masterturk.com");
+
+    const dispatchResult = await dispatchEmail(
+      config,
+      recipientString,
+      mailTemplate.subject,
+      mailTemplate.html
+    );
+
+    const newEmail = {
+      id: "EML_" + Math.random().toString(36).substr(2, 9),
+      timestamp: new Date().toISOString(),
+      auditName: activeAudit.name,
+      stage: activeAudit.currentPhase as any,
+      type,
+      officeId: entityId,
+      officeName: info.name,
+      recipient: recipientString,
+      subject: mailTemplate.subject,
+      bodyHtml: mailTemplate.html,
+      status: dispatchResult.status,
+      errorDetails: dispatchResult.errorDetails
+    };
+
+    db.emails.push(newEmail);
+    await writeDB(db);
+
+    res.json(newEmail);
+  } catch (err: any) {
+    console.error("dispatch-single error:", err);
+    res.status(500).json({ error: err.message });
   }
 });
 

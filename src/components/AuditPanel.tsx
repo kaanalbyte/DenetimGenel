@@ -805,19 +805,54 @@ export default function AuditPanel({ offices, groups, activeAudit, onRefresh, on
     });
 
     try {
+      let emailCount = 0;
+      
+      // Dispatch emails sequentially to avoid serverless timeout (Vercel maxDuration limit)
+      for (const id of selectedDanismanIds) {
+        showMsg("success", `Danışman uyarı maili gönderiliyor: ${id}...`);
+        await fetch("/api/audits/active/dispatch-single", {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({
+            entityId: id,
+            type: "Danışman",
+            detailText: detailsMap[id + "_danisman"],
+            activeAudit
+          })
+        });
+        emailCount++;
+      }
+
+      for (const id of selectedIlanIds) {
+        showMsg("success", `İlan uyarı maili gönderiliyor: ${id}...`);
+        await fetch("/api/audits/active/dispatch-single", {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({
+            entityId: id,
+            type: "İlan",
+            detailText: detailsMap[id + "_ilan"],
+            activeAudit
+          })
+        });
+        emailCount++;
+      }
+
+      showMsg("success", `Mailler tamamlandı, faz ilerletiliyor...`);
+
+      // Finally advance the phase without sending emails again
       const res = await fetch("/api/audits/active/advance", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({
           approvedDanismanIds: selectedDanismanIds,
           approvedIlanIds: selectedIlanIds,
+          skipEmails: true,
           detailsMap
         })
       });
 
       if (res.ok) {
-        const data = await res.json();
-        const emailCount = data.sentEmails ? data.sentEmails.length : 0;
         showMsg("success", `${emailCount} Adet E-Posta Gönderildi/Simüle Edildi. Aşama İlerletildi.`);
         onRefresh();
       } else {
