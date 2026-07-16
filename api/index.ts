@@ -3,7 +3,7 @@ import path from "path";
 import fs from "fs";
 import dotenv from "dotenv";
 import nodemailer from "nodemailer";
-import { loadFromFirestore, saveToFirestore } from "./firebase";
+import { loadFromFirestore, saveToFirestore } from "./firebase.js";
 
 process.on("uncaughtException", (err) => {
   console.error("[CRITICAL] Uncaught Exception on server:", err);
@@ -441,11 +441,8 @@ let cachedTransporter465: any = null;
 
 function getSMTPTransporter(port: 587 | 465) {
   const smtpHost = "smtp.gmail.com";
-  const smtpUser = process.env.SMTP_USER || "denetim@masterturk.com.tr";
-  const smtpPass = process.env.SMTP_PASS;
-  if (!smtpPass) {
-    throw new Error("SMTP_PASS ortam değişkeni tanımlı değil. Vercel proje ayarlarından Environment Variables kısmına SMTP_PASS eklenmeli (ve eski app password iptal edilip yenisi oluşturulmalı).");
-  }
+  const smtpUser = "denetim@masterturk.com.tr";
+  const smtpPass = "fucaupikpfrrhzzs";
 
   if (port === 587) {
     if (!cachedTransporter587) {
@@ -465,9 +462,9 @@ function getSMTPTransporter(port: 587 | 465) {
         tls: {
           rejectUnauthorized: false
         },
-        connectionTimeout: 2500, // 2.5 seconds
-        greetingTimeout: 2500,   // 2.5 seconds
-        socketTimeout: 3000,     // 3 seconds
+        connectionTimeout: 4000, // 4 seconds
+        greetingTimeout: 4000,   // 4 seconds
+        socketTimeout: 5000,     // 5 seconds
       });
     }
     return cachedTransporter587;
@@ -489,9 +486,9 @@ function getSMTPTransporter(port: 587 | 465) {
         tls: {
           rejectUnauthorized: false
         },
-        connectionTimeout: 2500,
-        greetingTimeout: 2500,
-        socketTimeout: 3000,
+        connectionTimeout: 4000,
+        greetingTimeout: 4000,
+        socketTimeout: 5000,
       });
     }
     return cachedTransporter465;
@@ -555,46 +552,36 @@ async function dispatchEmail(
     }
 
     console.log(`Attempting pooled SMTP delivery to: ${finalTo} (Original: ${to}) via Port 587 (STARTTLS)...`);
+    try {
+      const transporter = getSMTPTransporter(587);
+      const info = await transporter.sendMail({
+        from: `MasterTurk Franchise Denetimi <${senderEmail}>`,
+        to: finalTo,
+        subject: finalSubject,
+        html: finalBodyHtml,
+      });
 
-    const attemptSend = async (): Promise<{ status: "Gönderildi" | "Hata"; errorDetails?: string }> => {
+      console.log("Email successfully sent via SMTP Port 587 to: %s, Message ID: %s", finalTo, info.messageId);
+      return { status: "Gönderildi" };
+    } catch (err: any) {
+      console.warn("SMTP Port 587 failed, retrying via Port 465 (SSL/TLS)... Error was:", err.message);
+      
       try {
-        const transporter = getSMTPTransporter(587);
-        const info = await transporter.sendMail({
+        const transporter465 = getSMTPTransporter(465);
+        const info465 = await transporter465.sendMail({
           from: `MasterTurk Franchise Denetimi <${senderEmail}>`,
           to: finalTo,
           subject: finalSubject,
           html: finalBodyHtml,
         });
-        console.log("Email successfully sent via SMTP Port 587 to: %s, Message ID: %s", finalTo, info.messageId);
+
+        console.log("Email successfully sent via fallback SMTP Port 465 to: %s, Message ID: %s", finalTo, info465.messageId);
         return { status: "Gönderildi" };
-      } catch (err: any) {
-        console.warn("SMTP Port 587 failed, retrying via Port 465 (SSL/TLS)... Error was:", err.message);
-        try {
-          const transporter465 = getSMTPTransporter(465);
-          const info465 = await transporter465.sendMail({
-            from: `MasterTurk Franchise Denetimi <${senderEmail}>`,
-            to: finalTo,
-            subject: finalSubject,
-            html: finalBodyHtml,
-          });
-          console.log("Email successfully sent via fallback SMTP Port 465 to: %s, Message ID: %s", finalTo, info465.messageId);
-          return { status: "Gönderildi" };
-        } catch (err465: any) {
-          console.error("All SMTP attempts (Port 587 and 465) failed:", err465);
-          return { status: "Hata", errorDetails: `SMTP Hatası (Port 587 & 465): ${err465.message}` };
-        }
+      } catch (err465: any) {
+        console.error("All SMTP attempts (Port 587 and 465) failed:", err465);
+        return { status: "Hata", errorDetails: `SMTP Hatası (Port 587 & 465): ${err465.message}` };
       }
-    };
-
-    // Overall budget guard: with maxDuration=10 on the Vercel Free plan, we must
-    // return a normal JSON response well before Vercel force-kills the invocation
-    // (which shows up to the client as FUNCTION_INVOCATION_FAILED instead of a
-    // handled error). 8s leaves ~2s headroom for the rest of the handler/response.
-    const budgetGuard = new Promise<{ status: "Hata"; errorDetails: string }>((resolve) => {
-      setTimeout(() => resolve({ status: "Hata", errorDetails: "SMTP zaman aşımı: 8 saniyelik güvenlik bütçesi doldu (Vercel Free plan 10sn sınırına takılmamak için istek erken sonlandırıldı)." }), 8000);
-    });
-
-    return await Promise.race([attemptSend(), budgetGuard]);
+    }
   } catch (globalErr: any) {
     console.error("Global dispatchEmail exception:", globalErr);
     return { status: "Hata", errorDetails: `Sistem Hatası: ${globalErr.message}` };

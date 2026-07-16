@@ -780,38 +780,9 @@ export default function AuditPanel({ offices, groups, activeAudit, onRefresh, on
     }
   };
 
-  // Sends a single dispatch-single request, retrying once on failure/network error.
-  // Returns whether the email was actually accepted by the backend (checks res.ok
-  // AND the returned status field, since the endpoint can return 200 with status:"Hata").
-  const sendSingleMailWithRetry = async (payload: any): Promise<{ ok: boolean; error?: string }> => {
-    for (let attempt = 1; attempt <= 2; attempt++) {
-      try {
-        const res = await fetch("/api/audits/active/dispatch-single", {
-          method: "POST",
-          headers: { "Content-Type": "application/json" },
-          body: JSON.stringify(payload)
-        });
-        if (!res.ok) {
-          const text = await res.text().catch(() => "");
-          if (attempt === 2) return { ok: false, error: text || `HTTP ${res.status}` };
-          continue; // retry once
-        }
-        const data = await res.json().catch(() => null);
-        if (data?.status === "Hata") {
-          if (attempt === 2) return { ok: false, error: data.errorDetails || "Bilinmeyen SMTP hatası" };
-          continue; // retry once
-        }
-        return { ok: true };
-      } catch (err: any) {
-        if (attempt === 2) return { ok: false, error: err?.message || "Ağ hatası" };
-      }
-    }
-    return { ok: false, error: "Bilinmeyen hata" };
-  };
-
   // Advance Phase / Send Mail API call
   const handleAdvancePhase = async () => {
-    if (!activeAudit || loading) return;
+    if (!activeAudit) return;
     setLoading(true);
 
     // Build detailsMap for emails
@@ -833,48 +804,43 @@ export default function AuditPanel({ offices, groups, activeAudit, onRefresh, on
       }
     });
 
-    const totalCount = selectedDanismanIds.length + selectedIlanIds.length;
-    let doneCount = 0;
-    let successCount = 0;
-    const failures: string[] = [];
-
     try {
-      // Dispatch emails sequentially — each request is its own serverless
-      // invocation, so this avoids the single-function Vercel timeout no matter
-      // how many offices are selected.
+      let emailCount = 0;
+      
+      // Dispatch emails sequentially to avoid serverless timeout (Vercel maxDuration limit)
       for (const id of selectedDanismanIds) {
-        doneCount++;
-        showMsg("success", `(${doneCount}/${totalCount}) Danışman uyarı maili gönderiliyor: ${id}...`);
-        const result = await sendSingleMailWithRetry({
-          entityId: id,
-          type: "Danışman",
-          detailText: detailsMap[id + "_danisman"],
-          activeAudit
+        showMsg("success", `Danışman uyarı maili gönderiliyor: ${id}...`);
+        await fetch("/api/audits/active/dispatch-single", {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({
+            entityId: id,
+            type: "Danışman",
+            detailText: detailsMap[id + "_danisman"],
+            activeAudit
+          })
         });
-        if (result.ok) successCount++;
-        else failures.push(`${id} (Danışman): ${result.error}`);
+        emailCount++;
       }
 
       for (const id of selectedIlanIds) {
-        doneCount++;
-        showMsg("success", `(${doneCount}/${totalCount}) İlan uyarı maili gönderiliyor: ${id}...`);
-        const result = await sendSingleMailWithRetry({
-          entityId: id,
-          type: "İlan",
-          detailText: detailsMap[id + "_ilan"],
-          activeAudit
+        showMsg("success", `İlan uyarı maili gönderiliyor: ${id}...`);
+        await fetch("/api/audits/active/dispatch-single", {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({
+            entityId: id,
+            type: "İlan",
+            detailText: detailsMap[id + "_ilan"],
+            activeAudit
+          })
         });
-        if (result.ok) successCount++;
-        else failures.push(`${id} (İlan): ${result.error}`);
+        emailCount++;
       }
 
-      showMsg("success", `Mailler tamamlandı (${successCount}/${totalCount} başarılı), faz ilerletiliyor...`);
+      showMsg("success", `Mailler tamamlandı, faz ilerletiliyor...`);
 
-      // Finally advance the phase without sending emails again — this always
-      // happens, even if some individual emails failed, so the audit workflow
-      // doesn't get stuck. Failed recipients are reported to the user below;
-      // consider adding a "resend to failed" action using the same
-      // dispatch-single endpoint if you want a manual retry path later.
+      // Finally advance the phase without sending emails again
       const res = await fetch("/api/audits/active/advance", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
@@ -887,11 +853,7 @@ export default function AuditPanel({ offices, groups, activeAudit, onRefresh, on
       });
 
       if (res.ok) {
-        if (failures.length === 0) {
-          showMsg("success", `${successCount} Adet E-Posta Gönderildi. Aşama İlerletildi.`);
-        } else {
-          showMsg("error", `${successCount}/${totalCount} mail gönderildi. Başarısız olanlar: ${failures.join("; ")}`);
-        }
+        showMsg("success", `${emailCount} Adet E-Posta Gönderildi/Simüle Edildi. Aşama İlerletildi.`);
         onRefresh();
       } else {
         const text = await res.text().catch(() => "");
@@ -1839,11 +1801,10 @@ export default function AuditPanel({ offices, groups, activeAudit, onRefresh, on
                     </div>
                     <button
                       onClick={handleAdvancePhase}
-                      disabled={loading}
-                      className="px-3.5 py-2 bg-blue-600 text-white hover:bg-blue-700 disabled:opacity-50 disabled:cursor-not-allowed rounded text-xs font-bold transition flex items-center gap-1.5 shrink-0 self-start sm:self-auto cursor-pointer"
+                      className="px-3.5 py-2 bg-blue-600 text-white hover:bg-blue-700 rounded text-xs font-bold transition flex items-center gap-1.5 shrink-0 self-start sm:self-auto cursor-pointer"
                     >
                       <Mail className="w-3.5 h-3.5 text-white" />
-                      {loading ? "Gönderiliyor..." : "Seçilenlere Mailleri Gönder & Fazı İlerlet"}
+                      Seçilenlere Mailleri Gönder & Fazı İlerlet
                       <ChevronRight className="w-3.5 h-3.5" />
                     </button>
                   </div>
