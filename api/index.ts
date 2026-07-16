@@ -374,7 +374,7 @@ function readDB(): Database {
       fs.writeFileSync(DB_PATH, JSON.stringify(DEFAULT_DB, null, 2), "utf8");
       cachedDB = DEFAULT_DB;
       // Trigger upload of default db to Firestore
-      saveToFirestore(DEFAULT_DB);
+      saveToFirestore(DEFAULT_DB).catch(e => console.error("Firebase init bg error:", e));
       return DEFAULT_DB;
     }
 
@@ -413,20 +413,19 @@ function readDB(): Database {
   }
 }
 
-function writeDB(data: Database) {
+async function writeDB(data: Database) {
   try {
     // Save to memory cache immediately
     cachedDB = data;
     // Write to local fallback file synchronously
     fs.writeFileSync(DB_PATH, JSON.stringify(data, null, 2), "utf8");
     // Write to Cloud Firestore asynchronously in the background
-    saveToFirestore(data).then((success) => {
-      if (success) {
-        console.log("[Firebase] Arka plan Firestore kaydı başarılı.");
-      } else {
-        console.warn("[Firebase] Arka plan Firestore kaydı başarısız oldu, yerel dosya güncel.");
-      }
-    });
+    const success = await saveToFirestore(data);
+    if (success) {
+      console.log("[Firebase] Arka plan Firestore kaydı başarılı.");
+    } else {
+      console.warn("[Firebase] Arka plan Firestore kaydı başarısız oldu, yerel dosya güncel.");
+    }
   } catch (err) {
     console.error("Error writing database:", err);
   }
@@ -592,12 +591,12 @@ async function dispatchEmail(
 // --- API ENDPOINTS ---
 
 // 1. Office Management API
-app.get("/api/offices", (req, res) => {
+app.get("/api/offices", async (req, res) => {
   const db = readDB();
   res.json(db.offices);
 });
 
-app.post("/api/offices", (req, res) => {
+app.post("/api/offices", async (req, res) => {
   const db = readDB();
   const office: Office = req.body;
   if (!office.id || !office.name) {
@@ -623,7 +622,7 @@ app.post("/api/offices", (req, res) => {
   } else {
     db.offices.push(office);
   }
-  writeDB(db);
+  await writeDB(db);
   res.json(office);
 });
 
@@ -659,7 +658,7 @@ function getNormalizedValue(row: any, searchKeys: string[]): string {
   return "";
 }
 
-app.post("/api/offices/upload", (req, res) => {
+app.post("/api/offices/upload", async (req, res) => {
   const db = readDB();
   const { offices, defaultBrand } = req.body;
   
@@ -738,11 +737,11 @@ app.post("/api/offices/upload", (req, res) => {
     }
   }
 
-  writeDB(db);
+  await writeDB(db);
   res.json({ success: true, added, updated, addedList, updatedList });
 });
 
-app.delete("/api/offices/:id", (req, res) => {
+app.delete("/api/offices/:id", async (req, res) => {
   const db = readDB();
   const id = req.params.id;
   const brand = req.query.brand as string;
@@ -751,17 +750,17 @@ app.delete("/api/offices/:id", (req, res) => {
   } else {
     db.offices = db.offices.filter((o) => o.id !== id);
   }
-  writeDB(db);
+  await writeDB(db);
   res.json({ success: true });
 });
 
 // 2. Group Management API
-app.get("/api/groups", (req, res) => {
+app.get("/api/groups", async (req, res) => {
   const db = readDB();
   res.json(db.groups);
 });
 
-app.post("/api/groups", (req, res) => {
+app.post("/api/groups", async (req, res) => {
   const db = readDB();
   const { group, officeIds } = req.body; // { group: { id, name, ownerName, ownerEmail }, officeIds: string[] }
   
@@ -793,11 +792,11 @@ app.post("/api/groups", (req, res) => {
     return off;
   });
 
-  writeDB(db);
+  await writeDB(db);
   res.json({ group, officeIds });
 });
 
-app.delete("/api/groups/:id", (req, res) => {
+app.delete("/api/groups/:id", async (req, res) => {
   const db = readDB();
   const id = req.params.id;
   db.groups = db.groups.filter((g) => g.id !== id);
@@ -807,12 +806,12 @@ app.delete("/api/groups/:id", (req, res) => {
     }
     return off;
   });
-  writeDB(db);
+  await writeDB(db);
   res.json({ success: true });
 });
 
 // Sync from Client (for offline/Vercel localStorage mode syncing to Firebase Firestore)
-app.post("/api/db/sync-from-client", (req, res) => {
+app.post("/api/db/sync-from-client", async (req, res) => {
   try {
     const { offices, groups, audits, emails, config } = req.body;
     
@@ -834,7 +833,7 @@ app.post("/api/db/sync-from-client", (req, res) => {
       }
     };
 
-    writeDB(db);
+    await writeDB(db);
     res.json({ success: true, message: "Veriler bulut veritabanına başarıyla senkronize edildi." });
   } catch (err: any) {
     console.error("Failed to sync from client:", err);
@@ -843,7 +842,7 @@ app.post("/api/db/sync-from-client", (req, res) => {
 });
 
 // Reset Database API
-app.post("/api/db/reset", (req, res) => {
+app.post("/api/db/reset", async (req, res) => {
   const emptyDb: Database = {
     offices: [],
     groups: [],
@@ -861,20 +860,20 @@ app.post("/api/db/reset", (req, res) => {
       smtpPass: "fucaupikpfrrhzzs"
     }
   };
-  writeDB(emptyDb);
+  await writeDB(emptyDb);
   res.json({ success: true, message: "Tüm veritabanı başarıyla temizlendi." });
 });
 
 // 3. Configuration API
-app.get("/api/config", (req, res) => {
+app.get("/api/config", async (req, res) => {
   const db = readDB();
   res.json(db.config);
 });
 
-app.post("/api/config", (req, res) => {
+app.post("/api/config", async (req, res) => {
   const db = readDB();
   db.config = { ...db.config, ...req.body };
-  writeDB(db);
+  await writeDB(db);
   res.json(db.config);
 });
 
@@ -935,7 +934,7 @@ app.post("/api/config/test-email", async (req, res) => {
       // Only write to DB if we are using server state
       if (!clientConfig) {
         db.emails.unshift(newLog);
-        writeDB(db);
+        await writeDB(db);
       }
       res.json({ success: true, status: result.status, newLog });
     } else {
@@ -948,20 +947,20 @@ app.post("/api/config/test-email", async (req, res) => {
 });
 
 // 4. Audit Management API
-app.get("/api/audits", (req, res) => {
+app.get("/api/audits", async (req, res) => {
   const db = readDB();
   res.json(db.audits);
 });
 
 // Get currently active audit period
-app.get("/api/audits/active", (req, res) => {
+app.get("/api/audits/active", async (req, res) => {
   const db = readDB();
   const active = db.audits.find((a) => a && a.status === "Aktif");
   res.json(active || null);
 });
 
 // Create a new audit period
-app.post("/api/audits", (req, res) => {
+app.post("/api/audits", async (req, res) => {
   const db = readDB();
   const { name } = req.body;
   if (!name) {
@@ -1000,7 +999,7 @@ app.post("/api/audits", (req, res) => {
   };
 
   db.audits.push(newAudit);
-  writeDB(db);
+  await writeDB(db);
   res.json(newAudit);
 });
 
@@ -1127,7 +1126,7 @@ function mergeByOfisKullanicilari(existing: any[], incoming: any[]) {
 }
 
 // Upload CSV/Excel data for the active phase
-app.post("/api/audits/active/upload", (req, res) => {
+app.post("/api/audits/active/upload", async (req, res) => {
   const db = readDB();
   const activeIdx = db.audits.findIndex((a) => a.status === "Aktif");
   if (activeIdx === -1) {
@@ -1196,12 +1195,12 @@ app.post("/api/audits/active/upload", (req, res) => {
 
   active.updatedAt = new Date().toISOString();
   db.audits[activeIdx] = active;
-  writeDB(db);
+  await writeDB(db);
   res.json(active);
 });
 
 // Reset uploaded data for active audit period
-app.post("/api/audits/active/reset", (req, res) => {
+app.post("/api/audits/active/reset", async (req, res) => {
   const db = readDB();
   const activeIdx = db.audits.findIndex((a) => a.status === "Aktif");
   if (activeIdx === -1) {
@@ -1231,12 +1230,12 @@ app.post("/api/audits/active/reset", (req, res) => {
 
   active.updatedAt = new Date().toISOString();
   db.audits[activeIdx] = active;
-  writeDB(db);
+  await writeDB(db);
   res.json(active);
 });
 
 // Update problematic state of active audit phase without advancing
-app.post("/api/audits/active/problematic", (req, res) => {
+app.post("/api/audits/active/problematic", async (req, res) => {
   const db = readDB();
   const activeIdx = db.audits.findIndex((a) => a.status === "Aktif");
   if (activeIdx === -1) {
@@ -1259,7 +1258,7 @@ app.post("/api/audits/active/problematic", (req, res) => {
 
   active.updatedAt = new Date().toISOString();
   db.audits[activeIdx] = active;
-  writeDB(db);
+  await writeDB(db);
   res.json(active);
 });
 
@@ -1719,7 +1718,7 @@ app.post("/api/audits/active/advance", async (req, res) => {
     if (!isClientState && activeIdx !== -1) {
       db.emails = [...newEmails, ...(db.emails || [])];
       db.audits[activeIdx] = active;
-      writeDB(db);
+      await writeDB(db);
     }
 
     res.json({ active, sentEmails: newEmails });
@@ -1730,7 +1729,7 @@ app.post("/api/audits/active/advance", async (req, res) => {
 });
 
 // Close Active Audit Period
-app.post("/api/audits/active/close", (req, res) => {
+app.post("/api/audits/active/close", async (req, res) => {
   const db = readDB();
   const activeIdx = db.audits.findIndex((a) => a.status === "Aktif");
   if (activeIdx === -1) {
@@ -1743,12 +1742,12 @@ app.post("/api/audits/active/close", (req, res) => {
   active.updatedAt = new Date().toISOString();
 
   db.audits[activeIdx] = active;
-  writeDB(db);
+  await writeDB(db);
   res.json(active);
 });
 
 // 6. Sent Emails Log API
-app.get("/api/emails", (req, res) => {
+app.get("/api/emails", async (req, res) => {
   const db = readDB();
   res.json(db.emails);
 });

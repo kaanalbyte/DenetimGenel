@@ -1,382 +1,372 @@
 {
   "offices": [
     {
-      "name": "CB WIN",
-      "groupId": "G100",
-      "status": "Aktif",
-      "brand": "Coldwell Banker",
       "id": "OF10605",
       "ownerName": "Kaan Albayrak",
+      "name": "CB WIN",
+      "status": "Aktif",
+      "brand": "Coldwell Banker",
+      "groupId": "G100",
       "ownerEmail": "win@cb.com.tr",
       "responsibleUser": "Kaan Albayrak"
     },
     {
       "name": "CB ASİL",
-      "status": "Dondurulmuş",
-      "groupId": "G100",
-      "brand": "Coldwell Banker",
       "id": "OF10610",
       "ownerName": "Kaan Albayrak",
+      "status": "Dondurulmuş",
+      "brand": "Coldwell Banker",
       "responsibleUser": "Kaan Albayrak",
+      "groupId": "G100",
       "ownerEmail": "asil@cb.com.tr"
     },
     {
+      "name": "CB İLKE",
       "id": "OF10611",
+      "ownerName": "Kaan Albayrak",
+      "status": "Aktif",
+      "brand": "Coldwell Banker",
       "responsibleUser": "Kaan Albayrak",
       "ownerEmail": "ilke@cb.com.tr",
-      "ownerName": "Kaan Albayrak",
-      "name": "CB İLKE",
-      "brand": "Coldwell Banker",
-      "status": "Aktif",
       "groupId": null
     },
     {
-      "id": "OF10612",
-      "responsibleUser": "Kaan Albayrak",
+      "groupId": null,
       "ownerEmail": "boaz@cb.com.tr",
-      "ownerName": "Kaan Albayrak",
-      "name": "CB BOAZ",
-      "brand": "Coldwell Banker",
-      "groupId": null,
-      "status": "Aktif"
-    },
-    {
-      "status": "Aktif",
-      "groupId": null,
-      "brand": "Coldwell Banker",
-      "name": "CB MAJOR",
-      "ownerName": "Kaan Albayrak",
-      "ownerEmail": "major@cb.com.tr",
       "responsibleUser": "Kaan Albayrak",
-      "id": "OF10613"
+      "brand": "Coldwell Banker",
+      "status": "Aktif",
+      "ownerName": "Kaan Albayrak",
+      "id": "OF10612",
+      "name": "CB BOAZ"
     },
     {
-      "groupId": null,
+      "id": "OF10613",
+      "ownerName": "Kaan Albayrak",
+      "name": "CB MAJOR",
       "status": "Aktif",
       "brand": "Coldwell Banker",
+      "ownerEmail": "major@cb.com.tr",
+      "groupId": null,
+      "responsibleUser": "Kaan Albayrak"
+    },
+    {
+      "responsibleUser": "Kaan Albayrak",
+      "ownerEmail": "trend@cb.com.tr",
+      "groupId": null,
+      "brand": "Coldwell Banker",
+      "status": "Aktif",
       "name": "CB TREND",
       "ownerName": "Kaan Albayrak",
-      "ownerEmail": "trend@cb.com.tr",
-      "responsibleUser": "Kaan Albayrak",
       "id": "OF10614"
     },
     {
-      "id": "OF10615",
-      "ownerName": "Kaan Albayrak",
-      "responsibleUser": "Kaan Albayrak",
-      "ownerEmail": "onko2@cb.com.tr",
-      "name": "CB ONKO 2",
-      "status": "Silinmiş",
+      "brand": "Coldwell Banker",
       "groupId": null,
-      "brand": "Coldwell Banker"
+      "ownerEmail": "onko2@cb.com.tr",
+      "responsibleUser": "Kaan Albayrak",
+      "ownerName": "Kaan Albayrak",
+      "id": "OF10615",
+      "name": "CB ONKO 2",
+      "status": "Silinmiş"
     },
     {
+      "status": "Aktif",
+      "name": "CB VEGA",
+      "ownerName": "Kaan Albayrak",
       "id": "OF10616",
       "responsibleUser": "Kaan Albayrak",
       "ownerEmail": "vega@cb.com.tr",
-      "ownerName": "Kaan Albayrak",
-      "name": "CB VEGA",
-      "brand": "Coldwell Banker",
-      "status": "Aktif",
-      "groupId": null
-    },
-    {
-      "brand": "Coldwell Banker",
-      "status": "Aktif",
-      "groupId": "G102",
-      "name": "CB GALA",
-      "responsibleUser": "Kaan Albayrak",
-      "ownerEmail": "gala@cb.com.tr",
-      "ownerName": "Kaan Albayrak",
-      "id": "OF10617"
-    },
-    {
-      "id": "OF10618",
-      "ownerName": "Kaan Albayrak",
-      "ownerEmail": "referans@cb.com.tr",
-      "responsibleUser": "Kaan Albayrak",
-      "name": "CB REFERANS",
-      "status": "Aktif",
       "groupId": null,
       "brand": "Coldwell Banker"
     },
     {
+      "name": "CB GALA",
+      "id": "OF10617",
+      "ownerName": "Kaan Albayrak",
+      "status": "Aktif",
+      "brand": "Coldwell Banker",
+      "responsibleUser": "Kaan Albayrak",
+      "groupId": "G102",
+      "ownerEmail": "gala@cb.com.tr"
+    },
+    {
+      "status": "Aktif",
+      "name": "CB REFERANS",
+      "ownerName": "Kaan Albayrak",
+      "id": "OF10618",
+      "responsibleUser": "Kaan Albayrak",
+      "ownerEmail": "referans@cb.com.tr",
+      "groupId": null,
+      "brand": "Coldwell Banker"
+    },
+    {
+      "groupId": null,
       "ownerEmail": "win@century21.com.tr",
       "responsibleUser": "Kaan Albayrak",
-      "ownerName": "Kaan Albayrak",
-      "id": "OF10615",
       "brand": "Century 21",
       "status": "Aktif",
-      "groupId": null,
+      "ownerName": "Kaan Albayrak",
+      "id": "OF10615",
       "name": "C21 WIN"
     },
     {
-      "name": "C21 ASİL",
+      "groupId": null,
+      "ownerEmail": "asil@century21.com.tr",
+      "responsibleUser": "Kaan Albayrak",
       "brand": "Century 21",
       "status": "Dondurulmuş",
-      "groupId": null,
       "id": "OF10620",
-      "responsibleUser": "Kaan Albayrak",
-      "ownerEmail": "asil@century21.com.tr",
-      "ownerName": "Kaan Albayrak"
+      "ownerName": "Kaan Albayrak",
+      "name": "C21 ASİL"
     },
     {
       "brand": "Century 21",
-      "status": "Aktif",
-      "groupId": null,
-      "name": "C21 İLKE",
       "responsibleUser": "Kaan Albayrak",
+      "groupId": null,
       "ownerEmail": "ilke@century21.com.tr",
+      "name": "C21 İLKE",
+      "id": "OF10621",
       "ownerName": "Kaan Albayrak",
-      "id": "OF10621"
-    },
-    {
-      "id": "OF10622",
-      "ownerName": "Kaan Albayrak",
-      "ownerEmail": "boaz@century21.com.tr",
-      "responsibleUser": "Kaan Albayrak",
-      "name": "C21 BOAZ",
-      "groupId": null,
-      "status": "Aktif",
-      "brand": "Century 21"
-    },
-    {
-      "responsibleUser": "Kaan Albayrak",
-      "ownerEmail": "major@century21.com.tr",
-      "ownerName": "Kaan Albayrak",
-      "id": "OF10623",
-      "brand": "Century 21",
-      "status": "Aktif",
-      "groupId": null,
-      "name": "C21 MAJOR"
-    },
-    {
-      "ownerEmail": "trend@century21.com.tr",
-      "responsibleUser": "Kaan Albayrak",
-      "ownerName": "Kaan Albayrak",
-      "id": "OF10624",
-      "brand": "Century 21",
-      "groupId": "G101",
-      "status": "Aktif",
-      "name": "C21 TREND"
-    },
-    {
-      "groupId": "G101",
-      "status": "Silinmiş",
-      "brand": "Century 21",
-      "name": "C21 ONKO 2",
-      "ownerName": "Kaan Albayrak",
-      "responsibleUser": "Kaan Albayrak",
-      "ownerEmail": "onko2@century21.com.tr",
-      "id": "OF10625"
-    },
-    {
-      "ownerEmail": "vega@century21.com.tr",
-      "responsibleUser": "Kaan Albayrak",
-      "ownerName": "Kaan Albayrak",
-      "id": "OF10626",
-      "brand": "Century 21",
-      "groupId": null,
-      "status": "Aktif",
-      "name": "C21 VEGA"
-    },
-    {
-      "id": "OF10627",
-      "ownerEmail": "gala@century21.com.tr",
-      "responsibleUser": "Kaan Albayrak",
-      "ownerName": "Kaan Albayrak",
-      "name": "C21 GALA",
-      "brand": "Century 21",
-      "groupId": null,
       "status": "Aktif"
     },
     {
+      "groupId": null,
+      "ownerEmail": "boaz@century21.com.tr",
       "responsibleUser": "Kaan Albayrak",
-      "ownerEmail": "referans@century21.com.tr",
-      "ownerName": "Kaan Albayrak",
-      "id": "OF10628",
       "brand": "Century 21",
       "status": "Aktif",
+      "ownerName": "Kaan Albayrak",
+      "id": "OF10622",
+      "name": "C21 BOAZ"
+    },
+    {
+      "status": "Aktif",
+      "name": "C21 MAJOR",
+      "ownerName": "Kaan Albayrak",
+      "id": "OF10623",
+      "responsibleUser": "Kaan Albayrak",
+      "ownerEmail": "major@century21.com.tr",
       "groupId": null,
-      "name": "C21 REFERANS"
+      "brand": "Century 21"
+    },
+    {
+      "status": "Aktif",
+      "name": "C21 TREND",
+      "id": "OF10624",
+      "ownerName": "Kaan Albayrak",
+      "responsibleUser": "Kaan Albayrak",
+      "ownerEmail": "trend@century21.com.tr",
+      "groupId": "G101",
+      "brand": "Century 21"
+    },
+    {
+      "status": "Silinmiş",
+      "ownerName": "Kaan Albayrak",
+      "id": "OF10625",
+      "name": "C21 ONKO 2",
+      "ownerEmail": "onko2@century21.com.tr",
+      "groupId": "G101",
+      "responsibleUser": "Kaan Albayrak",
+      "brand": "Century 21"
+    },
+    {
+      "status": "Aktif",
+      "ownerName": "Kaan Albayrak",
+      "id": "OF10626",
+      "name": "C21 VEGA",
+      "ownerEmail": "vega@century21.com.tr",
+      "groupId": null,
+      "responsibleUser": "Kaan Albayrak",
+      "brand": "Century 21"
+    },
+    {
+      "ownerEmail": "gala@century21.com.tr",
+      "groupId": null,
+      "responsibleUser": "Kaan Albayrak",
+      "brand": "Century 21",
+      "status": "Aktif",
+      "id": "OF10627",
+      "ownerName": "Kaan Albayrak",
+      "name": "C21 GALA"
+    },
+    {
+      "responsibleUser": "Kaan Albayrak",
+      "groupId": null,
+      "ownerEmail": "referans@century21.com.tr",
+      "brand": "Century 21",
+      "status": "Aktif",
+      "name": "C21 REFERANS",
+      "id": "OF10628",
+      "ownerName": "Kaan Albayrak"
     },
     {
       "id": "OF10615",
-      "responsibleUser": "Kaan Albayrak",
-      "ownerEmail": "win@era.com.tr",
       "ownerName": "Kaan Albayrak",
       "name": "ERA WIN",
-      "brand": "ERA",
       "status": "Aktif",
-      "groupId": null
+      "brand": "ERA",
+      "groupId": null,
+      "ownerEmail": "win@era.com.tr",
+      "responsibleUser": "Kaan Albayrak"
     },
     {
-      "name": "ERA ASİL",
-      "groupId": null,
       "status": "Dondurulmuş",
-      "brand": "ERA",
+      "ownerName": "Kaan Albayrak",
       "id": "OF10630",
-      "ownerName": "Kaan Albayrak",
-      "responsibleUser": "Kaan Albayrak",
-      "ownerEmail": "asil@era.com.tr"
-    },
-    {
-      "id": "OF10631",
-      "ownerName": "Kaan Albayrak",
-      "ownerEmail": "ilke@era.com.tr",
-      "responsibleUser": "Kaan Albayrak",
-      "name": "ERA İLKE",
+      "name": "ERA ASİL",
+      "ownerEmail": "asil@era.com.tr",
       "groupId": null,
-      "status": "Aktif",
+      "responsibleUser": "Kaan Albayrak",
       "brand": "ERA"
     },
     {
+      "ownerName": "Kaan Albayrak",
+      "id": "OF10631",
+      "name": "ERA İLKE",
+      "status": "Aktif",
+      "brand": "ERA",
+      "groupId": null,
+      "ownerEmail": "ilke@era.com.tr",
+      "responsibleUser": "Kaan Albayrak"
+    },
+    {
+      "responsibleUser": "Kaan Albayrak",
+      "groupId": null,
       "ownerEmail": "boaz@era.com.tr",
+      "brand": "ERA",
+      "status": "Aktif",
+      "name": "ERA BOAZ",
+      "ownerName": "Kaan Albayrak",
+      "id": "OF10632"
+    },
+    {
+      "status": "Aktif",
+      "name": "ERA MAJOR",
+      "ownerName": "Kaan Albayrak",
+      "id": "OF10633",
+      "responsibleUser": "Kaan Albayrak",
+      "ownerEmail": "major@era.com.tr",
+      "groupId": null,
+      "brand": "ERA"
+    },
+    {
+      "brand": "ERA",
+      "ownerEmail": "trend@era.com.tr",
+      "groupId": null,
       "responsibleUser": "Kaan Albayrak",
       "ownerName": "Kaan Albayrak",
-      "id": "OF10632",
-      "brand": "ERA",
-      "status": "Aktif",
-      "groupId": null,
-      "name": "ERA BOAZ"
-    },
-    {
-      "name": "ERA MAJOR",
-      "brand": "ERA",
-      "groupId": null,
-      "status": "Aktif",
-      "id": "OF10633",
-      "ownerEmail": "major@era.com.tr",
-      "responsibleUser": "Kaan Albayrak",
-      "ownerName": "Kaan Albayrak"
-    },
-    {
-      "name": "ERA TREND",
-      "brand": "ERA",
-      "status": "Aktif",
-      "groupId": null,
       "id": "OF10634",
-      "ownerEmail": "trend@era.com.tr",
-      "responsibleUser": "Kaan Albayrak",
-      "ownerName": "Kaan Albayrak"
+      "name": "ERA TREND",
+      "status": "Aktif"
     },
     {
-      "name": "ERA ONKO 2",
+      "ownerEmail": "onko2@era.com.tr",
+      "groupId": null,
+      "responsibleUser": "Kaan Albayrak",
       "brand": "ERA",
       "status": "Silinmiş",
-      "groupId": null,
       "id": "OF10645",
-      "responsibleUser": "Kaan Albayrak",
-      "ownerEmail": "onko2@era.com.tr",
-      "ownerName": "Kaan Albayrak"
+      "ownerName": "Kaan Albayrak",
+      "name": "ERA ONKO 2"
     },
     {
-      "name": "ERA VEGA",
-      "brand": "ERA",
-      "groupId": "G102",
       "status": "Aktif",
+      "name": "ERA VEGA",
       "id": "OF10636",
+      "ownerName": "Kaan Albayrak",
       "responsibleUser": "Kaan Albayrak",
       "ownerEmail": "vega@era.com.tr",
-      "ownerName": "Kaan Albayrak"
+      "groupId": "G102",
+      "brand": "ERA"
     },
     {
       "name": "ERA GALA",
-      "brand": "ERA",
-      "status": "Aktif",
-      "groupId": null,
+      "ownerName": "Kaan Albayrak",
       "id": "OF10637",
-      "ownerEmail": "gala@era.com.tr",
+      "status": "Aktif",
+      "brand": "ERA",
       "responsibleUser": "Kaan Albayrak",
-      "ownerName": "Kaan Albayrak"
+      "groupId": null,
+      "ownerEmail": "gala@era.com.tr"
     },
     {
-      "name": "ERA REFERANS",
-      "brand": "ERA",
-      "groupId": "G102",
       "status": "Aktif",
       "id": "OF10638",
-      "responsibleUser": "Kaan Albayrak",
+      "ownerName": "Kaan Albayrak",
+      "name": "ERA REFERANS",
+      "groupId": "G102",
       "ownerEmail": "referans@era.com.tr",
-      "ownerName": "Kaan Albayrak"
+      "responsibleUser": "Kaan Albayrak",
+      "brand": "ERA"
     }
   ],
   "groups": [
     {
+      "ownerName": "",
       "id": "G100",
       "name": "CB WIN",
-      "ownerName": "",
       "ownerEmail": ""
     },
     {
-      "ownerName": "",
-      "ownerEmail": "",
       "id": "G101",
-      "name": "TREND"
+      "ownerName": "",
+      "name": "TREND",
+      "ownerEmail": ""
     },
     {
-      "name": "ERA REFERANS",
       "id": "G102",
       "ownerName": "",
+      "name": "ERA REFERANS",
       "ownerEmail": ""
     }
   ],
   "audits": [
     {
-      "status": "Aktif",
-      "phase1IlanPanelRaw": [],
-      "createdAt": "2026-07-14T09:14:34.813Z",
-      "phase2Uploaded": false,
-      "phase2DanismanRaw": [],
-      "phase2IlanSahibindenRaw": [],
-      "currentPhase": "Ceza",
-      "phase1DanismanRaw": [],
-      "phase1ProblematicOffices": [],
-      "phase2IlanPanelRaw": [],
-      "phase2ProblematicOffices": [
-        "OF10610:::CB ASİL"
-      ],
-      "phase2ApprovedOffices": [
-        "OF10610:::CB ASİL"
-      ],
-      "name": "Test Audit",
-      "id": "AUD_test",
-      "phase1IlanSahibindenRaw": [],
-      "updatedAt": "2026-07-14T11:54:53.821Z",
       "phase1ApprovedOffices": [],
       "phase1Uploaded": false,
-      "phase3ProblematicOffices": [
-        "G100"
-      ],
-      "phase3ApprovedOffices": [
-        "G100"
-      ]
+      "phase2DanismanRaw": [],
+      "phase1ProblematicOffices": [],
+      "phase1IlanPanelRaw": [],
+      "phase1IlanSahibindenRaw": [],
+      "phase2IlanPanelRaw": [],
+      "phase2IlanSahibindenRaw": [],
+      "status": "Aktif",
+      "currentPhase": "Tespit",
+      "createdAt": "2026-07-14T11:55:55.544Z",
+      "name": "Haziran 2026",
+      "id": "AUD_test",
+      "phase2ProblematicOffices": [],
+      "phase1DanismanRaw": [],
+      "phase2Uploaded": false,
+      "phase2ApprovedOffices": [],
+      "updatedAt": "2026-07-14T11:55:55.544Z"
     }
   ],
   "emails": [
     {
-      "id": "EML_cbw1ts1fo",
-      "timestamp": "2026-07-14T11:54:53.821Z",
       "auditName": "Test Audit",
-      "stage": "Ceza",
       "type": "Danışman",
+      "id": "EML_cbw1ts1fo",
       "officeId": "G100",
-      "officeName": "CB WIN (Grup Ofis)",
       "recipient": "win@cb.com.tr, kaan.albayrak@masterturk.com.tr, asil@cb.com.tr, nilufer.perkim@masterturk.com.tr",
+      "timestamp": "2026-07-14T11:54:53.821Z",
       "subject": "[CEZAİ İŞLEM] - Nihai Ceza Fazı Bildirimi: CB WIN (Grup Ofis)",
-      "bodyHtml": "\n    <!DOCTYPE html>\n    <html>\n    <head>\n      <meta charset=\"utf-8\">\n      <style>\n        body { font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; background-color: #f3f4f6; color: #1f2937; margin: 0; padding: 20px; }\n        .container { max-width: 600px; margin: 0 auto; background-color: #ffffff; border-radius: 8px; overflow: hidden; box-shadow: 0 4px 6px -1px rgba(0,0,0,0.1); border: 1px solid #e5e7eb; }\n        .header { background-color: #be123c; padding: 25px; text-align: center; color: #ffffff; }\n        .header h1 { margin: 0; font-size: 22px; font-weight: 600; letter-spacing: -0.025em; }\n        .header p { margin: 5px 0 0 0; font-size: 14px; opacity: 0.9; }\n        .content { padding: 30px; line-height: 1.6; }\n        .greeting { font-size: 16px; font-weight: 600; margin-bottom: 15px; }\n        .details-box { background-color: #f9fafb; border-left: 4px solid #be123c; padding: 15px; margin: 20px 0; border-radius: 0 4px 4px 0; }\n        .details-title { font-weight: 600; margin-bottom: 5px; color: #374151; }\n        .warning-text { color: #be123c; font-weight: 600; }\n        .footer { background-color: #f9fafb; padding: 20px; text-align: center; font-size: 12px; color: #6b7280; border-top: 1px solid #f3f4f6; }\n        .cta-button { display: inline-block; background-color: #be123c; color: #ffffff; text-decoration: none; padding: 10px 20px; border-radius: 5px; font-weight: 500; margin-top: 15px; }\n      </style>\n    </head>\n    <body>\n      <div class=\"container\">\n        <div class=\"header\">\n          <h1>Aşama 3: Nihai Ceza Fazı</h1>\n          <p>Danışman Denetimi Kapsamında Uyumsuzluk Tespiti</p>\n        </div>\n        <div class=\"content\">\n          <div class=\"greeting\">Sayın Bilinmiyor,</div>\n          <p>Bağımsız franchise ofislerimizin standartlara uyum süreçlerini takip etmek amacıyla gerçekleştirdiğimiz rutin dönem denetimlerimizde, <strong>CB WIN (Grup Ofis)</strong> bünyesinde birtakım uyumsuzluklar tespit edilmiştir.</p>\n          \n          <div class=\"details-box\">\n            <div class=\"details-title\">🔍 Tespit Edilen Detaylar (Danışman Denetimi):</div>\n            <div style=\"font-size: 14px; white-space: pre-wrap;\">Test group danisman details</div>\n          </div>\n\n          \n            <p class=\"warning-text\">🚨 CEZAİ YAPTIRIM BİLDİRİMİ:</p>\n            <p>Yapılan tüm uyarılara ve tanınan kontrol sürelerine rağmen uyumsuzluğun giderilmediği tespit edilmiştir. İlgili durum ceza havuzuna aktarılmış olup, sözleşme maddeleri uyarınca franchise ceza faturası/yaptırımı uygulanacaktır.</p>\n          \n\n          <p>İş birliğiniz ve hassasiyetiniz için teşekkür eder, iyi çalışmalar dileriz.</p>\n          <p style=\"margin-top: 25px; font-size: 13px; color: #9ca3af;\">MasterTurk Franchise Denetim Direktörlüğü<br/><em>Bu e-posta otomatik olarak oluşturulmuştur.</em></p>\n        </div>\n        <div class=\"footer\">\n          &copy; 2026 MasterTurk Gayrimenkul A.Ş. Tüm Hakları Saklıdır.\n        </div>\n      </div>\n    </body>\n    </html>\n  ",
-      "status": "Gönderildi"
+      "officeName": "CB WIN (Grup Ofis)",
+      "status": "Gönderildi",
+      "stage": "Ceza",
+      "bodyHtml": "\n    <!DOCTYPE html>\n    <html>\n    <head>\n      <meta charset=\"utf-8\">\n      <style>\n        body { font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; background-color: #f3f4f6; color: #1f2937; margin: 0; padding: 20px; }\n        .container { max-width: 600px; margin: 0 auto; background-color: #ffffff; border-radius: 8px; overflow: hidden; box-shadow: 0 4px 6px -1px rgba(0,0,0,0.1); border: 1px solid #e5e7eb; }\n        .header { background-color: #be123c; padding: 25px; text-align: center; color: #ffffff; }\n        .header h1 { margin: 0; font-size: 22px; font-weight: 600; letter-spacing: -0.025em; }\n        .header p { margin: 5px 0 0 0; font-size: 14px; opacity: 0.9; }\n        .content { padding: 30px; line-height: 1.6; }\n        .greeting { font-size: 16px; font-weight: 600; margin-bottom: 15px; }\n        .details-box { background-color: #f9fafb; border-left: 4px solid #be123c; padding: 15px; margin: 20px 0; border-radius: 0 4px 4px 0; }\n        .details-title { font-weight: 600; margin-bottom: 5px; color: #374151; }\n        .warning-text { color: #be123c; font-weight: 600; }\n        .footer { background-color: #f9fafb; padding: 20px; text-align: center; font-size: 12px; color: #6b7280; border-top: 1px solid #f3f4f6; }\n        .cta-button { display: inline-block; background-color: #be123c; color: #ffffff; text-decoration: none; padding: 10px 20px; border-radius: 5px; font-weight: 500; margin-top: 15px; }\n      </style>\n    </head>\n    <body>\n      <div class=\"container\">\n        <div class=\"header\">\n          <h1>Aşama 3: Nihai Ceza Fazı</h1>\n          <p>Danışman Denetimi Kapsamında Uyumsuzluk Tespiti</p>\n        </div>\n        <div class=\"content\">\n          <div class=\"greeting\">Sayın Bilinmiyor,</div>\n          <p>Bağımsız franchise ofislerimizin standartlara uyum süreçlerini takip etmek amacıyla gerçekleştirdiğimiz rutin dönem denetimlerimizde, <strong>CB WIN (Grup Ofis)</strong> bünyesinde birtakım uyumsuzluklar tespit edilmiştir.</p>\n          \n          <div class=\"details-box\">\n            <div class=\"details-title\">🔍 Tespit Edilen Detaylar (Danışman Denetimi):</div>\n            <div style=\"font-size: 14px; white-space: pre-wrap;\">Test group danisman details</div>\n          </div>\n\n          \n            <p class=\"warning-text\">🚨 CEZAİ YAPTIRIM BİLDİRİMİ:</p>\n            <p>Yapılan tüm uyarılara ve tanınan kontrol sürelerine rağmen uyumsuzluğun giderilmediği tespit edilmiştir. İlgili durum ceza havuzuna aktarılmış olup, sözleşme maddeleri uyarınca franchise ceza faturası/yaptırımı uygulanacaktır.</p>\n          \n\n          <p>İş birliğiniz ve hassasiyetiniz için teşekkür eder, iyi çalışmalar dileriz.</p>\n          <p style=\"margin-top: 25px; font-size: 13px; color: #9ca3af;\">MasterTurk Franchise Denetim Direktörlüğü<br/><em>Bu e-posta otomatik olarak oluşturulmuştur.</em></p>\n        </div>\n        <div class=\"footer\">\n          &copy; 2026 MasterTurk Gayrimenkul A.Ş. Tüm Hakları Saklıdır.\n        </div>\n      </div>\n    </body>\n    </html>\n  "
     },
     {
-      "id": "EML_bd2twtq66",
       "timestamp": "2026-07-14T11:54:39.982Z",
+      "officeName": "CB ASİL",
+      "subject": "[ÖNEMLİ] - 2. Aşama Kontrol Fazı Uyarı Bildirimi: CB ASİL",
       "auditName": "Test Audit",
-      "stage": "Kontrol",
       "type": "Danışman",
       "officeId": "OF10610:::CB ASİL",
-      "officeName": "CB ASİL",
+      "id": "EML_bd2twtq66",
       "recipient": "asil@cb.com.tr, kaan.albayrak@masterturk.com.tr, nilufer.perkim@masterturk.com.tr",
-      "subject": "[ÖNEMLİ] - 2. Aşama Kontrol Fazı Uyarı Bildirimi: CB ASİL",
+      "stage": "Kontrol",
       "bodyHtml": "\n    <!DOCTYPE html>\n    <html>\n    <head>\n      <meta charset=\"utf-8\">\n      <style>\n        body { font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; background-color: #f3f4f6; color: #1f2937; margin: 0; padding: 20px; }\n        .container { max-width: 600px; margin: 0 auto; background-color: #ffffff; border-radius: 8px; overflow: hidden; box-shadow: 0 4px 6px -1px rgba(0,0,0,0.1); border: 1px solid #e5e7eb; }\n        .header { background-color: #b45309; padding: 25px; text-align: center; color: #ffffff; }\n        .header h1 { margin: 0; font-size: 22px; font-weight: 600; letter-spacing: -0.025em; }\n        .header p { margin: 5px 0 0 0; font-size: 14px; opacity: 0.9; }\n        .content { padding: 30px; line-height: 1.6; }\n        .greeting { font-size: 16px; font-weight: 600; margin-bottom: 15px; }\n        .details-box { background-color: #f9fafb; border-left: 4px solid #b45309; padding: 15px; margin: 20px 0; border-radius: 0 4px 4px 0; }\n        .details-title { font-weight: 600; margin-bottom: 5px; color: #374151; }\n        .warning-text { color: #be123c; font-weight: 600; }\n        .footer { background-color: #f9fafb; padding: 20px; text-align: center; font-size: 12px; color: #6b7280; border-top: 1px solid #f3f4f6; }\n        .cta-button { display: inline-block; background-color: #b45309; color: #ffffff; text-decoration: none; padding: 10px 20px; border-radius: 5px; font-weight: 500; margin-top: 15px; }\n      </style>\n    </head>\n    <body>\n      <div class=\"container\">\n        <div class=\"header\">\n          <h1>Aşama 2: Kontrol ve Düzeltme Fazı</h1>\n          <p>Danışman Denetimi Kapsamında Uyumsuzluk Tespiti</p>\n        </div>\n        <div class=\"content\">\n          <div class=\"greeting\">Sayın Kaan Albayrak,</div>\n          <p>Bağımsız franchise ofislerimizin standartlara uyum süreçlerini takip etmek amacıyla gerçekleştirdiğimiz rutin dönem denetimlerimizde, <strong>CB ASİL</strong> bünyesinde birtakım uyumsuzluklar tespit edilmiştir.</p>\n          \n          <div class=\"details-box\">\n            <div class=\"details-title\">🔍 Tespit Edilen Detaylar (Danışman Denetimi):</div>\n            <div style=\"font-size: 14px; white-space: pre-wrap;\">Test danisman details</div>\n          </div>\n\n          \n            <p class=\"warning-text\">⚠️ ÖNEMLİ UYARI:</p>\n            <p>Yapılan ilk tespit bildiriminin ardından geçen sürede gerekli düzeltmelerin yapılmadığı veya yetersiz kaldığı gözlemlenmiştir. Lütfen <strong class=\"warning-text\">son 2 gün içerisinde</strong> uyumsuzlukları gideriniz. Aksi takdirde süreç <strong>Nihai Ceza Fazı'na</strong> aktarılacak ve cezai yaptırımlar devreye alınacaktır.</p>\n          \n\n          <p>İş birliğiniz ve hassasiyetiniz için teşekkür eder, iyi çalışmalar dileriz.</p>\n          <p style=\"margin-top: 25px; font-size: 13px; color: #9ca3af;\">MasterTurk Franchise Denetim Direktörlüğü<br/><em>Bu e-posta otomatik olarak oluşturulmuştur.</em></p>\n        </div>\n        <div class=\"footer\">\n          &copy; 2026 MasterTurk Gayrimenkul A.Ş. Tüm Hakları Saklıdır.\n        </div>\n      </div>\n    </body>\n    </html>\n  ",
       "status": "Gönderildi"
     }
@@ -393,8 +383,8 @@
     "smtpPass": "fucaupikpfrrhzzs",
     "managerEmail": "nilufer.perkim@masterturk.com.tr",
     "fieldStaffEmails": {
-      "Tunç Süzer": "tunc.suzer@masterturk.com.tr",
       "Nilüfer Perkim": "nilufer.perkim@masterturk.com.tr",
+      "Tunç Süzer": "tunc.suzer@masterturk.com.tr",
       "Kaan Albayrak": "kaan.albayrak@masterturk.com.tr"
     }
   }
