@@ -122,6 +122,41 @@ export default function AuditPanel({ offices, groups, activeAudit, onRefresh, on
   const [diagnosticSearch, setDiagnosticSearch] = useState("");
   const [diagnosticBrand, setDiagnosticBrand] = useState("all");
 
+  // System Logs states
+  const [systemLogs, setSystemLogs] = useState<any[]>([]);
+  const [showSystemLogs, setShowSystemLogs] = useState(false);
+  const [logLoading, setLogLoading] = useState(false);
+
+  const fetchSystemLogs = async () => {
+    setLogLoading(true);
+    try {
+      const res = await fetch("/api/system-logs");
+      if (res.ok) {
+        const data = await res.json();
+        setSystemLogs(data);
+      }
+    } catch (e) {
+      console.error("Failed to fetch system logs:", e);
+    } finally {
+      setLogLoading(false);
+    }
+  };
+
+  const clearSystemLogs = async () => {
+    try {
+      const res = await fetch("/api/system-logs/clear", { method: "POST" });
+      if (res.ok) {
+        fetchSystemLogs();
+      }
+    } catch (e) {
+      console.error("Failed to clear system logs:", e);
+    }
+  };
+
+  useEffect(() => {
+    fetchSystemLogs();
+  }, []);
+
   // Filters & Sorting for Table A (Danışman Denetimi)
   const [danismanSearch, setDanismanSearch] = useState("");
   const [danismanBrand, setDanismanBrand] = useState("all");
@@ -572,6 +607,8 @@ export default function AuditPanel({ offices, groups, activeAudit, onRefresh, on
 
       showMsg("success", "Gerçek veri başarıyla yüklendi!");
       onRefresh();
+      fetchSystemLogs();
+      setShowSystemLogs(true);
       return true;
     } catch (err) {
       showMsg("error", "Sunucuya bağlanılamadı veya zaman aşımı oluştu.");
@@ -1510,6 +1547,84 @@ export default function AuditPanel({ offices, groups, activeAudit, onRefresh, on
                   </div>
                 }
               />
+
+              {/* SYSTEM LOGS & ERROR CONSOLE */}
+              {activeAudit && (
+                <div className="bg-slate-950 border border-slate-800 rounded-lg p-4 mt-4 shadow-xl text-slate-300">
+                  <div className="flex items-center justify-between">
+                    <div className="flex items-center gap-2.5">
+                      <span className="w-2 h-2 rounded-full bg-emerald-500 animate-pulse"></span>
+                      <div>
+                        <h4 className="text-xs font-bold text-slate-100 font-mono">Terminal & Canlı Sistem Günlüğü</h4>
+                        <p className="text-[10px] text-slate-500 font-mono">Dosya yükleme, ofis eşleştirme ve Firestore bulut eşitleme hareketlerini canlı izleyin.</p>
+                      </div>
+                    </div>
+                    <div className="flex gap-2">
+                      <button
+                        onClick={fetchSystemLogs}
+                        className="px-2.5 py-1 text-[10px] font-mono text-slate-300 bg-slate-900 hover:bg-slate-850 border border-slate-800 rounded transition cursor-pointer"
+                        disabled={logLoading}
+                      >
+                        {logLoading ? "..." : "🔄 Yenile"}
+                      </button>
+                      <button
+                        onClick={clearSystemLogs}
+                        className="px-2.5 py-1 text-[10px] font-mono text-rose-400 bg-slate-900 hover:bg-slate-850 border border-slate-800 rounded transition cursor-pointer"
+                      >
+                        🗑️ Temizle
+                      </button>
+                      <button
+                        onClick={() => setShowSystemLogs(!showSystemLogs)}
+                        className="px-2.5 py-1 text-[10px] font-mono text-emerald-400 bg-slate-900 hover:bg-slate-850 border border-slate-800 rounded transition cursor-pointer font-bold"
+                      >
+                        {showSystemLogs ? "💻 Konsolu Kapat" : "💻 Konsolu Aç"}
+                      </button>
+                    </div>
+                  </div>
+
+                  {showSystemLogs && (
+                    <div className="mt-3 pt-3 border-t border-slate-800 font-mono text-xs">
+                      <div className="bg-slate-900 border border-slate-850 rounded p-3 h-64 overflow-y-auto space-y-1.5 scrollbar-thin scrollbar-thumb-slate-800">
+                        {systemLogs.length === 0 ? (
+                          <div className="text-slate-500 text-center py-10">
+                            Henüz işlem günlüğü bulunmuyor. Dosya yüklediğinizde veya veri kaydettiğinizde detaylı analizler burada görünecektir.
+                          </div>
+                        ) : (
+                          systemLogs.map((log, idx) => {
+                            let levelColor = "text-blue-400";
+                            let levelBg = "bg-blue-950/40 border-blue-900/50";
+                            if (log.level === "warn") {
+                              levelColor = "text-amber-400";
+                              levelBg = "bg-amber-950/40 border-amber-900/50";
+                            } else if (log.level === "error") {
+                              levelColor = "text-rose-400";
+                              levelBg = "bg-rose-950/40 border-rose-900/50";
+                            }
+                            return (
+                              <div key={idx} className={`p-2 rounded border ${levelBg} flex flex-col gap-1 text-[11px]`}>
+                                <div className="flex items-center justify-between text-[10px] text-slate-500">
+                                  <span className="font-bold text-slate-400">{log.timestamp ? new Date(log.timestamp).toLocaleTimeString() : ""}</span>
+                                  <span className={`px-1 rounded text-[9px] font-bold uppercase ${levelColor}`}>{log.level}</span>
+                                </div>
+                                <div className={`${levelColor} font-semibold`}>{log.message}</div>
+                                {log.details && (
+                                  <div className="text-[10px] text-slate-400 bg-slate-950/50 p-1.5 rounded border border-slate-900 overflow-x-auto">
+                                    <pre className="whitespace-pre-wrap">{JSON.stringify(log.details, null, 2)}</pre>
+                                  </div>
+                                )}
+                              </div>
+                            );
+                          })
+                        )}
+                      </div>
+                      <div className="mt-2 text-[10px] text-slate-500 text-right flex justify-between items-center">
+                        <span>Sunucu Host: <code className="bg-slate-900 px-1 py-0.5 rounded text-slate-400">Google Cloud Run (eu-west2)</code></span>
+                        <span>Son güncelleme: {new Date().toLocaleTimeString()}</span>
+                      </div>
+                    </div>
+                  )}
+                </div>
+              )}
 
               {/* DIAGNOSTIC PANEL FOR UPLOADED RAW ROWS */}
               {activeAudit && (

@@ -36,6 +36,42 @@ app.use((req, res, next) => {
   next();
 });
 
+// --- IN-MEMORY SYSTEM LOGS BUFFER ---
+interface SystemLog {
+  timestamp: string;
+  level: "info" | "warn" | "error";
+  message: string;
+  details?: any;
+}
+const systemLogs: SystemLog[] = [];
+
+export function addLog(level: "info" | "warn" | "error", message: string, details?: any) {
+  const timestamp = new Date().toISOString();
+  systemLogs.unshift({ timestamp, level, message, details });
+  if (systemLogs.length > 500) {
+    systemLogs.pop();
+  }
+  const detailStr = details ? ` | Detay: ${JSON.stringify(details)}` : "";
+  if (level === "error") {
+    console.error(`[LOG ERROR] ${message}${detailStr}`);
+  } else if (level === "warn") {
+    console.warn(`[LOG WARN] ${message}${detailStr}`);
+  } else {
+    console.log(`[LOG INFO] ${message}${detailStr}`);
+  }
+}
+
+// Log routes
+app.get("/api/system-logs", (req, res) => {
+  res.json(systemLogs);
+});
+
+app.post("/api/system-logs/clear", (req, res) => {
+  systemLogs.length = 0;
+  addLog("info", "Sistem günlükleri temizlendi.");
+  res.json({ success: true });
+});
+
 // --- DATABASE PATH AND SCHEMA ---
 const DB_PATH = process.env.VERCEL
   ? "/tmp/db.json"
@@ -464,12 +500,12 @@ async function writeDB(data: Database) {
     // Write to Cloud Firestore asynchronously in the background
     const success = await saveToFirestore(data);
     if (success) {
-      console.log("[Firebase] Arka plan Firestore kaydı başarılı.");
+      addLog("info", "Veritabanı bulut yedeklemesi başarıyla Firestore'a kaydedildi.");
     } else {
-      console.warn("[Firebase] Arka plan Firestore kaydı başarısız oldu, yerel dosya güncel.");
+      addLog("warn", "Arka plan Firestore kaydı başarısız oldu, yerel dosya güncel.");
     }
-  } catch (err) {
-    console.error("Error writing database:", err);
+  } catch (err: any) {
+    addLog("error", "Veritabanı kaydı sırasında hata oluştu", { error: err?.message || String(err) });
   }
 }
 
@@ -1163,7 +1199,7 @@ function mergeByOfficeCode(existing: any[], incoming: any[]) {
     // Ignore
   }
 
-  console.log(`[Upload Merge Code] Starting merge. Existing: ${existing.length}, Incoming: ${incoming.length}`);
+  addLog("info", `[Dosya Eşleştirme] Birleştirme başlatıldı. Mevcut: ${existing.length} satır, Gelen: ${incoming.length} satır.`);
 
   const existingMap = new Map<string, any>();
   existing.forEach(row => {
@@ -1192,12 +1228,19 @@ function mergeByOfficeCode(existing: any[], incoming: any[]) {
     }
   });
 
-  console.log(`[Upload Merge Code] Merged incoming. Successfully resolved: ${matchedCount}/${incoming.length}.`);
   if (failedRows.length > 0) {
-    console.warn(`[Upload Merge Code] WARNING: ${failedRows.length} rows failed to resolve an Office ID! Sample failed rows:`);
-    failedRows.slice(0, 10).forEach((r, idx) => {
-      console.warn(`  Failed Row #${idx + 1}: Keys=[${Object.keys(r).join(",")}] Values=[${Object.values(r).slice(0, 5).join(",")}]`);
+    const samples = failedRows.slice(0, 5).map(r => {
+      const name = getNormalizedValue(r, ["ofisadi", "ofis adi", "name", "office name", "ofis adı"]);
+      const code = getNormalizedValue(r, ["ofiskodu", "ofis kodu", "id", "kod"]);
+      return `"${name || 'İsimsiz'}" (${code || 'Kodsuz'})`;
+    }).join(", ");
+    addLog("warn", `[Dosya Eşleştirme] ${failedRows.length} satır sistemdeki ofislerle eşleştirilemedi (Ofis Kodu veya Adı geçersiz). Örnekler: ${samples}`, {
+      toplamGelen: incoming.length,
+      basariliEslestirme: matchedCount,
+      basarisizEslestirme: failedRows.length
     });
+  } else {
+    addLog("info", `[Dosya Eşleştirme] Gelen ${incoming.length} satırın tamamı başarıyla sistemdeki ofislerle eşleştirildi.`);
   }
 
   return Array.from(existingMap.values());
@@ -1256,8 +1299,7 @@ function mergeByOfisKullanicilari(existing: any[], incoming: any[]) {
     // Ignore
   }
 
-  console.log(`[Upload Users] Starting merge. Existing: ${existing.length}, Incoming: ${incoming.length}`);
-  console.log(`[Upload Users] Registered offices count in DB: ${officesList.length}`);
+  addLog("info", `[Kullanıcı Eşleştirme] Birleştirme başlatıldı. Mevcut: ${existing.length} satır, Gelen: ${incoming.length} satır.`);
 
   existing.forEach(row => {
     const officeId = resolveOfficeIdBackend(row, officesList);
@@ -1291,12 +1333,20 @@ function mergeByOfisKullanicilari(existing: any[], incoming: any[]) {
     }
   });
 
-  console.log(`[Upload Users] Merged incoming users. Successfully resolved: ${matchedCount}/${incoming.length}.`);
   if (failedRows.length > 0) {
-    console.warn(`[Upload Users] WARNING: ${failedRows.length} user rows failed to resolve an Office ID! Sample failed rows:`);
-    failedRows.slice(0, 10).forEach((r, idx) => {
-      console.warn(`  Failed User Row #${idx + 1}: Keys=[${Object.keys(r).join(",")}] Values=[${Object.values(r).slice(0, 5).join(",")}]`);
+    const samples = failedRows.slice(0, 5).map(r => {
+      const name = getNormalizedValue(r, ["adsoyad", "ad soyad", "ad soyadi", "adisoyadi", "name", "isim", "ad", "soyad"]);
+      const email = getNormalizedValue(r, ["e-posta", "eposta", "email", "mail"]);
+      const officeName = getNormalizedValue(r, ["ofisadi", "ofis adi", "office name", "ofis adı"]);
+      return `"${name || 'İsimsiz'}" (${email || 'E-postasız'}) - Ofis: "${officeName || 'Eşleşmeyen'}"`;
+    }).join(", ");
+    addLog("warn", `[Kullanıcı Eşleştirme] ${failedRows.length} kullanıcı satırı sistemdeki ofislerle eşleştirilemedi (Ofis Kodu/Adı geçersiz). Örnekler: ${samples}`, {
+      toplamGelen: incoming.length,
+      basariliEslestirme: matchedCount,
+      basarisizEslestirme: failedRows.length
     });
+  } else {
+    addLog("info", `[Kullanıcı Eşleştirme] Gelen ${incoming.length} kullanıcının tamamı başarıyla sistemdeki ofislerle eşleştirildi.`);
   }
 
   return Array.from(existingMap.values());
