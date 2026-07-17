@@ -1145,21 +1145,33 @@ function mergeByOfisKullanicilari(existing: any[], incoming: any[]) {
 
   const existingMap = new Map<string, any>();
   existing.forEach(row => {
-    const officeId = getNormalizedValue(row, ["ofiskodu", "ofis kodu", "id", "kod"]).toUpperCase().trim();
+    let officeId = getNormalizedValue(row, ["ofiskodu", "ofis kodu", "id", "kod"]).toUpperCase().trim();
+    if (!officeId && row["Ofis Kodu"]) {
+      officeId = String(row["Ofis Kodu"]).toUpperCase().trim();
+    }
     if (officeId) {
       const brand = getBrandFromRowBackend(row);
       const name = getNormalizedValue(row, ["adsoyad", "ad soyad", "ad soyadi", "adisoyadi", "adi soyadi", "kullaniciadi", "kullanici adi", "kullanici adisoyadi", "name", "full name"]).toUpperCase().trim();
-      const key = `${officeId}:::${brand}:::${name}`;
+      const email = getNormalizedValue(row, ["e-posta", "eposta", "email", "mail", "kullanicieposta", "kullanicimail"]).toLowerCase().trim();
+      // Ensure we don't overwrite if multiple users in same office have no name or email
+      const fallbackKey = Math.random().toString(36).substring(7);
+      const key = `${officeId}:::${brand}:::${name || email || fallbackKey}`;
       existingMap.set(key, row);
     }
   });
 
   incoming.forEach(row => {
-    const officeId = getNormalizedValue(row, ["ofiskodu", "ofis kodu", "id", "kod"]).toUpperCase().trim();
+    let officeId = getNormalizedValue(row, ["ofiskodu", "ofis kodu", "id", "kod"]).toUpperCase().trim();
+    if (!officeId && row["Ofis Kodu"]) {
+      officeId = String(row["Ofis Kodu"]).toUpperCase().trim();
+    }
     if (officeId) {
       const brand = getBrandFromRowBackend(row);
       const name = getNormalizedValue(row, ["adsoyad", "ad soyad", "ad soyadi", "adisoyadi", "adi soyadi", "kullaniciadi", "kullanici adi", "kullanici adisoyadi", "name", "full name"]).toUpperCase().trim();
-      const key = `${officeId}:::${brand}:::${name}`;
+      const email = getNormalizedValue(row, ["e-posta", "eposta", "email", "mail", "kullanicieposta", "kullanicimail"]).toLowerCase().trim();
+      // Ensure we don't overwrite if multiple users in same office have no name or email
+      const fallbackKey = Math.random().toString(36).substring(7);
+      const key = `${officeId}:::${brand}:::${name || email || fallbackKey}`;
       existingMap.set(key, row); // Overwrite existing or add new
     }
   });

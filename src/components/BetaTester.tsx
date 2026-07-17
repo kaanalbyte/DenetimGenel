@@ -166,7 +166,7 @@ export default function BetaTester({ offices, groups, config, activeAudit }: Bet
                   <div className="bg-slate-800/50 rounded p-3 border border-slate-700/50">
                     <div className="text-[10px] text-slate-400 font-bold uppercase tracking-wider mb-1">1. Adım: Ofis Kendi E-Postası</div>
                     <div className="font-medium text-blue-300 break-all">
-                      {res.officeEmail ? res.officeEmail : <span className="text-slate-500 italic">Tanımlı değil</span>}
+                      {res.officeEmail ? res.officeEmail : <span className="text-slate-500 italic">Tanımlı değil (Ayarlardan tanımlayın)</span>}
                     </div>
                   </div>
 
@@ -182,21 +182,21 @@ export default function BetaTester({ offices, groups, config, activeAudit }: Bet
                         {res.step2Emails.map((e, i) => <li key={i} className="break-all">{e}</li>)}
                       </ul>
                     ) : (
-                      <span className="text-slate-500 italic font-medium">Bulunamadı</span>
+                      <span className="text-slate-500 italic font-medium">Bulunamadı (Ofis Kullanıcıları Exceli Yüklenmedi veya Broker Yok)</span>
                     )}
                   </div>
 
                   <div className="bg-slate-800/50 rounded p-3 border border-slate-700/50">
                     <div className="text-[10px] text-slate-400 font-bold uppercase tracking-wider mb-1">3. Adım: Saha Personeli (CC)</div>
                     <div className="font-medium text-amber-300 break-all">
-                      {res.fieldStaffEmail ? `${res.fieldStaffName} -> ${res.fieldStaffEmail}` : <span className="text-slate-500 italic">Kayıtlı değil</span>}
+                      {res.fieldStaffEmail ? `${res.fieldStaffName} -> ${res.fieldStaffEmail}` : <span className="text-slate-500 italic">Kayıtlı değil (Ayarlardan tanımlayın)</span>}
                     </div>
                   </div>
 
                   <div className="bg-slate-800/50 rounded p-3 border border-slate-700/50">
                     <div className="text-[10px] text-slate-400 font-bold uppercase tracking-wider mb-1">4. Adım: Sabit Yönetici (CC)</div>
                     <div className="font-medium text-purple-300 break-all">
-                      {res.managerEmail ? res.managerEmail : <span className="text-slate-500 italic">Tanımlı değil</span>}
+                      {res.managerEmail ? res.managerEmail : <span className="text-slate-500 italic">Tanımlı değil (Ayarlardan tanımlayın)</span>}
                     </div>
                   </div>
 
