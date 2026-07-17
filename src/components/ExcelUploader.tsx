@@ -50,11 +50,15 @@ const formatSize = (bytes: number) => {
 
 const detectCategory = (filename: string): string => {
   const name = filename.toLowerCase();
-  if (name.includes("akullanici")) {
+  
+  if (name.includes("akullanici") || name.includes("akullanıcı")) {
     return "danisman";
-  } else if (name.includes("cb_kullanici") || name.includes("c21_kullanici") || name.includes("era_kullanici") || name.includes("ofis_kullanici") || name.includes("ofiskullanici")) {
+  } else if (name.includes("cb_kullanici") || name.includes("cb kullanici") || name.includes("cb_kullanıcı") || name.includes("cb kullanıcı") ||
+             name.includes("c21_kullanici") || name.includes("c21 kullanici") || name.includes("c21_kullanıcı") || name.includes("c21 kullanıcı") ||
+             name.includes("era_kullanici") || name.includes("era kullanici") || name.includes("era_kullanıcı") || name.includes("era kullanıcı") ||
+             name.includes("ofis_kullanici") || name.includes("ofis kullanici") || name.includes("ofiskullanici") || name.includes("kullanicilari") || name.includes("kullanıcıları")) {
     return "ofis_kullanicilari";
-  } else if (name.includes("kullanici") || name.includes("kadro") || name.includes("danisman") || name.includes("personel") || name.includes("user")) {
+  } else if (name.includes("kullanici") || name.includes("kullanıcı") || name.includes("kadro") || name.includes("danisman") || name.includes("personel") || name.includes("user")) {
     return "danisman";
   } else if (name.includes("ilan") || name.includes("panel") || name.includes("portfoy") || name.includes("portfolio") || name.includes("listing")) {
     return "ilan_panel";

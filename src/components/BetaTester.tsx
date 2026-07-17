@@ -23,27 +23,32 @@ export default function BetaTester({ offices, groups, config, activeAudit }: Bet
   const calculateRecipients = () => {
     if (!selectedOffice) return null;
 
-    // 1-Adım: Ofisin Kendi E-postası (Marka Ofis Tanımı)
-    const officeEmail = selectedOffice.ownerEmail;
+    const officeEmail = selectedOffice.ownerEmail || "";
 
-    // 2-Adım: Excel Listesindeki Broker & Owner E-postaları
     const step2Emails = selectedOffice.brokerEmails 
-      ? selectedOffice.brokerEmails.split(",").map((e: string) => e.trim()).filter((e: string) => e.includes("@"))
+      ? selectedOffice.brokerEmails.split(/[\s,;]+/).map((e: string) => e.trim()).filter((e: string) => e.includes("@"))
       : [];
 
-    // 3-Adım: Sorumlu Saha Personeli (Field Staff)
-    const fieldStaffName = selectedOffice.responsibleUser;
-    const fieldStaffEmail = config.fieldStaffEmails?.[fieldStaffName] || "";
+    const fieldStaffName = selectedOffice.responsibleUser || selectedOffice.ownerName || "";
+    let fieldStaffEmail = "";
+    if (config?.fieldStaffEmails) {
+      const normStaffName = fieldStaffName.trim().toLowerCase();
+      for (const [name, email] of Object.entries(config.fieldStaffEmails)) {
+        if (name.trim().toLowerCase() === normStaffName) {
+          fieldStaffEmail = String(email).trim();
+          break;
+        }
+      }
+    }
 
-    // 4-Adım: Sabit Yönetici / CC E-postası (Manager Email)
-    const managerEmail = config.managerEmail || "";
+    const managerEmail = config?.managerEmail || "";
 
-    // 5-Adım: Manuel Ek Alıcılar
     const manualArr = manualEmails.split(",").map(e => e.trim()).filter(e => e.includes("@"));
 
     return {
       officeEmail,
       step2Emails,
+      fieldStaffName,
       fieldStaffEmail,
       managerEmail,
       manualArr
@@ -184,7 +189,7 @@ export default function BetaTester({ offices, groups, config, activeAudit }: Bet
                   <div className="bg-slate-800/50 rounded p-3 border border-slate-700/50">
                     <div className="text-[10px] text-slate-400 font-bold uppercase tracking-wider mb-1">3. Adım: Saha Personeli (CC)</div>
                     <div className="font-medium text-amber-300 break-all">
-                      {res.fieldStaffEmail ? `${selectedOffice?.responsibleUser} -> ${res.fieldStaffEmail}` : <span className="text-slate-500 italic">Kayıtlı değil</span>}
+                      {res.fieldStaffEmail ? `${res.fieldStaffName} -> ${res.fieldStaffEmail}` : <span className="text-slate-500 italic">Kayıtlı değil</span>}
                     </div>
                   </div>
 
