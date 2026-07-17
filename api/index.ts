@@ -213,12 +213,12 @@ function pruneRow(row: any, type: "danisman" | "ilan_panel" | "ilan_sahibinden" 
   if (!row || typeof row !== "object") return row;
   const pruned: any = {};
   
-  const officeCodeKey = getMatchedKey(row, ["ofiskodu", "ofis kodu", "id", "kod"]);
+  const officeCodeKey = getMatchedKey(row, ["ofiskodu", "ofis kodu", "id", "kod", "ofis no", "ofisno", "office code", "sistem kodu", "sistemkodu", "no", "kodu"]);
   if (officeCodeKey) {
     pruned[officeCodeKey] = String(row[officeCodeKey]).trim();
   }
 
-  const officeNameKey = getMatchedKey(row, ["ofisadi", "ofis adi", "name", "office name", "ad", "unvan", "ofis"]);
+  const officeNameKey = getMatchedKey(row, ["ofisadi", "ofis adi", "name", "office name", "ad", "unvan", "ofis", "ofis adı"]);
   if (officeNameKey) {
     pruned[officeNameKey] = String(row[officeNameKey]).trim();
   }
@@ -246,13 +246,13 @@ function pruneRow(row: any, type: "danisman" | "ilan_panel" | "ilan_sahibinden" 
     const countKey = getMatchedKey(row, ["portfoy", "portfoysayisi", "portfoy sayisi", "ilan", "ilansayisi", "ilan sayisi", "count", "sahibinden"]);
     if (countKey) pruned[countKey] = Number(row[countKey] || 0);
   } else if (type === "ofis_kullanicilari") {
-    const durumKey = getMatchedKey(row, ["durum", "status", "ofisdurumu", "kullanicidurumu", "kullanicidurum"]);
+    const durumKey = getMatchedKey(row, ["durum", "status", "ofisdurumu", "kullanicidurumu", "kullanicidurum", "aktif", "aktiflik"]);
     if (durumKey) pruned[durumKey] = String(row[durumKey]).trim();
-    const unvanKey = getMatchedKey(row, ["unvan", "rol", "görev", "title", "role"]);
+    const unvanKey = getMatchedKey(row, ["unvan", "rol", "görev", "title", "role", "görevi", "pozisyon"]);
     if (unvanKey) pruned[unvanKey] = String(row[unvanKey]).trim();
-    const epostaKey = getMatchedKey(row, ["e-posta", "eposta", "email", "mail", "kullanicieposta", "kullanicimail"]);
+    const epostaKey = getMatchedKey(row, ["e-posta", "eposta", "email", "mail", "kullanicieposta", "kullanicimail", "e posta", "eposta adresi", "e-posta adresi"]);
     if (epostaKey) pruned[epostaKey] = String(row[epostaKey]).trim();
-    const adSoyadKey = getMatchedKey(row, ["adsoyad", "ad soyad", "ad soyadi", "adisoyadi", "adi soyadi", "kullaniciadi", "kullanici adi", "kullanici adisoyadi", "name", "full name"]);
+    const adSoyadKey = getMatchedKey(row, ["adsoyad", "ad soyad", "ad soyadi", "adisoyadi", "adi soyadi", "kullaniciadi", "kullanici adi", "kullanici adisoyadi", "name", "full name", "isim", "ad", "soyad"]);
     if (adSoyadKey) pruned[adSoyadKey] = String(row[adSoyadKey]).trim();
   }
 
@@ -1144,15 +1144,39 @@ function mergeByOfisKullanicilari(existing: any[], incoming: any[]) {
   if (!Array.isArray(incoming)) incoming = [];
 
   const existingMap = new Map<string, any>();
-  existing.forEach(row => {
-    let officeId = getNormalizedValue(row, ["ofiskodu", "ofis kodu", "id", "kod"]).toUpperCase().trim();
+  
+  // Get master offices list for name-based fallback matching
+  let officesList: any[] = [];
+  try {
+    const db = readDB();
+    officesList = db.offices || [];
+  } catch (e) {
+    // Ignore
+  }
+
+  const resolveOfficeId = (row: any) => {
+    let officeId = getNormalizedValue(row, ["ofiskodu", "ofis kodu", "id", "kod", "ofis no", "ofisno", "office code", "sistem kodu", "sistemkodu", "no", "kodu"]).toUpperCase().trim();
     if (!officeId && row["Ofis Kodu"]) {
       officeId = String(row["Ofis Kodu"]).toUpperCase().trim();
     }
+    if (!officeId) {
+      const officeName = getNormalizedValue(row, ["ofisadi", "ofis adi", "name", "office name", "ad", "unvan", "ofis", "ofis adı"]).trim().toLowerCase();
+      if (officeName) {
+        const found = officesList.find(o => o && (o.name.toLowerCase().includes(officeName) || officeName.includes(o.name.toLowerCase())));
+        if (found) {
+          officeId = found.id.toUpperCase().trim();
+        }
+      }
+    }
+    return officeId;
+  };
+
+  existing.forEach(row => {
+    const officeId = resolveOfficeId(row);
     if (officeId) {
       const brand = getBrandFromRowBackend(row);
-      const name = getNormalizedValue(row, ["adsoyad", "ad soyad", "ad soyadi", "adisoyadi", "adi soyadi", "kullaniciadi", "kullanici adi", "kullanici adisoyadi", "name", "full name"]).toUpperCase().trim();
-      const email = getNormalizedValue(row, ["e-posta", "eposta", "email", "mail", "kullanicieposta", "kullanicimail"]).toLowerCase().trim();
+      const name = getNormalizedValue(row, ["adsoyad", "ad soyad", "ad soyadi", "adisoyadi", "adi soyadi", "kullaniciadi", "kullanici adi", "kullanici adisoyadi", "name", "full name", "isim", "ad", "soyad"]).toUpperCase().trim();
+      const email = getNormalizedValue(row, ["e-posta", "eposta", "email", "mail", "kullanicieposta", "kullanicimail", "e posta", "eposta adresi", "e-posta adresi"]).toLowerCase().trim();
       // Ensure we don't overwrite if multiple users in same office have no name or email
       const fallbackKey = Math.random().toString(36).substring(7);
       const key = `${officeId}:::${brand}:::${name || email || fallbackKey}`;
@@ -1161,14 +1185,11 @@ function mergeByOfisKullanicilari(existing: any[], incoming: any[]) {
   });
 
   incoming.forEach(row => {
-    let officeId = getNormalizedValue(row, ["ofiskodu", "ofis kodu", "id", "kod"]).toUpperCase().trim();
-    if (!officeId && row["Ofis Kodu"]) {
-      officeId = String(row["Ofis Kodu"]).toUpperCase().trim();
-    }
+    const officeId = resolveOfficeId(row);
     if (officeId) {
       const brand = getBrandFromRowBackend(row);
-      const name = getNormalizedValue(row, ["adsoyad", "ad soyad", "ad soyadi", "adisoyadi", "adi soyadi", "kullaniciadi", "kullanici adi", "kullanici adisoyadi", "name", "full name"]).toUpperCase().trim();
-      const email = getNormalizedValue(row, ["e-posta", "eposta", "email", "mail", "kullanicieposta", "kullanicimail"]).toLowerCase().trim();
+      const name = getNormalizedValue(row, ["adsoyad", "ad soyad", "ad soyadi", "adisoyadi", "adi soyadi", "kullaniciadi", "kullanici adi", "kullanici adisoyadi", "name", "full name", "isim", "ad", "soyad"]).toUpperCase().trim();
+      const email = getNormalizedValue(row, ["e-posta", "eposta", "email", "mail", "kullanicieposta", "kullanicimail", "e posta", "eposta adresi", "e-posta adresi"]).toLowerCase().trim();
       // Ensure we don't overwrite if multiple users in same office have no name or email
       const fallbackKey = Math.random().toString(36).substring(7);
       const key = `${officeId}:::${brand}:::${name || email || fallbackKey}`;
@@ -1187,19 +1208,31 @@ function populateOfficeBrokerEmails(db: any, rawUsers: any[]) {
   const officeBrokerMap = new Map<string, Set<string>>();
 
   rawUsers.forEach(row => {
-    const officeId = getNormalizedValue(row, ["ofiskodu", "ofis kodu", "id", "kod"]).toUpperCase().trim();
+    let officeId = getNormalizedValue(row, ["ofiskodu", "ofis kodu", "id", "kod", "ofis no", "ofisno", "office code", "sistem kodu", "sistemkodu", "no", "kodu"]).toUpperCase().trim();
+    if (!officeId && row["Ofis Kodu"]) {
+      officeId = String(row["Ofis Kodu"]).toUpperCase().trim();
+    }
+    if (!officeId) {
+      const officeName = getNormalizedValue(row, ["ofisadi", "ofis adi", "name", "office name", "ad", "unvan", "ofis", "ofis adı"]).trim().toLowerCase();
+      if (officeName) {
+        const found = db.offices.find((o: any) => o && (o.name.toLowerCase().includes(officeName) || officeName.includes(o.name.toLowerCase())));
+        if (found) {
+          officeId = found.id.toUpperCase().trim();
+        }
+      }
+    }
     if (!officeId) return;
 
     const brand = getBrandFromRowBackend(row);
-    const rowStatus = getNormalizedValue(row, ["durum", "status", "ofisdurumu", "kullanicidurumu", "kullanicidurum"]).toUpperCase().trim();
-    const isAktif = rowStatus === "AKTIF" || rowStatus.includes("AKTIF") || rowStatus === "ACTIVE" || rowStatus.includes("ACTIVE");
+    const rowStatus = getNormalizedValue(row, ["durum", "status", "ofisdurumu", "kullanicidurumu", "kullanicidurum", "aktif", "aktiflik"]).toUpperCase().trim();
+    const isAktif = rowStatus === "AKTIF" || rowStatus.includes("AKTIF") || rowStatus === "ACTIVE" || rowStatus.includes("ACTIVE") || rowStatus === "YENI" || rowStatus === "";
 
     if (isAktif) {
-      const rowUnvan = getNormalizedValue(row, ["unvan", "rol", "görev", "title", "role"]).toUpperCase().trim();
-      const isBrokerOrOwner = rowUnvan.includes("BROKER") || rowUnvan.includes("OWNER") || rowUnvan.includes("ORTAK");
+      const rowUnvan = getNormalizedValue(row, ["unvan", "rol", "görev", "title", "role", "görevi", "pozisyon"]).toUpperCase().trim();
+      const isBrokerOrOwner = rowUnvan.includes("BROKER") || rowUnvan.includes("OWNER") || rowUnvan.includes("ORTAK") || rowUnvan.includes("MUDUR") || rowUnvan.includes("MÜDÜR");
 
       if (isBrokerOrOwner) {
-        const rowEmail = getNormalizedValue(row, ["e-posta", "eposta", "email", "mail", "kullanicieposta", "kullanicimail"]).trim().toLowerCase();
+        const rowEmail = getNormalizedValue(row, ["e-posta", "eposta", "email", "mail", "kullanicieposta", "kullanicimail", "e posta", "eposta adresi", "e-posta adresi"]).trim().toLowerCase();
         if (rowEmail && rowEmail.includes("@")) {
           const key = `${officeId}:::${brand.toUpperCase().trim()}`;
           if (!officeBrokerMap.has(key)) {

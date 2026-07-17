@@ -52,7 +52,7 @@ const detectCategory = (filename: string): string => {
   const name = filename.toLowerCase();
   
   if (name.includes("akullanici") || name.includes("akullanıcı")) {
-    return "danisman";
+    return "ofis_kullanicilari";
   } else if (name.includes("cb_kullanici") || name.includes("cb kullanici") || name.includes("cb_kullanıcı") || name.includes("cb kullanıcı") ||
              name.includes("c21_kullanici") || name.includes("c21 kullanici") || name.includes("c21_kullanıcı") || name.includes("c21 kullanıcı") ||
              name.includes("era_kullanici") || name.includes("era kullanici") || name.includes("era_kullanıcı") || name.includes("era kullanıcı") ||

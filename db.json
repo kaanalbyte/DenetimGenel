@@ -1,323 +1,323 @@
 {
   "offices": [
     {
+      "ownerEmail": "kemircan.kurtulmus@masterturk.com.tr",
       "id": "OF10605",
-      "ownerName": "Kaan Albayrak",
+      "responsibleUser": "Kaan Albayrak",
+      "brand": "Coldwell Banker",
+      "groupId": "G100",
+      "status": "Aktif",
       "name": "CB WIN",
-      "status": "Aktif",
-      "brand": "Coldwell Banker",
-      "groupId": "G100",
-      "ownerEmail": "win@cb.com.tr",
-      "responsibleUser": "Kaan Albayrak"
+      "ownerName": "Kaan Albayrak"
     },
     {
-      "name": "CB ASİL",
+      "groupId": "G100",
+      "brand": "Coldwell Banker",
+      "ownerEmail": "kemircan.kurtulmus@masterturk.com.tr",
+      "responsibleUser": "Kaan Albayrak",
       "id": "OF10610",
+      "status": "Aktif",
       "ownerName": "Kaan Albayrak",
-      "status": "Dondurulmuş",
-      "brand": "Coldwell Banker",
-      "responsibleUser": "Kaan Albayrak",
-      "groupId": "G100",
-      "ownerEmail": "asil@cb.com.tr"
+      "name": "CB ASİL"
     },
     {
-      "name": "CB İLKE",
       "id": "OF10611",
-      "ownerName": "Kaan Albayrak",
-      "status": "Aktif",
-      "brand": "Coldwell Banker",
+      "ownerEmail": "kemircan.kurtulmus@masterturk.com.tr",
       "responsibleUser": "Kaan Albayrak",
-      "ownerEmail": "ilke@cb.com.tr",
-      "groupId": null
+      "brand": "Coldwell Banker",
+      "groupId": null,
+      "status": "Aktif",
+      "name": "CB İLKE",
+      "ownerName": "Kaan Albayrak"
     },
     {
-      "groupId": null,
-      "ownerEmail": "boaz@cb.com.tr",
-      "responsibleUser": "Kaan Albayrak",
-      "brand": "Coldwell Banker",
-      "status": "Aktif",
+      "name": "CB BOAZ",
       "ownerName": "Kaan Albayrak",
+      "status": "Aktif",
+      "ownerEmail": "kemircan.kurtulmus@masterturk.com.tr",
       "id": "OF10612",
-      "name": "CB BOAZ"
+      "responsibleUser": "Kaan Albayrak",
+      "groupId": null,
+      "brand": "Coldwell Banker"
     },
     {
-      "id": "OF10613",
-      "ownerName": "Kaan Albayrak",
-      "name": "CB MAJOR",
       "status": "Aktif",
+      "name": "CB MAJOR",
+      "ownerName": "Kaan Albayrak",
       "brand": "Coldwell Banker",
-      "ownerEmail": "major@cb.com.tr",
       "groupId": null,
+      "ownerEmail": "kemircan.kurtulmus@masterturk.com.tr",
+      "id": "OF10613",
       "responsibleUser": "Kaan Albayrak"
     },
     {
-      "responsibleUser": "Kaan Albayrak",
-      "ownerEmail": "trend@cb.com.tr",
-      "groupId": null,
       "brand": "Coldwell Banker",
-      "status": "Aktif",
+      "groupId": null,
+      "id": "OF10614",
+      "ownerEmail": "kemircan.kurtulmus@masterturk.com.tr",
+      "responsibleUser": "Kaan Albayrak",
+      "ownerName": "Kaan Albayrak",
       "name": "CB TREND",
+      "status": "Aktif"
+    },
+    {
+      "name": "CB ONKO 2",
       "ownerName": "Kaan Albayrak",
-      "id": "OF10614"
+      "status": "Silinmiş",
+      "brand": "Coldwell Banker",
+      "groupId": null,
+      "id": "OF10615",
+      "ownerEmail": "kemircan.kurtulmus@masterturk.com.tr",
+      "responsibleUser": "Kaan Albayrak"
     },
     {
       "brand": "Coldwell Banker",
       "groupId": null,
-      "ownerEmail": "onko2@cb.com.tr",
+      "id": "OF10616",
+      "ownerEmail": "kemircan.kurtulmus@masterturk.com.tr",
       "responsibleUser": "Kaan Albayrak",
-      "ownerName": "Kaan Albayrak",
-      "id": "OF10615",
-      "name": "CB ONKO 2",
-      "status": "Silinmiş"
-    },
-    {
       "status": "Aktif",
       "name": "CB VEGA",
-      "ownerName": "Kaan Albayrak",
-      "id": "OF10616",
-      "responsibleUser": "Kaan Albayrak",
-      "ownerEmail": "vega@cb.com.tr",
-      "groupId": null,
-      "brand": "Coldwell Banker"
+      "ownerName": "Kaan Albayrak"
     },
     {
-      "name": "CB GALA",
-      "id": "OF10617",
       "ownerName": "Kaan Albayrak",
+      "name": "CB GALA",
       "status": "Aktif",
       "brand": "Coldwell Banker",
-      "responsibleUser": "Kaan Albayrak",
       "groupId": "G102",
-      "ownerEmail": "gala@cb.com.tr"
+      "responsibleUser": "Kaan Albayrak",
+      "ownerEmail": "kemircan.kurtulmus@masterturk.com.tr",
+      "id": "OF10617"
     },
     {
-      "status": "Aktif",
-      "name": "CB REFERANS",
-      "ownerName": "Kaan Albayrak",
+      "ownerEmail": "kemircan.kurtulmus@masterturk.com.tr",
       "id": "OF10618",
       "responsibleUser": "Kaan Albayrak",
-      "ownerEmail": "referans@cb.com.tr",
       "groupId": null,
-      "brand": "Coldwell Banker"
+      "brand": "Coldwell Banker",
+      "status": "Aktif",
+      "name": "CB REFERANS",
+      "ownerName": "Kaan Albayrak"
+    },
+    {
+      "ownerEmail": "kemircan.kurtulmus@masterturk.com.tr",
+      "id": "OF10615",
+      "responsibleUser": "Kaan Albayrak",
+      "brand": "Century 21",
+      "groupId": null,
+      "status": "Aktif",
+      "name": "C21 WIN",
+      "ownerName": "Kaan Albayrak"
+    },
+    {
+      "ownerEmail": "kemircan.kurtulmus@masterturk.com.tr",
+      "responsibleUser": "Kaan Albayrak",
+      "id": "OF10620",
+      "groupId": null,
+      "brand": "Century 21",
+      "ownerName": "Kaan Albayrak",
+      "name": "C21 ASİL",
+      "status": "Dondurulmuş"
+    },
+    {
+      "ownerName": "Kaan Albayrak",
+      "name": "C21 İLKE",
+      "status": "Aktif",
+      "brand": "Century 21",
+      "groupId": null,
+      "responsibleUser": "Kaan Albayrak",
+      "id": "OF10621",
+      "ownerEmail": "kemircan.kurtulmus@masterturk.com.tr"
     },
     {
       "groupId": null,
-      "ownerEmail": "win@century21.com.tr",
-      "responsibleUser": "Kaan Albayrak",
       "brand": "Century 21",
+      "ownerEmail": "kemircan.kurtulmus@masterturk.com.tr",
+      "id": "OF10622",
+      "responsibleUser": "Kaan Albayrak",
       "status": "Aktif",
       "ownerName": "Kaan Albayrak",
-      "id": "OF10615",
-      "name": "C21 WIN"
+      "name": "C21 BOAZ"
     },
     {
-      "groupId": null,
-      "ownerEmail": "asil@century21.com.tr",
+      "id": "OF10623",
+      "ownerEmail": "kemircan.kurtulmus@masterturk.com.tr",
       "responsibleUser": "Kaan Albayrak",
       "brand": "Century 21",
-      "status": "Dondurulmuş",
-      "id": "OF10620",
+      "groupId": null,
       "ownerName": "Kaan Albayrak",
-      "name": "C21 ASİL"
+      "name": "C21 MAJOR",
+      "status": "Aktif"
     },
     {
       "brand": "Century 21",
+      "groupId": "G101",
+      "responsibleUser": "Kaan Albayrak",
+      "id": "OF10624",
+      "ownerEmail": "kemircan.kurtulmus@masterturk.com.tr",
+      "status": "Dondurulmuş",
+      "ownerName": "Kaan Albayrak",
+      "name": "C21 TREND"
+    },
+    {
+      "status": "Silinmiş",
+      "ownerName": "Kaan Albayrak",
+      "name": "C21 ONKO 2",
+      "ownerEmail": "kemircan.kurtulmus@masterturk.com.tr",
+      "id": "OF10625",
+      "responsibleUser": "Kaan Albayrak",
+      "groupId": "G101",
+      "brand": "Century 21"
+    },
+    {
+      "name": "C21 VEGA",
+      "ownerName": "Kaan Albayrak",
+      "status": "Aktif",
+      "responsibleUser": "Kaan Albayrak",
+      "id": "OF10626",
+      "ownerEmail": "kemircan.kurtulmus@masterturk.com.tr",
+      "groupId": null,
+      "brand": "Century 21"
+    },
+    {
+      "ownerEmail": "kemircan.kurtulmus@masterturk.com.tr",
+      "id": "OF10627",
       "responsibleUser": "Kaan Albayrak",
       "groupId": null,
-      "ownerEmail": "ilke@century21.com.tr",
-      "name": "C21 İLKE",
-      "id": "OF10621",
+      "brand": "Century 21",
+      "name": "C21 GALA",
       "ownerName": "Kaan Albayrak",
       "status": "Aktif"
     },
     {
       "groupId": null,
-      "ownerEmail": "boaz@century21.com.tr",
-      "responsibleUser": "Kaan Albayrak",
       "brand": "Century 21",
-      "status": "Aktif",
-      "ownerName": "Kaan Albayrak",
-      "id": "OF10622",
-      "name": "C21 BOAZ"
-    },
-    {
-      "status": "Aktif",
-      "name": "C21 MAJOR",
-      "ownerName": "Kaan Albayrak",
-      "id": "OF10623",
+      "ownerEmail": "kemircan.kurtulmus@masterturk.com.tr",
+      "id": "OF10628",
       "responsibleUser": "Kaan Albayrak",
-      "ownerEmail": "major@century21.com.tr",
-      "groupId": null,
-      "brand": "Century 21"
-    },
-    {
-      "status": "Aktif",
-      "name": "C21 TREND",
-      "id": "OF10624",
-      "ownerName": "Kaan Albayrak",
-      "responsibleUser": "Kaan Albayrak",
-      "ownerEmail": "trend@century21.com.tr",
-      "groupId": "G101",
-      "brand": "Century 21"
-    },
-    {
-      "status": "Silinmiş",
-      "ownerName": "Kaan Albayrak",
-      "id": "OF10625",
-      "name": "C21 ONKO 2",
-      "ownerEmail": "onko2@century21.com.tr",
-      "groupId": "G101",
-      "responsibleUser": "Kaan Albayrak",
-      "brand": "Century 21"
-    },
-    {
-      "status": "Aktif",
-      "ownerName": "Kaan Albayrak",
-      "id": "OF10626",
-      "name": "C21 VEGA",
-      "ownerEmail": "vega@century21.com.tr",
-      "groupId": null,
-      "responsibleUser": "Kaan Albayrak",
-      "brand": "Century 21"
-    },
-    {
-      "ownerEmail": "gala@century21.com.tr",
-      "groupId": null,
-      "responsibleUser": "Kaan Albayrak",
-      "brand": "Century 21",
-      "status": "Aktif",
-      "id": "OF10627",
-      "ownerName": "Kaan Albayrak",
-      "name": "C21 GALA"
-    },
-    {
-      "responsibleUser": "Kaan Albayrak",
-      "groupId": null,
-      "ownerEmail": "referans@century21.com.tr",
-      "brand": "Century 21",
       "status": "Aktif",
       "name": "C21 REFERANS",
-      "id": "OF10628",
       "ownerName": "Kaan Albayrak"
     },
     {
-      "id": "OF10615",
-      "ownerName": "Kaan Albayrak",
-      "name": "ERA WIN",
       "status": "Aktif",
+      "name": "ERA WIN",
+      "ownerName": "Kaan Albayrak",
       "brand": "ERA",
       "groupId": null,
-      "ownerEmail": "win@era.com.tr",
-      "responsibleUser": "Kaan Albayrak"
-    },
-    {
-      "status": "Dondurulmuş",
-      "ownerName": "Kaan Albayrak",
-      "id": "OF10630",
-      "name": "ERA ASİL",
-      "ownerEmail": "asil@era.com.tr",
-      "groupId": null,
       "responsibleUser": "Kaan Albayrak",
-      "brand": "ERA"
+      "id": "OF10615",
+      "ownerEmail": "kemircan.kurtulmus@masterturk.com.tr"
     },
     {
+      "responsibleUser": "Kaan Albayrak",
+      "id": "OF10630",
+      "ownerEmail": "kemircan.kurtulmus@masterturk.com.tr",
+      "groupId": null,
+      "brand": "ERA",
+      "name": "ERA ASİL",
       "ownerName": "Kaan Albayrak",
+      "status": "Dondurulmuş"
+    },
+    {
+      "brand": "ERA",
+      "groupId": null,
+      "ownerEmail": "kemircan.kurtulmus@masterturk.com.tr",
+      "responsibleUser": "Kaan Albayrak",
       "id": "OF10631",
       "name": "ERA İLKE",
-      "status": "Aktif",
-      "brand": "ERA",
-      "groupId": null,
-      "ownerEmail": "ilke@era.com.tr",
-      "responsibleUser": "Kaan Albayrak"
+      "ownerName": "Kaan Albayrak",
+      "status": "Aktif"
     },
     {
-      "responsibleUser": "Kaan Albayrak",
-      "groupId": null,
-      "ownerEmail": "boaz@era.com.tr",
-      "brand": "ERA",
-      "status": "Aktif",
       "name": "ERA BOAZ",
       "ownerName": "Kaan Albayrak",
-      "id": "OF10632"
-    },
-    {
-      "status": "Aktif",
-      "name": "ERA MAJOR",
-      "ownerName": "Kaan Albayrak",
-      "id": "OF10633",
+      "status": "Silinmiş",
+      "ownerEmail": "kemircan.kurtulmus@masterturk.com.tr",
+      "id": "OF10632",
       "responsibleUser": "Kaan Albayrak",
-      "ownerEmail": "major@era.com.tr",
       "groupId": null,
       "brand": "ERA"
     },
     {
+      "ownerName": "Kaan Albayrak",
+      "name": "ERA MAJOR",
+      "status": "Aktif",
+      "ownerEmail": "kemircan.kurtulmus@masterturk.com.tr",
+      "responsibleUser": "Kaan Albayrak",
+      "id": "OF10633",
       "brand": "ERA",
-      "ownerEmail": "trend@era.com.tr",
+      "groupId": null
+    },
+    {
+      "brand": "ERA",
       "groupId": null,
+      "ownerEmail": "kemircan.kurtulmus@masterturk.com.tr",
+      "id": "OF10634",
       "responsibleUser": "Kaan Albayrak",
       "ownerName": "Kaan Albayrak",
-      "id": "OF10634",
       "name": "ERA TREND",
       "status": "Aktif"
     },
     {
-      "ownerEmail": "onko2@era.com.tr",
-      "groupId": null,
-      "responsibleUser": "Kaan Albayrak",
-      "brand": "ERA",
+      "ownerName": "Kaan Albayrak",
+      "name": "ERA ONKO 2",
       "status": "Silinmiş",
-      "id": "OF10645",
-      "ownerName": "Kaan Albayrak",
-      "name": "ERA ONKO 2"
-    },
-    {
-      "status": "Aktif",
-      "name": "ERA VEGA",
-      "id": "OF10636",
-      "ownerName": "Kaan Albayrak",
       "responsibleUser": "Kaan Albayrak",
-      "ownerEmail": "vega@era.com.tr",
-      "groupId": "G102",
+      "ownerEmail": "kemircan.kurtulmus@masterturk.com.tr",
+      "id": "OF10645",
+      "groupId": null,
       "brand": "ERA"
     },
     {
-      "name": "ERA GALA",
       "ownerName": "Kaan Albayrak",
-      "id": "OF10637",
+      "name": "ERA VEGA",
       "status": "Aktif",
+      "groupId": "G102",
       "brand": "ERA",
       "responsibleUser": "Kaan Albayrak",
-      "groupId": null,
-      "ownerEmail": "gala@era.com.tr"
+      "id": "OF10636",
+      "ownerEmail": "kemircan.kurtulmus@masterturk.com.tr"
     },
     {
+      "ownerName": "Kaan Albayrak",
+      "name": "ERA GALA",
       "status": "Aktif",
-      "id": "OF10638",
+      "groupId": null,
+      "brand": "ERA",
+      "id": "OF10637",
+      "ownerEmail": "kemircan.kurtulmus@masterturk.com.tr",
+      "responsibleUser": "Kaan Albayrak"
+    },
+    {
       "ownerName": "Kaan Albayrak",
       "name": "ERA REFERANS",
-      "groupId": "G102",
-      "ownerEmail": "referans@era.com.tr",
+      "status": "Aktif",
+      "ownerEmail": "kemircan.kurtulmus@masterturk.com.tr",
       "responsibleUser": "Kaan Albayrak",
-      "brand": "ERA"
+      "id": "OF10638",
+      "brand": "ERA",
+      "groupId": "G102"
     }
   ],
   "groups": [
     {
+      "name": "CB WIN",
       "ownerName": "",
       "id": "G100",
-      "name": "CB WIN",
       "ownerEmail": ""
     },
     {
+      "name": "c21 trend",
+      "ownerName": "",
       "id": "G101",
-      "ownerName": "",
-      "name": "TREND",
       "ownerEmail": ""
     },
     {
-      "id": "G102",
+      "name": "era referans",
       "ownerName": "",
-      "name": "ERA REFERANS",
+      "id": "G102",
       "ownerEmail": ""
     }
   ],
@@ -331,7 +331,7 @@
       "phase1IlanSahibindenRaw": [],
       "phase2IlanPanelRaw": [],
       "phase2IlanSahibindenRaw": [],
-      "status": "Aktif",
+      "status": "Tamamlandı",
       "currentPhase": "Tespit",
       "createdAt": "2026-07-14T11:55:55.544Z",
       "name": "Haziran 2026",
@@ -340,37 +340,4415 @@
       "phase1DanismanRaw": [],
       "phase2Uploaded": false,
       "phase2ApprovedOffices": [],
-      "updatedAt": "2026-07-14T11:55:55.544Z"
-    }
-  ],
-  "emails": [
-    {
-      "auditName": "Test Audit",
-      "type": "Danışman",
-      "id": "EML_cbw1ts1fo",
-      "officeId": "G100",
-      "recipient": "win@cb.com.tr, kaan.albayrak@masterturk.com.tr, asil@cb.com.tr, nilufer.perkim@masterturk.com.tr",
-      "timestamp": "2026-07-14T11:54:53.821Z",
-      "subject": "[CEZAİ İŞLEM] - Nihai Ceza Fazı Bildirimi: CB WIN (Grup Ofis)",
-      "officeName": "CB WIN (Grup Ofis)",
-      "status": "Gönderildi",
-      "stage": "Ceza",
-      "bodyHtml": "\n    <!DOCTYPE html>\n    <html>\n    <head>\n      <meta charset=\"utf-8\">\n      <style>\n        body { font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; background-color: #f3f4f6; color: #1f2937; margin: 0; padding: 20px; }\n        .container { max-width: 600px; margin: 0 auto; background-color: #ffffff; border-radius: 8px; overflow: hidden; box-shadow: 0 4px 6px -1px rgba(0,0,0,0.1); border: 1px solid #e5e7eb; }\n        .header { background-color: #be123c; padding: 25px; text-align: center; color: #ffffff; }\n        .header h1 { margin: 0; font-size: 22px; font-weight: 600; letter-spacing: -0.025em; }\n        .header p { margin: 5px 0 0 0; font-size: 14px; opacity: 0.9; }\n        .content { padding: 30px; line-height: 1.6; }\n        .greeting { font-size: 16px; font-weight: 600; margin-bottom: 15px; }\n        .details-box { background-color: #f9fafb; border-left: 4px solid #be123c; padding: 15px; margin: 20px 0; border-radius: 0 4px 4px 0; }\n        .details-title { font-weight: 600; margin-bottom: 5px; color: #374151; }\n        .warning-text { color: #be123c; font-weight: 600; }\n        .footer { background-color: #f9fafb; padding: 20px; text-align: center; font-size: 12px; color: #6b7280; border-top: 1px solid #f3f4f6; }\n        .cta-button { display: inline-block; background-color: #be123c; color: #ffffff; text-decoration: none; padding: 10px 20px; border-radius: 5px; font-weight: 500; margin-top: 15px; }\n      </style>\n    </head>\n    <body>\n      <div class=\"container\">\n        <div class=\"header\">\n          <h1>Aşama 3: Nihai Ceza Fazı</h1>\n          <p>Danışman Denetimi Kapsamında Uyumsuzluk Tespiti</p>\n        </div>\n        <div class=\"content\">\n          <div class=\"greeting\">Sayın Bilinmiyor,</div>\n          <p>Bağımsız franchise ofislerimizin standartlara uyum süreçlerini takip etmek amacıyla gerçekleştirdiğimiz rutin dönem denetimlerimizde, <strong>CB WIN (Grup Ofis)</strong> bünyesinde birtakım uyumsuzluklar tespit edilmiştir.</p>\n          \n          <div class=\"details-box\">\n            <div class=\"details-title\">🔍 Tespit Edilen Detaylar (Danışman Denetimi):</div>\n            <div style=\"font-size: 14px; white-space: pre-wrap;\">Test group danisman details</div>\n          </div>\n\n          \n            <p class=\"warning-text\">🚨 CEZAİ YAPTIRIM BİLDİRİMİ:</p>\n            <p>Yapılan tüm uyarılara ve tanınan kontrol sürelerine rağmen uyumsuzluğun giderilmediği tespit edilmiştir. İlgili durum ceza havuzuna aktarılmış olup, sözleşme maddeleri uyarınca franchise ceza faturası/yaptırımı uygulanacaktır.</p>\n          \n\n          <p>İş birliğiniz ve hassasiyetiniz için teşekkür eder, iyi çalışmalar dileriz.</p>\n          <p style=\"margin-top: 25px; font-size: 13px; color: #9ca3af;\">MasterTurk Franchise Denetim Direktörlüğü<br/><em>Bu e-posta otomatik olarak oluşturulmuştur.</em></p>\n        </div>\n        <div class=\"footer\">\n          &copy; 2026 MasterTurk Gayrimenkul A.Ş. Tüm Hakları Saklıdır.\n        </div>\n      </div>\n    </body>\n    </html>\n  "
+      "updatedAt": "2026-07-17T14:01:55.292Z"
     },
     {
-      "timestamp": "2026-07-14T11:54:39.982Z",
-      "officeName": "CB ASİL",
-      "subject": "[ÖNEMLİ] - 2. Aşama Kontrol Fazı Uyarı Bildirimi: CB ASİL",
-      "auditName": "Test Audit",
-      "type": "Danışman",
-      "officeId": "OF10610:::CB ASİL",
-      "id": "EML_bd2twtq66",
-      "recipient": "asil@cb.com.tr, kaan.albayrak@masterturk.com.tr, nilufer.perkim@masterturk.com.tr",
-      "stage": "Kontrol",
-      "bodyHtml": "\n    <!DOCTYPE html>\n    <html>\n    <head>\n      <meta charset=\"utf-8\">\n      <style>\n        body { font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; background-color: #f3f4f6; color: #1f2937; margin: 0; padding: 20px; }\n        .container { max-width: 600px; margin: 0 auto; background-color: #ffffff; border-radius: 8px; overflow: hidden; box-shadow: 0 4px 6px -1px rgba(0,0,0,0.1); border: 1px solid #e5e7eb; }\n        .header { background-color: #b45309; padding: 25px; text-align: center; color: #ffffff; }\n        .header h1 { margin: 0; font-size: 22px; font-weight: 600; letter-spacing: -0.025em; }\n        .header p { margin: 5px 0 0 0; font-size: 14px; opacity: 0.9; }\n        .content { padding: 30px; line-height: 1.6; }\n        .greeting { font-size: 16px; font-weight: 600; margin-bottom: 15px; }\n        .details-box { background-color: #f9fafb; border-left: 4px solid #b45309; padding: 15px; margin: 20px 0; border-radius: 0 4px 4px 0; }\n        .details-title { font-weight: 600; margin-bottom: 5px; color: #374151; }\n        .warning-text { color: #be123c; font-weight: 600; }\n        .footer { background-color: #f9fafb; padding: 20px; text-align: center; font-size: 12px; color: #6b7280; border-top: 1px solid #f3f4f6; }\n        .cta-button { display: inline-block; background-color: #b45309; color: #ffffff; text-decoration: none; padding: 10px 20px; border-radius: 5px; font-weight: 500; margin-top: 15px; }\n      </style>\n    </head>\n    <body>\n      <div class=\"container\">\n        <div class=\"header\">\n          <h1>Aşama 2: Kontrol ve Düzeltme Fazı</h1>\n          <p>Danışman Denetimi Kapsamında Uyumsuzluk Tespiti</p>\n        </div>\n        <div class=\"content\">\n          <div class=\"greeting\">Sayın Kaan Albayrak,</div>\n          <p>Bağımsız franchise ofislerimizin standartlara uyum süreçlerini takip etmek amacıyla gerçekleştirdiğimiz rutin dönem denetimlerimizde, <strong>CB ASİL</strong> bünyesinde birtakım uyumsuzluklar tespit edilmiştir.</p>\n          \n          <div class=\"details-box\">\n            <div class=\"details-title\">🔍 Tespit Edilen Detaylar (Danışman Denetimi):</div>\n            <div style=\"font-size: 14px; white-space: pre-wrap;\">Test danisman details</div>\n          </div>\n\n          \n            <p class=\"warning-text\">⚠️ ÖNEMLİ UYARI:</p>\n            <p>Yapılan ilk tespit bildiriminin ardından geçen sürede gerekli düzeltmelerin yapılmadığı veya yetersiz kaldığı gözlemlenmiştir. Lütfen <strong class=\"warning-text\">son 2 gün içerisinde</strong> uyumsuzlukları gideriniz. Aksi takdirde süreç <strong>Nihai Ceza Fazı'na</strong> aktarılacak ve cezai yaptırımlar devreye alınacaktır.</p>\n          \n\n          <p>İş birliğiniz ve hassasiyetiniz için teşekkür eder, iyi çalışmalar dileriz.</p>\n          <p style=\"margin-top: 25px; font-size: 13px; color: #9ca3af;\">MasterTurk Franchise Denetim Direktörlüğü<br/><em>Bu e-posta otomatik olarak oluşturulmuştur.</em></p>\n        </div>\n        <div class=\"footer\">\n          &copy; 2026 MasterTurk Gayrimenkul A.Ş. Tüm Hakları Saklıdır.\n        </div>\n      </div>\n    </body>\n    </html>\n  ",
-      "status": "Gönderildi"
+      "phase2IlanPanelRaw": [],
+      "status": "Aktif",
+      "phase1ProblematicOffices": [],
+      "phase2IlanSahibindenRaw": [],
+      "totalOfficesCount": 30,
+      "phase1KacakDanismanRaw": [
+        {
+          "Ofis Adı": "C21 WIN",
+          "_sourceFile": "platform_icerik_ozetleri.xlsx",
+          "Ünvan": "Gayrimenkul Danışmanı",
+          "Portföy Sayısı": 43,
+          "Ofis Kodu": "OF10615",
+          "Danışman Adı Soyadı": "Esra Matgöncü"
+        },
+        {
+          "_sourceFile": "platform_icerik_ozetleri.xlsx",
+          "Ofis Adı": "C21 WIN",
+          "Danışman Adı Soyadı": "Onur Dursun",
+          "Ofis Kodu": "OF10615",
+          "Portföy Sayısı": 9,
+          "Ünvan": "Gayrimenkul Danışmanı"
+        },
+        {
+          "Ofis Adı": "C21 WIN",
+          "_sourceFile": "platform_icerik_ozetleri.xlsx",
+          "Ünvan": "Gayrimenkul Danışmanı",
+          "Danışman Adı Soyadı": "Didem Civecioğlu",
+          "Portföy Sayısı": 9,
+          "Ofis Kodu": "OF10615"
+        },
+        {
+          "Ünvan": "Gayrimenkul Danışmanı",
+          "Portföy Sayısı": 6,
+          "Ofis Kodu": "OF10615",
+          "Danışman Adı Soyadı": "Galip Güner",
+          "Ofis Adı": "C21 WIN",
+          "_sourceFile": "platform_icerik_ozetleri.xlsx"
+        },
+        {
+          "Ofis Adı": "C21 WIN",
+          "_sourceFile": "platform_icerik_ozetleri.xlsx",
+          "Ünvan": "Gayrimenkul Danışmanı",
+          "Danışman Adı Soyadı": "Mahmut Orhan",
+          "Ofis Kodu": "OF10615",
+          "Portföy Sayısı": 2
+        },
+        {
+          "Ünvan": "Gayrimenkul Danışmanı",
+          "Danışman Adı Soyadı": "Bahittin Çalık",
+          "Portföy Sayısı": 4,
+          "Ofis Kodu": "OF10620",
+          "Ofis Adı": "C21 ASİL",
+          "_sourceFile": "platform_icerik_ozetleri.xlsx"
+        },
+        {
+          "Ofis Kodu": "OF10625",
+          "Portföy Sayısı": 2,
+          "Danışman Adı Soyadı": "Can Çağatay Göker",
+          "Ünvan": "Gayrimenkul Danışmanı",
+          "_sourceFile": "platform_icerik_ozetleri.xlsx",
+          "Ofis Adı": "C21 ONKO 2"
+        },
+        {
+          "_sourceFile": "platform_icerik_ozetleri.xlsx",
+          "Ofis Adı": "CB ONKO 2",
+          "Danışman Adı Soyadı": "Nuri Türkanoğlu",
+          "Portföy Sayısı": 2,
+          "Ofis Kodu": "OF10615",
+          "Ünvan": "Gayrimenkul Danışmanı"
+        },
+        {
+          "Portföy Sayısı": 26,
+          "Ofis Kodu": "OF10610",
+          "Danışman Adı Soyadı": "Bayram İpek",
+          "Ünvan": "Gayrimenkul Danışmanı",
+          "_sourceFile": "platform_icerik_ozetleri.xlsx",
+          "Ofis Adı": "CB ASİL"
+        },
+        {
+          "_sourceFile": "platform_icerik_ozetleri.xlsx",
+          "Ofis Adı": "CB ASİL",
+          "Portföy Sayısı": 10,
+          "Ofis Kodu": "OF10610",
+          "Danışman Adı Soyadı": "Hüseyin Karahasanoğlu",
+          "Ünvan": "Gayrimenkul Danışmanı"
+        },
+        {
+          "Ünvan": "Gayrimenkul Danışmanı",
+          "Ofis Kodu": "OF10610",
+          "Portföy Sayısı": 6,
+          "Danışman Adı Soyadı": "Mertcan Tuğrul",
+          "Ofis Adı": "CB ASİL",
+          "_sourceFile": "platform_icerik_ozetleri.xlsx"
+        },
+        {
+          "_sourceFile": "platform_icerik_ozetleri.xlsx",
+          "Ofis Adı": "CB ASİL",
+          "Danışman Adı Soyadı": "Zeynep Beyazarslan",
+          "Ofis Kodu": "OF10610",
+          "Portföy Sayısı": 4,
+          "Ünvan": "Gayrimenkul Danışmanı"
+        },
+        {
+          "Danışman Adı Soyadı": "Gülşah Yılmaz",
+          "Portföy Sayısı": 7,
+          "Ofis Kodu": "OF10617",
+          "Ünvan": "Gayrimenkul Danışmanı",
+          "_sourceFile": "platform_icerik_ozetleri.xlsx",
+          "Ofis Adı": "CB GALA"
+        },
+        {
+          "Ünvan": "Gayrimenkul Danışmanı",
+          "Danışman Adı Soyadı": "Nesrin Yalçın",
+          "Ofis Kodu": "OF10617",
+          "Portföy Sayısı": 7,
+          "Ofis Adı": "CB GALA",
+          "_sourceFile": "platform_icerik_ozetleri.xlsx"
+        },
+        {
+          "Ünvan": "Gayrimenkul Danışmanı",
+          "Ofis Kodu": "OF10617",
+          "Portföy Sayısı": 2,
+          "Danışman Adı Soyadı": "Selçuk Taştekin",
+          "Ofis Adı": "CB GALA",
+          "_sourceFile": "platform_icerik_ozetleri.xlsx"
+        },
+        {
+          "Ünvan": "Gayrimenkul Danışmanı",
+          "Danışman Adı Soyadı": "Yunus Doğan",
+          "Portföy Sayısı": 15,
+          "Ofis Kodu": "OF10630",
+          "Ofis Adı": "ERA ASİL",
+          "_sourceFile": "platform_icerik_ozetleri.xlsx"
+        },
+        {
+          "_sourceFile": "platform_icerik_ozetleri.xlsx",
+          "Ofis Adı": "ERA ASİL",
+          "Danışman Adı Soyadı": "Mücahit Uzuntürk",
+          "Ofis Kodu": "OF10630",
+          "Portföy Sayısı": 11,
+          "Ünvan": "Gayrimenkul Danışmanı"
+        },
+        {
+          "Ofis Adı": "ERA ASİL",
+          "_sourceFile": "platform_icerik_ozetleri.xlsx",
+          "Ünvan": "Gayrimenkul Danışmanı",
+          "Portföy Sayısı": 2,
+          "Ofis Kodu": "OF10630",
+          "Danışman Adı Soyadı": "Nail K."
+        },
+        {
+          "Ofis Adı": "ERA ONKO 2",
+          "_sourceFile": "platform_icerik_ozetleri.xlsx",
+          "Ünvan": "Gayrimenkul Danışmanı",
+          "Danışman Adı Soyadı": "Ayşe Şendoğan",
+          "Portföy Sayısı": 10,
+          "Ofis Kodu": "OF10645"
+        },
+        {
+          "Ofis Kodu": "OF10638",
+          "Portföy Sayısı": 11,
+          "Danışman Adı Soyadı": "Keziban Yargı",
+          "Ünvan": "Gayrimenkul Danışmanı",
+          "_sourceFile": "platform_icerik_ozetleri.xlsx",
+          "Ofis Adı": "ERA REFERANS"
+        },
+        {
+          "Ofis Kodu": "OF10638",
+          "Portföy Sayısı": 20,
+          "Danışman Adı Soyadı": "Seda Arslan",
+          "Ünvan": "Gayrimenkul Danışmanı",
+          "_sourceFile": "platform_icerik_ozetleri.xlsx",
+          "Ofis Adı": "ERA REFERANS"
+        },
+        {
+          "Ünvan": "Gayrimenkul Danışmanı",
+          "Ofis Kodu": "OF10638",
+          "Portföy Sayısı": 17,
+          "Danışman Adı Soyadı": "Ömer Faruk Çelik",
+          "Ofis Adı": "ERA REFERANS",
+          "_sourceFile": "platform_icerik_ozetleri.xlsx"
+        }
+      ],
+      "phase1DanismanRaw": [
+        {
+          "Toplam": 5,
+          "Asistan": 0,
+          "Direktör": 0,
+          "Ofis Kodu": "OF10615",
+          "Danışman": 3,
+          "_sourceFile": "era_akullanici.xlsx",
+          "Ofis": "ERA WIN",
+          "Owner": 2,
+          "Broker": 0
+        },
+        {
+          "Toplam": 17,
+          "Ofis Kodu": "OF10630",
+          "Direktör": 2,
+          "Asistan": 1,
+          "Danışman": 12,
+          "_sourceFile": "era_akullanici.xlsx",
+          "Ofis": "ERA ASİL",
+          "Owner": 2,
+          "Broker": 0
+        },
+        {
+          "Ofis": "ERA İLKE",
+          "_sourceFile": "era_akullanici.xlsx",
+          "Danışman": 9,
+          "Owner": 3,
+          "Broker": 0,
+          "Toplam": 14,
+          "Ofis Kodu": "OF10631",
+          "Asistan": 1,
+          "Direktör": 1
+        },
+        {
+          "Toplam": 21,
+          "Ofis Kodu": "OF10632",
+          "Direktör": 1,
+          "Asistan": 2,
+          "_sourceFile": "era_akullanici.xlsx",
+          "Ofis": "ERA BOAZ",
+          "Danışman": 16,
+          "Owner": 1,
+          "Broker": 1
+        },
+        {
+          "Toplam": 4,
+          "Ofis Kodu": "OF10633",
+          "Direktör": 0,
+          "Asistan": 1,
+          "Ofis": "ERA MAJOR",
+          "_sourceFile": "era_akullanici.xlsx",
+          "Danışman": 0,
+          "Owner": 3,
+          "Broker": 0
+        },
+        {
+          "Ofis Kodu": "OF10634",
+          "Direktör": 1,
+          "Asistan": 2,
+          "Toplam": 10,
+          "Broker": 0,
+          "Danışman": 6,
+          "_sourceFile": "era_akullanici.xlsx",
+          "Ofis": "ERA TREND",
+          "Owner": 1
+        },
+        {
+          "Toplam": 13,
+          "Ofis Kodu": "OF10645",
+          "Asistan": 0,
+          "Direktör": 1,
+          "Owner": 1,
+          "Ofis": "ERA ONKO 2",
+          "Danışman": 11,
+          "_sourceFile": "era_akullanici.xlsx",
+          "Broker": 0
+        },
+        {
+          "Owner": 3,
+          "Danışman": 0,
+          "_sourceFile": "era_akullanici.xlsx",
+          "Ofis": "ERA VEGA",
+          "Broker": 0,
+          "Toplam": 3,
+          "Direktör": 0,
+          "Asistan": 0,
+          "Ofis Kodu": "OF10636"
+        },
+        {
+          "Toplam": 3,
+          "Direktör": 0,
+          "Asistan": 0,
+          "Ofis Kodu": "OF10637",
+          "Owner": 2,
+          "Ofis": "ERA GALA",
+          "_sourceFile": "era_akullanici.xlsx",
+          "Danışman": 1,
+          "Broker": 0
+        },
+        {
+          "Toplam": 6,
+          "Ofis Kodu": "OF10638",
+          "Asistan": 0,
+          "Direktör": 1,
+          "Danışman": 4,
+          "Ofis": "ERA REFERANS",
+          "_sourceFile": "era_akullanici.xlsx",
+          "Owner": 1,
+          "Broker": 0
+        },
+        {
+          "Broker": 0,
+          "Ofis": "C21 WIN",
+          "Danışman": 2,
+          "_sourceFile": "c21_akullanici.xlsx",
+          "Owner": 1,
+          "Direktör": 1,
+          "Asistan": 0,
+          "Ofis Kodu": "OF10615",
+          "Toplam": 4
+        },
+        {
+          "Broker": 0,
+          "Owner": 6,
+          "_sourceFile": "c21_akullanici.xlsx",
+          "Ofis": "C21 ASİL",
+          "Danışman": 4,
+          "Direktör": 0,
+          "Asistan": 0,
+          "Ofis Kodu": "OF10620",
+          "Toplam": 10
+        },
+        {
+          "Direktör": 1,
+          "Asistan": 2,
+          "Ofis Kodu": "OF10621",
+          "Toplam": 21,
+          "Broker": 0,
+          "Owner": 1,
+          "Ofis": "C21 İLKE",
+          "Danışman": 17,
+          "_sourceFile": "c21_akullanici.xlsx"
+        },
+        {
+          "Asistan": 1,
+          "Direktör": 1,
+          "Ofis Kodu": "OF10622",
+          "Toplam": 22,
+          "Broker": 0,
+          "Ofis": "C21 BOAZ",
+          "_sourceFile": "c21_akullanici.xlsx",
+          "Danışman": 19,
+          "Owner": 1
+        },
+        {
+          "Owner": 1,
+          "Danışman": 18,
+          "_sourceFile": "c21_akullanici.xlsx",
+          "Ofis": "C21 MAJOR",
+          "Broker": 0,
+          "Toplam": 22,
+          "Direktör": 1,
+          "Asistan": 2,
+          "Ofis Kodu": "OF10623"
+        },
+        {
+          "Toplam": 29,
+          "Ofis Kodu": "OF10624",
+          "Asistan": 2,
+          "Direktör": 0,
+          "Ofis": "C21 TREND",
+          "_sourceFile": "c21_akullanici.xlsx",
+          "Danışman": 25,
+          "Owner": 2,
+          "Broker": 0
+        },
+        {
+          "Toplam": 5,
+          "Direktör": 0,
+          "Asistan": 0,
+          "Ofis Kodu": "OF10625",
+          "Owner": 3,
+          "_sourceFile": "c21_akullanici.xlsx",
+          "Ofis": "C21 ONKO 2",
+          "Danışman": 2,
+          "Broker": 0
+        },
+        {
+          "Ofis Kodu": "OF10626",
+          "Direktör": 0,
+          "Asistan": 2,
+          "Toplam": 18,
+          "Broker": 0,
+          "_sourceFile": "c21_akullanici.xlsx",
+          "Ofis": "C21 VEGA",
+          "Danışman": 15,
+          "Owner": 1
+        },
+        {
+          "Ofis Kodu": "OF10627",
+          "Direktör": 1,
+          "Asistan": 0,
+          "Toplam": 8,
+          "Broker": 0,
+          "Ofis": "C21 GALA",
+          "Danışman": 6,
+          "_sourceFile": "c21_akullanici.xlsx",
+          "Owner": 1
+        },
+        {
+          "Broker": 0,
+          "_sourceFile": "c21_akullanici.xlsx",
+          "Ofis": "C21 REFERANS",
+          "Danışman": 44,
+          "Owner": 2,
+          "Ofis Kodu": "OF10628",
+          "Asistan": 2,
+          "Direktör": 1,
+          "Toplam": 49
+        },
+        {
+          "Broker": 1,
+          "Owner": 0,
+          "_sourceFile": "cb_akullanici.xlsx",
+          "Danışman": 0,
+          "Ofis": "CB WIN",
+          "Ofis Kodu": "OF10605",
+          "Asistan": 0,
+          "Direktör": 0,
+          "Toplam": 1
+        },
+        {
+          "Owner": 2,
+          "Ofis": "CB ASİL",
+          "Danışman": 24,
+          "_sourceFile": "cb_akullanici.xlsx",
+          "Broker": 0,
+          "Toplam": 30,
+          "Ofis Kodu": "OF10610",
+          "Direktör": 2,
+          "Asistan": 2
+        },
+        {
+          "Toplam": 11,
+          "Ofis Kodu": "OF10611",
+          "Direktör": 0,
+          "Asistan": 0,
+          "Ofis": "CB İLKE",
+          "Danışman": 10,
+          "_sourceFile": "cb_akullanici.xlsx",
+          "Owner": 1,
+          "Broker": 0
+        },
+        {
+          "Owner": 2,
+          "_sourceFile": "cb_akullanici.xlsx",
+          "Danışman": 12,
+          "Ofis": "CB BOAZ",
+          "Broker": 1,
+          "Toplam": 17,
+          "Direktör": 1,
+          "Asistan": 1,
+          "Ofis Kodu": "OF10612"
+        },
+        {
+          "_sourceFile": "cb_akullanici.xlsx",
+          "Ofis": "CB MAJOR",
+          "Danışman": 9,
+          "Owner": 2,
+          "Broker": 1,
+          "Toplam": 17,
+          "Asistan": 2,
+          "Direktör": 3,
+          "Ofis Kodu": "OF10613"
+        },
+        {
+          "Toplam": 34,
+          "Ofis Kodu": "OF10614",
+          "Asistan": 3,
+          "Direktör": 1,
+          "_sourceFile": "cb_akullanici.xlsx",
+          "Ofis": "CB TREND",
+          "Danışman": 28,
+          "Owner": 2,
+          "Broker": 0
+        },
+        {
+          "Broker": 0,
+          "Owner": 1,
+          "_sourceFile": "cb_akullanici.xlsx",
+          "Ofis": "CB ONKO 2",
+          "Danışman": 30,
+          "Asistan": 1,
+          "Direktör": 0,
+          "Ofis Kodu": "OF10615",
+          "Toplam": 32
+        },
+        {
+          "Ofis Kodu": "OF10616",
+          "Direktör": 1,
+          "Asistan": 2,
+          "Toplam": 34,
+          "Broker": 0,
+          "_sourceFile": "cb_akullanici.xlsx",
+          "Danışman": 30,
+          "Ofis": "CB VEGA",
+          "Owner": 1
+        },
+        {
+          "Asistan": 1,
+          "Direktör": 3,
+          "Ofis Kodu": "OF10617",
+          "Toplam": 38,
+          "Broker": 0,
+          "Ofis": "CB GALA",
+          "Danışman": 33,
+          "_sourceFile": "cb_akullanici.xlsx",
+          "Owner": 1
+        },
+        {
+          "Broker": 0,
+          "Ofis": "CB REFERANS",
+          "_sourceFile": "cb_akullanici.xlsx",
+          "Danışman": 8,
+          "Owner": 2,
+          "Asistan": 0,
+          "Direktör": 0,
+          "Ofis Kodu": "OF10618",
+          "Toplam": 10
+        }
+      ],
+      "phase2ProblematicOffices": [],
+      "phase3ProblematicOffices": [],
+      "updatedAt": "2026-07-17T08:29:54.536Z",
+      "phase2DanismanRaw": [],
+      "phase1ApprovedOffices": [],
+      "currentPhase": "Tespit",
+      "createdAt": "2026-07-17T08:29:11.164Z",
+      "phase3ApprovedOffices": [],
+      "phase1IlanPanelRaw": [
+        {
+          "Kiralık": 6,
+          "Ofis Kodu": "OF10615",
+          "Ofis": "ERA WIN",
+          "_sourceFile": "era_ilan.xlsx",
+          "İlan Sayısı": 16,
+          "Satılık": 10
+        },
+        {
+          "Satılık": 83,
+          "Ofis": "ERA ASİL",
+          "_sourceFile": "era_ilan.xlsx",
+          "İlan Sayısı": 114,
+          "Kiralık": 31,
+          "Ofis Kodu": "OF10630"
+        },
+        {
+          "_sourceFile": "era_ilan.xlsx",
+          "Ofis": "ERA İLKE",
+          "İlan Sayısı": 118,
+          "Satılık": 94,
+          "Kiralık": 24,
+          "Ofis Kodu": "OF10631"
+        },
+        {
+          "Ofis Kodu": "OF10632",
+          "Kiralık": 9,
+          "Satılık": 12,
+          "İlan Sayısı": 21,
+          "_sourceFile": "era_ilan.xlsx",
+          "Ofis": "ERA BOAZ"
+        },
+        {
+          "İlan Sayısı": 42,
+          "Ofis": "ERA MAJOR",
+          "_sourceFile": "era_ilan.xlsx",
+          "Satılık": 27,
+          "Ofis Kodu": "OF10633",
+          "Kiralık": 15
+        },
+        {
+          "Kiralık": 15,
+          "Ofis Kodu": "OF10634",
+          "Satılık": 37,
+          "Ofis": "ERA TREND",
+          "_sourceFile": "era_ilan.xlsx",
+          "İlan Sayısı": 52
+        },
+        {
+          "Satılık": 14,
+          "İlan Sayısı": 29,
+          "Ofis": "ERA ONKO 2",
+          "_sourceFile": "era_ilan.xlsx",
+          "Ofis Kodu": "OF10645",
+          "Kiralık": 15
+        },
+        {
+          "Satılık": 4,
+          "İlan Sayısı": 5,
+          "Ofis": "ERA VEGA",
+          "_sourceFile": "era_ilan.xlsx",
+          "Ofis Kodu": "OF10636",
+          "Kiralık": 1
+        },
+        {
+          "Ofis": "ERA GALA",
+          "_sourceFile": "era_ilan.xlsx",
+          "İlan Sayısı": 32,
+          "Satılık": 27,
+          "Kiralık": 5,
+          "Ofis Kodu": "OF10637"
+        },
+        {
+          "Satılık": 4,
+          "Ofis": "ERA REFERANS",
+          "_sourceFile": "era_ilan.xlsx",
+          "İlan Sayısı": 8,
+          "Kiralık": 4,
+          "Ofis Kodu": "OF10638"
+        },
+        {
+          "Satılık": 3,
+          "_sourceFile": "c21_ilan.xlsx",
+          "Ofis": "C21 WIN",
+          "İlan Sayısı": 4,
+          "Kiralık": 1,
+          "Ofis Kodu": "OF10615"
+        },
+        {
+          "Ofis Kodu": "OF10620",
+          "Kiralık": 13,
+          "İlan Sayısı": 69,
+          "_sourceFile": "c21_ilan.xlsx",
+          "Ofis": "C21 ASİL",
+          "Satılık": 56
+        },
+        {
+          "Kiralık": 44,
+          "Ofis Kodu": "OF10621",
+          "_sourceFile": "c21_ilan.xlsx",
+          "Ofis": "C21 İLKE",
+          "İlan Sayısı": 138,
+          "Satılık": 94
+        },
+        {
+          "Kiralık": 17,
+          "Ofis Kodu": "OF10622",
+          "Satılık": 66,
+          "Ofis": "C21 BOAZ",
+          "_sourceFile": "c21_ilan.xlsx",
+          "İlan Sayısı": 83
+        },
+        {
+          "Satılık": 32,
+          "_sourceFile": "c21_ilan.xlsx",
+          "Ofis": "C21 MAJOR",
+          "İlan Sayısı": 42,
+          "Kiralık": 10,
+          "Ofis Kodu": "OF10623"
+        },
+        {
+          "Kiralık": 6,
+          "Ofis Kodu": "OF10624",
+          "_sourceFile": "c21_ilan.xlsx",
+          "Ofis": "C21 TREND",
+          "İlan Sayısı": 16,
+          "Satılık": 10
+        },
+        {
+          "Satılık": 28,
+          "Ofis": "C21 ONKO 2",
+          "_sourceFile": "c21_ilan.xlsx",
+          "İlan Sayısı": 35,
+          "Kiralık": 7,
+          "Ofis Kodu": "OF10625"
+        },
+        {
+          "_sourceFile": "c21_ilan.xlsx",
+          "Ofis": "C21 VEGA",
+          "İlan Sayısı": 14,
+          "Satılık": 8,
+          "Kiralık": 6,
+          "Ofis Kodu": "OF10626"
+        },
+        {
+          "Ofis": "C21 GALA",
+          "_sourceFile": "c21_ilan.xlsx",
+          "İlan Sayısı": 49,
+          "Satılık": 40,
+          "Kiralık": 9,
+          "Ofis Kodu": "OF10627"
+        },
+        {
+          "Ofis Kodu": "OF10628",
+          "Kiralık": 30,
+          "Satılık": 59,
+          "İlan Sayısı": 89,
+          "Ofis": "C21 REFERANS",
+          "_sourceFile": "c21_ilan.xlsx"
+        },
+        {
+          "Ofis Kodu": "OF10605",
+          "Kiralık": 17,
+          "Satılık": 61,
+          "İlan Sayısı": 78,
+          "Ofis": "CB WIN",
+          "_sourceFile": "cb_ilan.xlsx"
+        },
+        {
+          "Kiralık": 13,
+          "Ofis Kodu": "OF10610",
+          "_sourceFile": "cb_ilan.xlsx",
+          "Ofis": "CB ASİL",
+          "İlan Sayısı": 43,
+          "Satılık": 30
+        },
+        {
+          "Ofis Kodu": "OF10611",
+          "Kiralık": 1,
+          "İlan Sayısı": 8,
+          "Ofis": "CB İLKE",
+          "_sourceFile": "cb_ilan.xlsx",
+          "Satılık": 7
+        },
+        {
+          "Ofis Kodu": "OF10612",
+          "Kiralık": 6,
+          "Satılık": 34,
+          "İlan Sayısı": 40,
+          "Ofis": "CB BOAZ",
+          "_sourceFile": "cb_ilan.xlsx"
+        },
+        {
+          "Ofis Kodu": "OF10613",
+          "Kiralık": 26,
+          "Satılık": 72,
+          "İlan Sayısı": 98,
+          "_sourceFile": "cb_ilan.xlsx",
+          "Ofis": "CB MAJOR"
+        },
+        {
+          "Ofis Kodu": "OF10614",
+          "Kiralık": 69,
+          "İlan Sayısı": 167,
+          "Ofis": "CB TREND",
+          "_sourceFile": "cb_ilan.xlsx",
+          "Satılık": 98
+        },
+        {
+          "Satılık": 86,
+          "_sourceFile": "cb_ilan.xlsx",
+          "Ofis": "CB ONKO 2",
+          "İlan Sayısı": 130,
+          "Kiralık": 44,
+          "Ofis Kodu": "OF10615"
+        },
+        {
+          "İlan Sayısı": 124,
+          "_sourceFile": "cb_ilan.xlsx",
+          "Ofis": "CB VEGA",
+          "Satılık": 86,
+          "Ofis Kodu": "OF10616",
+          "Kiralık": 38
+        },
+        {
+          "Satılık": 27,
+          "İlan Sayısı": 33,
+          "_sourceFile": "cb_ilan.xlsx",
+          "Ofis": "CB GALA",
+          "Ofis Kodu": "OF10617",
+          "Kiralık": 6
+        },
+        {
+          "Kiralık": 21,
+          "Ofis Kodu": "OF10618",
+          "Satılık": 89,
+          "Ofis": "CB REFERANS",
+          "_sourceFile": "cb_ilan.xlsx",
+          "İlan Sayısı": 110
+        }
+      ],
+      "phase1Uploaded": true,
+      "name": "Haziran 2026",
+      "phase2ApprovedOffices": [],
+      "id": "AUD_kdhnk9jr2",
+      "phase1IlanSahibindenRaw": [
+        {
+          "_sourceFile": "platform_icerik_ozetleri.xlsx",
+          "Ofis Adı": "CB WIN",
+          "Danışman Adı Soyadı": "Sühran Aras",
+          "Portföy Sayısı": 2,
+          "Ofis Kodu": "OF10605",
+          "Ünvan": "Ofis Sahibi (Broker)"
+        },
+        {
+          "Ünvan": "Gayrimenkul Danışmanı",
+          "Portföy Sayısı": 9,
+          "Ofis Kodu": "OF10605",
+          "Danışman Adı Soyadı": "Didem Güvenç",
+          "Ofis Adı": "CB WIN",
+          "_sourceFile": "platform_icerik_ozetleri.xlsx"
+        },
+        {
+          "_sourceFile": "platform_icerik_ozetleri.xlsx",
+          "Ofis Adı": "CB WIN",
+          "Ofis Kodu": "OF10605",
+          "Portföy Sayısı": 8,
+          "Danışman Adı Soyadı": "Gürkan Akkuş",
+          "Ünvan": "Gayrimenkul Danışmanı"
+        },
+        {
+          "Ofis Adı": "CB WIN",
+          "_sourceFile": "platform_icerik_ozetleri.xlsx",
+          "Ünvan": "Gayrimenkul Danışmanı",
+          "Ofis Kodu": "OF10605",
+          "Portföy Sayısı": 6,
+          "Danışman Adı Soyadı": "Deniz Şahin"
+        },
+        {
+          "Portföy Sayısı": 5,
+          "Ofis Kodu": "OF10605",
+          "Danışman Adı Soyadı": "İlknur Mutlu",
+          "Ünvan": "Gayrimenkul Danışmanı",
+          "_sourceFile": "platform_icerik_ozetleri.xlsx",
+          "Ofis Adı": "CB WIN"
+        },
+        {
+          "Ofis Adı": "CB WIN",
+          "_sourceFile": "platform_icerik_ozetleri.xlsx",
+          "Ünvan": "Gayrimenkul Danışmanı",
+          "Danışman Adı Soyadı": "Özlem Mesruoğlu",
+          "Ofis Kodu": "OF10605",
+          "Portföy Sayısı": 5
+        },
+        {
+          "Ofis Adı": "CB WIN",
+          "_sourceFile": "platform_icerik_ozetleri.xlsx",
+          "Ünvan": "Gayrimenkul Danışmanı",
+          "Danışman Adı Soyadı": "Merih Akar",
+          "Portföy Sayısı": 4,
+          "Ofis Kodu": "OF10605"
+        },
+        {
+          "Danışman Adı Soyadı": "Veli Karayigit",
+          "Ofis Kodu": "OF10605",
+          "Portföy Sayısı": 4,
+          "Ünvan": "Gayrimenkul Danışmanı",
+          "_sourceFile": "platform_icerik_ozetleri.xlsx",
+          "Ofis Adı": "CB WIN"
+        },
+        {
+          "Ofis Adı": "CB WIN",
+          "_sourceFile": "platform_icerik_ozetleri.xlsx",
+          "Ünvan": "Gayrimenkul Danışmanı",
+          "Danışman Adı Soyadı": "Neslihan Eralp",
+          "Portföy Sayısı": 4,
+          "Ofis Kodu": "OF10605"
+        },
+        {
+          "Ünvan": "Gayrimenkul Danışmanı",
+          "Portföy Sayısı": 4,
+          "Ofis Kodu": "OF10605",
+          "Danışman Adı Soyadı": "Fahrettin Aksoy",
+          "Ofis Adı": "CB WIN",
+          "_sourceFile": "platform_icerik_ozetleri.xlsx"
+        },
+        {
+          "_sourceFile": "platform_icerik_ozetleri.xlsx",
+          "Ofis Adı": "CB WIN",
+          "Danışman Adı Soyadı": "Pınar Burak",
+          "Portföy Sayısı": 4,
+          "Ofis Kodu": "OF10605",
+          "Ünvan": "Gayrimenkul Danışmanı"
+        },
+        {
+          "Ünvan": "Gayrimenkul Danışmanı",
+          "Ofis Kodu": "OF10605",
+          "Portföy Sayısı": 2,
+          "Danışman Adı Soyadı": "Serra Çağlar",
+          "Ofis Adı": "CB WIN",
+          "_sourceFile": "platform_icerik_ozetleri.xlsx"
+        },
+        {
+          "Ofis Adı": "CB WIN",
+          "_sourceFile": "platform_icerik_ozetleri.xlsx",
+          "Ünvan": "Gayrimenkul Danışmanı",
+          "Portföy Sayısı": 2,
+          "Ofis Kodu": "OF10605",
+          "Danışman Adı Soyadı": "Ayşe Şemsi Zaim"
+        },
+        {
+          "Ofis Adı": "CB WIN",
+          "_sourceFile": "platform_icerik_ozetleri.xlsx",
+          "Ünvan": "Gayrimenkul Danışmanı",
+          "Danışman Adı Soyadı": "Belgin Yüksekülkü",
+          "Ofis Kodu": "OF10605",
+          "Portföy Sayısı": 2
+        },
+        {
+          "Ofis Adı": "CB WIN",
+          "_sourceFile": "platform_icerik_ozetleri.xlsx",
+          "Ünvan": "Gayrimenkul Danışmanı",
+          "Danışman Adı Soyadı": "Şule Cengiz",
+          "Portföy Sayısı": 1,
+          "Ofis Kodu": "OF10605"
+        },
+        {
+          "Danışman Adı Soyadı": "Çiçek Erşenler",
+          "Ofis Kodu": "OF10605",
+          "Portföy Sayısı": 1,
+          "Ünvan": "Gayrimenkul Danışmanı",
+          "_sourceFile": "platform_icerik_ozetleri.xlsx",
+          "Ofis Adı": "CB WIN"
+        },
+        {
+          "Danışman Adı Soyadı": "Feride Saraçoğlu",
+          "Portföy Sayısı": 1,
+          "Ofis Kodu": "OF10605",
+          "Ünvan": "Gayrimenkul Danışmanı",
+          "_sourceFile": "platform_icerik_ozetleri.xlsx",
+          "Ofis Adı": "CB WIN"
+        },
+        {
+          "_sourceFile": "platform_icerik_ozetleri.xlsx",
+          "Ofis Adı": "CB WIN",
+          "Ofis Kodu": "OF10605",
+          "Portföy Sayısı": 0,
+          "Danışman Adı Soyadı": "Aslı Hande Çetiner",
+          "Ünvan": "Gayrimenkul Danışmanı"
+        },
+        {
+          "_sourceFile": "platform_icerik_ozetleri.xlsx",
+          "Ofis Adı": "CB WIN",
+          "Danışman Adı Soyadı": "Gurur Aras",
+          "Portföy Sayısı": 0,
+          "Ofis Kodu": "OF10605",
+          "Ünvan": "Gayrimenkul Danışmanı"
+        },
+        {
+          "_sourceFile": "platform_icerik_ozetleri.xlsx",
+          "Ofis Adı": "CB WIN",
+          "Danışman Adı Soyadı": "Nil Yelkovan",
+          "Portföy Sayısı": 0,
+          "Ofis Kodu": "OF10605",
+          "Ünvan": "Gayrimenkul Danışmanı"
+        },
+        {
+          "_sourceFile": "platform_icerik_ozetleri.xlsx",
+          "Ofis Adı": "CB ASİL",
+          "Danışman Adı Soyadı": "Evren Barutçu",
+          "Ofis Kodu": "OF10610",
+          "Portföy Sayısı": 14,
+          "Ünvan": "Ofis Sahibi (Broker)"
+        },
+        {
+          "_sourceFile": "platform_icerik_ozetleri.xlsx",
+          "Ofis Adı": "CB ASİL",
+          "Ofis Kodu": "OF10610",
+          "Portföy Sayısı": 2,
+          "Danışman Adı Soyadı": "Bilge Altınbilek",
+          "Ünvan": "Gayrimenkul Danışmanı"
+        },
+        {
+          "Ünvan": "Ofis Sahibi (Broker)",
+          "Portföy Sayısı": 10,
+          "Ofis Kodu": "OF10611",
+          "Danışman Adı Soyadı": "Vedat Karkın",
+          "Ofis Adı": "CB İLKE",
+          "_sourceFile": "platform_icerik_ozetleri.xlsx"
+        },
+        {
+          "Ofis Adı": "CB İLKE",
+          "_sourceFile": "platform_icerik_ozetleri.xlsx",
+          "Ünvan": "Gayrimenkul Danışmanı",
+          "Danışman Adı Soyadı": "Şebnem Ataca",
+          "Portföy Sayısı": 14,
+          "Ofis Kodu": "OF10611"
+        },
+        {
+          "Danışman Adı Soyadı": "Önder Öztürk",
+          "Portföy Sayısı": 14,
+          "Ofis Kodu": "OF10611",
+          "Ünvan": "Gayrimenkul Danışmanı",
+          "_sourceFile": "platform_icerik_ozetleri.xlsx",
+          "Ofis Adı": "CB İLKE"
+        },
+        {
+          "Ofis Adı": "CB İLKE",
+          "_sourceFile": "platform_icerik_ozetleri.xlsx",
+          "Ünvan": "Gayrimenkul Danışmanı",
+          "Danışman Adı Soyadı": "Ceyhan K.",
+          "Ofis Kodu": "OF10611",
+          "Portföy Sayısı": 11
+        },
+        {
+          "Ünvan": "Gayrimenkul Danışmanı",
+          "Danışman Adı Soyadı": "Çiğdem Çetinkaya",
+          "Portföy Sayısı": 9,
+          "Ofis Kodu": "OF10611",
+          "Ofis Adı": "CB İLKE",
+          "_sourceFile": "platform_icerik_ozetleri.xlsx"
+        },
+        {
+          "Portföy Sayısı": 8,
+          "Ofis Kodu": "OF10611",
+          "Danışman Adı Soyadı": "Hayriye Bozinal",
+          "Ünvan": "Gayrimenkul Danışmanı",
+          "_sourceFile": "platform_icerik_ozetleri.xlsx",
+          "Ofis Adı": "CB İLKE"
+        },
+        {
+          "Ünvan": "Gayrimenkul Danışmanı",
+          "Ofis Kodu": "OF10611",
+          "Portföy Sayısı": 3,
+          "Danışman Adı Soyadı": "İrfan İmir",
+          "Ofis Adı": "CB İLKE",
+          "_sourceFile": "platform_icerik_ozetleri.xlsx"
+        },
+        {
+          "Ofis Adı": "CB İLKE",
+          "_sourceFile": "platform_icerik_ozetleri.xlsx",
+          "Ünvan": "Gayrimenkul Danışmanı",
+          "Danışman Adı Soyadı": "Yağmur Aslan",
+          "Ofis Kodu": "OF10611",
+          "Portföy Sayısı": 2
+        },
+        {
+          "Ofis Adı": "CB İLKE",
+          "_sourceFile": "platform_icerik_ozetleri.xlsx",
+          "Ünvan": "Gayrimenkul Danışmanı",
+          "Danışman Adı Soyadı": "Emine A.",
+          "Portföy Sayısı": 1,
+          "Ofis Kodu": "OF10611"
+        },
+        {
+          "Ofis Adı": "CB İLKE",
+          "_sourceFile": "platform_icerik_ozetleri.xlsx",
+          "Ünvan": "Gayrimenkul Danışmanı",
+          "Danışman Adı Soyadı": "Nabiye A.",
+          "Ofis Kodu": "OF10611",
+          "Portföy Sayısı": 1
+        },
+        {
+          "Ofis Kodu": "OF10611",
+          "Portföy Sayısı": 0,
+          "Danışman Adı Soyadı": "Buket Adam",
+          "Ünvan": "Gayrimenkul Danışmanı",
+          "_sourceFile": "platform_icerik_ozetleri.xlsx",
+          "Ofis Adı": "CB İLKE"
+        },
+        {
+          "Ofis Adı": "CB BOAZ",
+          "_sourceFile": "platform_icerik_ozetleri.xlsx",
+          "Ünvan": "Ofis Sahibi (Broker)",
+          "Portföy Sayısı": 12,
+          "Ofis Kodu": "OF10612",
+          "Danışman Adı Soyadı": "Fatih Alkış"
+        },
+        {
+          "Ofis Kodu": "OF10612",
+          "Portföy Sayısı": 14,
+          "Danışman Adı Soyadı": "Kerim Alkaya",
+          "Ünvan": "Gayrimenkul Danışmanı",
+          "_sourceFile": "platform_icerik_ozetleri.xlsx",
+          "Ofis Adı": "CB BOAZ"
+        },
+        {
+          "Ünvan": "Gayrimenkul Danışmanı",
+          "Danışman Adı Soyadı": "Arzu K.",
+          "Ofis Kodu": "OF10612",
+          "Portföy Sayısı": 11,
+          "Ofis Adı": "CB BOAZ",
+          "_sourceFile": "platform_icerik_ozetleri.xlsx"
+        },
+        {
+          "Danışman Adı Soyadı": "Turgut Kuli",
+          "Portföy Sayısı": 4,
+          "Ofis Kodu": "OF10612",
+          "Ünvan": "Gayrimenkul Danışmanı",
+          "_sourceFile": "platform_icerik_ozetleri.xlsx",
+          "Ofis Adı": "CB BOAZ"
+        },
+        {
+          "Ofis Adı": "CB BOAZ",
+          "_sourceFile": "platform_icerik_ozetleri.xlsx",
+          "Ünvan": "Gayrimenkul Danışmanı",
+          "Danışman Adı Soyadı": "Meltem Hışır",
+          "Portföy Sayısı": 1,
+          "Ofis Kodu": "OF10612"
+        },
+        {
+          "_sourceFile": "platform_icerik_ozetleri.xlsx",
+          "Ofis Adı": "CB BOAZ",
+          "Danışman Adı Soyadı": "Naime Abidinoğlu",
+          "Ofis Kodu": "OF10612",
+          "Portföy Sayısı": 1,
+          "Ünvan": "Gayrimenkul Danışmanı"
+        },
+        {
+          "Portföy Sayısı": 0,
+          "Ofis Kodu": "OF10612",
+          "Danışman Adı Soyadı": "Taha Karataş",
+          "Ünvan": "Gayrimenkul Danışmanı",
+          "_sourceFile": "platform_icerik_ozetleri.xlsx",
+          "Ofis Adı": "CB BOAZ"
+        },
+        {
+          "Ofis Adı": "CB BOAZ",
+          "_sourceFile": "platform_icerik_ozetleri.xlsx",
+          "Ünvan": "Gayrimenkul Danışmanı",
+          "Ofis Kodu": "OF10612",
+          "Portföy Sayısı": 0,
+          "Danışman Adı Soyadı": "Ersel Alacadağ"
+        },
+        {
+          "_sourceFile": "platform_icerik_ozetleri.xlsx",
+          "Ofis Adı": "CB MAJOR",
+          "Portföy Sayısı": 20,
+          "Ofis Kodu": "OF10613",
+          "Danışman Adı Soyadı": "Mert Tekin",
+          "Ünvan": "Gayrimenkul Danışmanı"
+        },
+        {
+          "Ünvan": "Gayrimenkul Danışmanı",
+          "Danışman Adı Soyadı": "Burak Kul",
+          "Ofis Kodu": "OF10613",
+          "Portföy Sayısı": 17,
+          "Ofis Adı": "CB MAJOR",
+          "_sourceFile": "platform_icerik_ozetleri.xlsx"
+        },
+        {
+          "Ünvan": "Gayrimenkul Danışmanı",
+          "Danışman Adı Soyadı": "Onur Göktuğ S.",
+          "Ofis Kodu": "OF10613",
+          "Portföy Sayısı": 16,
+          "Ofis Adı": "CB MAJOR",
+          "_sourceFile": "platform_icerik_ozetleri.xlsx"
+        },
+        {
+          "Ünvan": "Gayrimenkul Danışmanı",
+          "Danışman Adı Soyadı": "Betül Karabağ",
+          "Portföy Sayısı": 13,
+          "Ofis Kodu": "OF10613",
+          "Ofis Adı": "CB MAJOR",
+          "_sourceFile": "platform_icerik_ozetleri.xlsx"
+        },
+        {
+          "Portföy Sayısı": 11,
+          "Ofis Kodu": "OF10613",
+          "Danışman Adı Soyadı": "Kaan Kovancılar",
+          "Ünvan": "Gayrimenkul Danışmanı",
+          "_sourceFile": "platform_icerik_ozetleri.xlsx",
+          "Ofis Adı": "CB MAJOR"
+        },
+        {
+          "_sourceFile": "platform_icerik_ozetleri.xlsx",
+          "Ofis Adı": "CB MAJOR",
+          "Danışman Adı Soyadı": "Tuğberk Karaca",
+          "Ofis Kodu": "OF10613",
+          "Portföy Sayısı": 8,
+          "Ünvan": "Gayrimenkul Danışmanı"
+        },
+        {
+          "Ünvan": "Gayrimenkul Danışmanı",
+          "Danışman Adı Soyadı": "Ahmet Atakan",
+          "Ofis Kodu": "OF10613",
+          "Portföy Sayısı": 7,
+          "Ofis Adı": "CB MAJOR",
+          "_sourceFile": "platform_icerik_ozetleri.xlsx"
+        },
+        {
+          "Ofis Adı": "CB MAJOR",
+          "_sourceFile": "platform_icerik_ozetleri.xlsx",
+          "Ünvan": "Gayrimenkul Danışmanı",
+          "Danışman Adı Soyadı": "Tuncay Pekşen",
+          "Ofis Kodu": "OF10613",
+          "Portföy Sayısı": 7
+        },
+        {
+          "Ofis Adı": "CB MAJOR",
+          "_sourceFile": "platform_icerik_ozetleri.xlsx",
+          "Ünvan": "Gayrimenkul Danışmanı",
+          "Danışman Adı Soyadı": "Güntekin Şenay",
+          "Portföy Sayısı": 5,
+          "Ofis Kodu": "OF10613"
+        },
+        {
+          "Danışman Adı Soyadı": "Selim Ö.",
+          "Ofis Kodu": "OF10613",
+          "Portföy Sayısı": 4,
+          "Ünvan": "Gayrimenkul Danışmanı",
+          "_sourceFile": "platform_icerik_ozetleri.xlsx",
+          "Ofis Adı": "CB MAJOR"
+        },
+        {
+          "Danışman Adı Soyadı": "Serhat Güneş",
+          "Ofis Kodu": "OF10613",
+          "Portföy Sayısı": 2,
+          "Ünvan": "Gayrimenkul Danışmanı",
+          "_sourceFile": "platform_icerik_ozetleri.xlsx",
+          "Ofis Adı": "CB MAJOR"
+        },
+        {
+          "Ünvan": "Gayrimenkul Danışmanı",
+          "Ofis Kodu": "OF10614",
+          "Portföy Sayısı": 17,
+          "Danışman Adı Soyadı": "Ecem Düztaş",
+          "Ofis Adı": "CB TREND",
+          "_sourceFile": "platform_icerik_ozetleri.xlsx"
+        },
+        {
+          "Ofis Adı": "CB TREND",
+          "_sourceFile": "platform_icerik_ozetleri.xlsx",
+          "Ünvan": "Gayrimenkul Danışmanı",
+          "Portföy Sayısı": 13,
+          "Ofis Kodu": "OF10614",
+          "Danışman Adı Soyadı": "Çağrı Gülrek"
+        },
+        {
+          "Ünvan": "Gayrimenkul Danışmanı",
+          "Portföy Sayısı": 9,
+          "Ofis Kodu": "OF10614",
+          "Danışman Adı Soyadı": "Esra Gürakan",
+          "Ofis Adı": "CB TREND",
+          "_sourceFile": "platform_icerik_ozetleri.xlsx"
+        },
+        {
+          "Danışman Adı Soyadı": "Bülent Buharalı",
+          "Portföy Sayısı": 9,
+          "Ofis Kodu": "OF10614",
+          "Ünvan": "Gayrimenkul Danışmanı",
+          "_sourceFile": "platform_icerik_ozetleri.xlsx",
+          "Ofis Adı": "CB TREND"
+        },
+        {
+          "_sourceFile": "platform_icerik_ozetleri.xlsx",
+          "Ofis Adı": "CB TREND",
+          "Danışman Adı Soyadı": "Nihat Emeklice",
+          "Ofis Kodu": "OF10614",
+          "Portföy Sayısı": 7,
+          "Ünvan": "Gayrimenkul Danışmanı"
+        },
+        {
+          "_sourceFile": "platform_icerik_ozetleri.xlsx",
+          "Ofis Adı": "CB TREND",
+          "Danışman Adı Soyadı": "Muştak Sadi Cömert",
+          "Ofis Kodu": "OF10614",
+          "Portföy Sayısı": 5,
+          "Ünvan": "Gayrimenkul Danışmanı"
+        },
+        {
+          "Ofis Adı": "CB TREND",
+          "_sourceFile": "platform_icerik_ozetleri.xlsx",
+          "Ünvan": "Gayrimenkul Danışmanı",
+          "Ofis Kodu": "OF10614",
+          "Portföy Sayısı": 5,
+          "Danışman Adı Soyadı": "Faik Can Kılıç"
+        },
+        {
+          "Ünvan": "Gayrimenkul Danışmanı",
+          "Danışman Adı Soyadı": "Fatih Dedeoğlu",
+          "Portföy Sayısı": 5,
+          "Ofis Kodu": "OF10614",
+          "Ofis Adı": "CB TREND",
+          "_sourceFile": "platform_icerik_ozetleri.xlsx"
+        },
+        {
+          "Ünvan": "Gayrimenkul Danışmanı",
+          "Danışman Adı Soyadı": "Fulya Selek",
+          "Ofis Kodu": "OF10614",
+          "Portföy Sayısı": 4,
+          "Ofis Adı": "CB TREND",
+          "_sourceFile": "platform_icerik_ozetleri.xlsx"
+        },
+        {
+          "Ünvan": "Gayrimenkul Danışmanı",
+          "Ofis Kodu": "OF10614",
+          "Portföy Sayısı": 4,
+          "Danışman Adı Soyadı": "İbrahim Güder",
+          "Ofis Adı": "CB TREND",
+          "_sourceFile": "platform_icerik_ozetleri.xlsx"
+        },
+        {
+          "Ofis Adı": "CB TREND",
+          "_sourceFile": "platform_icerik_ozetleri.xlsx",
+          "Ünvan": "Gayrimenkul Danışmanı",
+          "Portföy Sayısı": 4,
+          "Ofis Kodu": "OF10614",
+          "Danışman Adı Soyadı": "Dilara Özdemir"
+        },
+        {
+          "Portföy Sayısı": 3,
+          "Ofis Kodu": "OF10614",
+          "Danışman Adı Soyadı": "Erkan Saraç",
+          "Ünvan": "Gayrimenkul Danışmanı",
+          "_sourceFile": "platform_icerik_ozetleri.xlsx",
+          "Ofis Adı": "CB TREND"
+        },
+        {
+          "Ünvan": "Gayrimenkul Danışmanı",
+          "Ofis Kodu": "OF10614",
+          "Portföy Sayısı": 3,
+          "Danışman Adı Soyadı": "Tuba T. Ç.",
+          "Ofis Adı": "CB TREND",
+          "_sourceFile": "platform_icerik_ozetleri.xlsx"
+        },
+        {
+          "_sourceFile": "platform_icerik_ozetleri.xlsx",
+          "Ofis Adı": "CB TREND",
+          "Danışman Adı Soyadı": "Eda Aydıner",
+          "Ofis Kodu": "OF10614",
+          "Portföy Sayısı": 1,
+          "Ünvan": "Gayrimenkul Danışmanı"
+        },
+        {
+          "Portföy Sayısı": 1,
+          "Ofis Kodu": "OF10614",
+          "Danışman Adı Soyadı": "Erdal Aras",
+          "Ünvan": "Gayrimenkul Danışmanı",
+          "_sourceFile": "platform_icerik_ozetleri.xlsx",
+          "Ofis Adı": "CB TREND"
+        },
+        {
+          "Danışman Adı Soyadı": "Ata Doruk Dağlı",
+          "Portföy Sayısı": 1,
+          "Ofis Kodu": "OF10614",
+          "Ünvan": "Gayrimenkul Danışmanı",
+          "_sourceFile": "platform_icerik_ozetleri.xlsx",
+          "Ofis Adı": "CB TREND"
+        },
+        {
+          "Ünvan": "Gayrimenkul Danışmanı",
+          "Danışman Adı Soyadı": "Ersan Pakelgil",
+          "Portföy Sayısı": 1,
+          "Ofis Kodu": "OF10614",
+          "Ofis Adı": "CB TREND",
+          "_sourceFile": "platform_icerik_ozetleri.xlsx"
+        },
+        {
+          "_sourceFile": "platform_icerik_ozetleri.xlsx",
+          "Ofis Adı": "CB TREND",
+          "Danışman Adı Soyadı": "Bağnu Göksal",
+          "Portföy Sayısı": 0,
+          "Ofis Kodu": "OF10614",
+          "Ünvan": "Gayrimenkul Danışmanı"
+        },
+        {
+          "Ünvan": "Gayrimenkul Danışmanı",
+          "Danışman Adı Soyadı": "Gökhan Bakan",
+          "Ofis Kodu": "OF10614",
+          "Portföy Sayısı": 0,
+          "Ofis Adı": "CB TREND",
+          "_sourceFile": "platform_icerik_ozetleri.xlsx"
+        },
+        {
+          "Ofis Adı": "CB TREND",
+          "_sourceFile": "platform_icerik_ozetleri.xlsx",
+          "Ünvan": "Gayrimenkul Danışmanı",
+          "Ofis Kodu": "OF10614",
+          "Portföy Sayısı": 0,
+          "Danışman Adı Soyadı": "Buket Kurtlutepe Özen"
+        },
+        {
+          "Ofis Kodu": "OF10615",
+          "Portföy Sayısı": 24,
+          "Danışman Adı Soyadı": "Beste Akçıl",
+          "Ünvan": "Ofis Sahibi (Broker)",
+          "_sourceFile": "platform_icerik_ozetleri.xlsx",
+          "Ofis Adı": "CB ONKO 2"
+        },
+        {
+          "Ofis Adı": "CB ONKO 2",
+          "_sourceFile": "platform_icerik_ozetleri.xlsx",
+          "Ünvan": "Gayrimenkul Danışmanı",
+          "Danışman Adı Soyadı": "Beste A.",
+          "Ofis Kodu": "OF10615",
+          "Portföy Sayısı": 38
+        },
+        {
+          "Danışman Adı Soyadı": "Murat Tansuğ",
+          "Portföy Sayısı": 30,
+          "Ofis Kodu": "OF10615",
+          "Ünvan": "Gayrimenkul Danışmanı",
+          "_sourceFile": "platform_icerik_ozetleri.xlsx",
+          "Ofis Adı": "CB ONKO 2"
+        },
+        {
+          "Ünvan": "Gayrimenkul Danışmanı",
+          "Portföy Sayısı": 26,
+          "Ofis Kodu": "OF10615",
+          "Danışman Adı Soyadı": "Hüseyin Yümsel",
+          "Ofis Adı": "CB ONKO 2",
+          "_sourceFile": "platform_icerik_ozetleri.xlsx"
+        },
+        {
+          "Ofis Kodu": "OF10615",
+          "Portföy Sayısı": 16,
+          "Danışman Adı Soyadı": "Fulya Tök",
+          "Ünvan": "Gayrimenkul Danışmanı",
+          "_sourceFile": "platform_icerik_ozetleri.xlsx",
+          "Ofis Adı": "CB ONKO 2"
+        },
+        {
+          "Ünvan": "Gayrimenkul Danışmanı",
+          "Danışman Adı Soyadı": "Tolga Özcan",
+          "Portföy Sayısı": 14,
+          "Ofis Kodu": "OF10615",
+          "Ofis Adı": "CB ONKO 2",
+          "_sourceFile": "platform_icerik_ozetleri.xlsx"
+        },
+        {
+          "Ofis Kodu": "OF10615",
+          "Portföy Sayısı": 12,
+          "Danışman Adı Soyadı": "İlkin Kamel",
+          "Ünvan": "Gayrimenkul Danışmanı",
+          "_sourceFile": "platform_icerik_ozetleri.xlsx",
+          "Ofis Adı": "CB ONKO 2"
+        },
+        {
+          "_sourceFile": "platform_icerik_ozetleri.xlsx",
+          "Ofis Adı": "CB ONKO 2",
+          "Danışman Adı Soyadı": "Gözde Muhtaroğlu",
+          "Ofis Kodu": "OF10615",
+          "Portföy Sayısı": 11,
+          "Ünvan": "Gayrimenkul Danışmanı"
+        },
+        {
+          "Ofis Adı": "CB ONKO 2",
+          "_sourceFile": "platform_icerik_ozetleri.xlsx",
+          "Ünvan": "Gayrimenkul Danışmanı",
+          "Danışman Adı Soyadı": "Serap Bozdağ Erzen",
+          "Portföy Sayısı": 10,
+          "Ofis Kodu": "OF10615"
+        },
+        {
+          "Ünvan": "Gayrimenkul Danışmanı",
+          "Ofis Kodu": "OF10615",
+          "Portföy Sayısı": 9,
+          "Danışman Adı Soyadı": "Elvan Erdemgil",
+          "Ofis Adı": "CB ONKO 2",
+          "_sourceFile": "platform_icerik_ozetleri.xlsx"
+        },
+        {
+          "_sourceFile": "platform_icerik_ozetleri.xlsx",
+          "Ofis Adı": "CB ONKO 2",
+          "Portföy Sayısı": 8,
+          "Ofis Kodu": "OF10615",
+          "Danışman Adı Soyadı": "Sonay Şahin",
+          "Ünvan": "Gayrimenkul Danışmanı"
+        },
+        {
+          "Ünvan": "Gayrimenkul Danışmanı",
+          "Ofis Kodu": "OF10615",
+          "Portföy Sayısı": 7,
+          "Danışman Adı Soyadı": "Evrim Tekdal",
+          "Ofis Adı": "CB ONKO 2",
+          "_sourceFile": "platform_icerik_ozetleri.xlsx"
+        },
+        {
+          "Ofis Kodu": "OF10615",
+          "Portföy Sayısı": 6,
+          "Danışman Adı Soyadı": "Onur Tekindağ",
+          "Ünvan": "Gayrimenkul Danışmanı",
+          "_sourceFile": "platform_icerik_ozetleri.xlsx",
+          "Ofis Adı": "CB ONKO 2"
+        },
+        {
+          "_sourceFile": "platform_icerik_ozetleri.xlsx",
+          "Ofis Adı": "CB ONKO 2",
+          "Danışman Adı Soyadı": "Aydın Akbaba",
+          "Ofis Kodu": "OF10615",
+          "Portföy Sayısı": 5,
+          "Ünvan": "Gayrimenkul Danışmanı"
+        },
+        {
+          "Ofis Kodu": "OF10615",
+          "Portföy Sayısı": 5,
+          "Danışman Adı Soyadı": "Müge Hacıhaliloğlu",
+          "Ünvan": "Gayrimenkul Danışmanı",
+          "_sourceFile": "platform_icerik_ozetleri.xlsx",
+          "Ofis Adı": "CB ONKO 2"
+        },
+        {
+          "Portföy Sayısı": 2,
+          "Ofis Kodu": "OF10615",
+          "Danışman Adı Soyadı": "Seda Karul",
+          "Ünvan": "Gayrimenkul Danışmanı",
+          "_sourceFile": "platform_icerik_ozetleri.xlsx",
+          "Ofis Adı": "CB ONKO 2"
+        },
+        {
+          "Ofis Adı": "CB ONKO 2",
+          "_sourceFile": "platform_icerik_ozetleri.xlsx",
+          "Ünvan": "Gayrimenkul Danışmanı",
+          "Danışman Adı Soyadı": "Gizem Soycan",
+          "Ofis Kodu": "OF10615",
+          "Portföy Sayısı": 1
+        },
+        {
+          "Danışman Adı Soyadı": "Yusuf Şan",
+          "Ofis Kodu": "OF10615",
+          "Portföy Sayısı": 0,
+          "Ünvan": "Gayrimenkul Danışmanı",
+          "_sourceFile": "platform_icerik_ozetleri.xlsx",
+          "Ofis Adı": "CB ONKO 2"
+        },
+        {
+          "Ünvan": "Gayrimenkul Danışmanı",
+          "Danışman Adı Soyadı": "Nükte Y.",
+          "Ofis Kodu": "OF10616",
+          "Portföy Sayısı": 14,
+          "Ofis Adı": "CB VEGA",
+          "_sourceFile": "platform_icerik_ozetleri.xlsx"
+        },
+        {
+          "_sourceFile": "platform_icerik_ozetleri.xlsx",
+          "Ofis Adı": "CB VEGA",
+          "Danışman Adı Soyadı": "Handan Deveci",
+          "Ofis Kodu": "OF10616",
+          "Portföy Sayısı": 12,
+          "Ünvan": "Gayrimenkul Danışmanı"
+        },
+        {
+          "Ofis Adı": "CB VEGA",
+          "_sourceFile": "platform_icerik_ozetleri.xlsx",
+          "Ünvan": "Gayrimenkul Danışmanı",
+          "Danışman Adı Soyadı": "Halil Deveci",
+          "Ofis Kodu": "OF10616",
+          "Portföy Sayısı": 11
+        },
+        {
+          "Ofis Kodu": "OF10616",
+          "Portföy Sayısı": 11,
+          "Danışman Adı Soyadı": "Müge Küçükaras",
+          "Ünvan": "Gayrimenkul Danışmanı",
+          "_sourceFile": "platform_icerik_ozetleri.xlsx",
+          "Ofis Adı": "CB VEGA"
+        },
+        {
+          "Danışman Adı Soyadı": "Merve İbiş",
+          "Ofis Kodu": "OF10616",
+          "Portföy Sayısı": 11,
+          "Ünvan": "Gayrimenkul Danışmanı",
+          "_sourceFile": "platform_icerik_ozetleri.xlsx",
+          "Ofis Adı": "CB VEGA"
+        },
+        {
+          "Ofis Adı": "CB VEGA",
+          "_sourceFile": "platform_icerik_ozetleri.xlsx",
+          "Ünvan": "Gayrimenkul Danışmanı",
+          "Ofis Kodu": "OF10616",
+          "Portföy Sayısı": 10,
+          "Danışman Adı Soyadı": "Sefa Kocaman"
+        },
+        {
+          "_sourceFile": "platform_icerik_ozetleri.xlsx",
+          "Ofis Adı": "CB VEGA",
+          "Portföy Sayısı": 10,
+          "Ofis Kodu": "OF10616",
+          "Danışman Adı Soyadı": "Aydan Nişancı",
+          "Ünvan": "Gayrimenkul Danışmanı"
+        },
+        {
+          "_sourceFile": "platform_icerik_ozetleri.xlsx",
+          "Ofis Adı": "CB VEGA",
+          "Portföy Sayısı": 7,
+          "Ofis Kodu": "OF10616",
+          "Danışman Adı Soyadı": "Ahmet Ertınaz",
+          "Ünvan": "Gayrimenkul Danışmanı"
+        },
+        {
+          "Danışman Adı Soyadı": "Mustafa Baş",
+          "Portföy Sayısı": 7,
+          "Ofis Kodu": "OF10616",
+          "Ünvan": "Gayrimenkul Danışmanı",
+          "_sourceFile": "platform_icerik_ozetleri.xlsx",
+          "Ofis Adı": "CB VEGA"
+        },
+        {
+          "Ofis Kodu": "OF10616",
+          "Portföy Sayısı": 6,
+          "Danışman Adı Soyadı": "Pelin Palango",
+          "Ünvan": "Gayrimenkul Danışmanı",
+          "_sourceFile": "platform_icerik_ozetleri.xlsx",
+          "Ofis Adı": "CB VEGA"
+        },
+        {
+          "_sourceFile": "platform_icerik_ozetleri.xlsx",
+          "Ofis Adı": "CB VEGA",
+          "Portföy Sayısı": 6,
+          "Ofis Kodu": "OF10616",
+          "Danışman Adı Soyadı": "Yunus K.",
+          "Ünvan": "Gayrimenkul Danışmanı"
+        },
+        {
+          "_sourceFile": "platform_icerik_ozetleri.xlsx",
+          "Ofis Adı": "CB VEGA",
+          "Danışman Adı Soyadı": "Nazire Ünlü",
+          "Portföy Sayısı": 6,
+          "Ofis Kodu": "OF10616",
+          "Ünvan": "Gayrimenkul Danışmanı"
+        },
+        {
+          "_sourceFile": "platform_icerik_ozetleri.xlsx",
+          "Ofis Adı": "CB VEGA",
+          "Portföy Sayısı": 5,
+          "Ofis Kodu": "OF10616",
+          "Danışman Adı Soyadı": "Birol Oral",
+          "Ünvan": "Gayrimenkul Danışmanı"
+        },
+        {
+          "Ünvan": "Gayrimenkul Danışmanı",
+          "Danışman Adı Soyadı": "Kubilay Demirbaş",
+          "Portföy Sayısı": 4,
+          "Ofis Kodu": "OF10616",
+          "Ofis Adı": "CB VEGA",
+          "_sourceFile": "platform_icerik_ozetleri.xlsx"
+        },
+        {
+          "Ofis Adı": "CB VEGA",
+          "_sourceFile": "platform_icerik_ozetleri.xlsx",
+          "Ünvan": "Gayrimenkul Danışmanı",
+          "Danışman Adı Soyadı": "Mehmet Ali Akçalıoğlu",
+          "Ofis Kodu": "OF10616",
+          "Portföy Sayısı": 4
+        },
+        {
+          "_sourceFile": "platform_icerik_ozetleri.xlsx",
+          "Ofis Adı": "CB VEGA",
+          "Danışman Adı Soyadı": "Melek Özgen",
+          "Ofis Kodu": "OF10616",
+          "Portföy Sayısı": 4,
+          "Ünvan": "Gayrimenkul Danışmanı"
+        },
+        {
+          "Ünvan": "Gayrimenkul Danışmanı",
+          "Ofis Kodu": "OF10616",
+          "Portföy Sayısı": 3,
+          "Danışman Adı Soyadı": "Gürtekin Aş",
+          "Ofis Adı": "CB VEGA",
+          "_sourceFile": "platform_icerik_ozetleri.xlsx"
+        },
+        {
+          "_sourceFile": "platform_icerik_ozetleri.xlsx",
+          "Ofis Adı": "CB VEGA",
+          "Danışman Adı Soyadı": "Öznur Kösem Açıkbaş",
+          "Portföy Sayısı": 3,
+          "Ofis Kodu": "OF10616",
+          "Ünvan": "Gayrimenkul Danışmanı"
+        },
+        {
+          "_sourceFile": "platform_icerik_ozetleri.xlsx",
+          "Ofis Adı": "CB VEGA",
+          "Portföy Sayısı": 3,
+          "Ofis Kodu": "OF10616",
+          "Danışman Adı Soyadı": "Jojo Hason",
+          "Ünvan": "Gayrimenkul Danışmanı"
+        },
+        {
+          "Ofis Adı": "CB VEGA",
+          "_sourceFile": "platform_icerik_ozetleri.xlsx",
+          "Ünvan": "Gayrimenkul Danışmanı",
+          "Danışman Adı Soyadı": "Can Erdoğan",
+          "Ofis Kodu": "OF10616",
+          "Portföy Sayısı": 3
+        },
+        {
+          "Ofis Kodu": "OF10616",
+          "Portföy Sayısı": 1,
+          "Danışman Adı Soyadı": "Murat A.",
+          "Ünvan": "Gayrimenkul Danışmanı",
+          "_sourceFile": "platform_icerik_ozetleri.xlsx",
+          "Ofis Adı": "CB VEGA"
+        },
+        {
+          "Ünvan": "Gayrimenkul Danışmanı",
+          "Portföy Sayısı": 1,
+          "Ofis Kodu": "OF10616",
+          "Danışman Adı Soyadı": "Sinemis Cantürk",
+          "Ofis Adı": "CB VEGA",
+          "_sourceFile": "platform_icerik_ozetleri.xlsx"
+        },
+        {
+          "_sourceFile": "platform_icerik_ozetleri.xlsx",
+          "Ofis Adı": "CB VEGA",
+          "Ofis Kodu": "OF10616",
+          "Portföy Sayısı": 1,
+          "Danışman Adı Soyadı": "Dila Köksal",
+          "Ünvan": "Gayrimenkul Danışmanı"
+        },
+        {
+          "Portföy Sayısı": 0,
+          "Ofis Kodu": "OF10616",
+          "Danışman Adı Soyadı": "Gülnur Topaç",
+          "Ünvan": "Gayrimenkul Danışmanı",
+          "_sourceFile": "platform_icerik_ozetleri.xlsx",
+          "Ofis Adı": "CB VEGA"
+        },
+        {
+          "Ünvan": "Gayrimenkul Danışmanı",
+          "Danışman Adı Soyadı": "Kamuran Evlek",
+          "Portföy Sayısı": 0,
+          "Ofis Kodu": "OF10616",
+          "Ofis Adı": "CB VEGA",
+          "_sourceFile": "platform_icerik_ozetleri.xlsx"
+        },
+        {
+          "_sourceFile": "platform_icerik_ozetleri.xlsx",
+          "Ofis Adı": "CB VEGA",
+          "Ofis Kodu": "OF10616",
+          "Portföy Sayısı": 0,
+          "Danışman Adı Soyadı": "Hakan Şit",
+          "Ünvan": "Gayrimenkul Danışmanı"
+        },
+        {
+          "Ofis Adı": "CB VEGA",
+          "_sourceFile": "platform_icerik_ozetleri.xlsx",
+          "Ünvan": "Gayrimenkul Danışmanı",
+          "Danışman Adı Soyadı": "Mustafa Özberk",
+          "Ofis Kodu": "OF10616",
+          "Portföy Sayısı": 0
+        },
+        {
+          "Danışman Adı Soyadı": "Songül Kılınçcı",
+          "Portföy Sayısı": 0,
+          "Ofis Kodu": "OF10616",
+          "Ünvan": "Gayrimenkul Danışmanı",
+          "_sourceFile": "platform_icerik_ozetleri.xlsx",
+          "Ofis Adı": "CB VEGA"
+        },
+        {
+          "_sourceFile": "platform_icerik_ozetleri.xlsx",
+          "Ofis Adı": "CB VEGA",
+          "Portföy Sayısı": 0,
+          "Ofis Kodu": "OF10616",
+          "Danışman Adı Soyadı": "Emrullah Rodoplu",
+          "Ünvan": "Gayrimenkul Danışmanı"
+        },
+        {
+          "Danışman Adı Soyadı": "Aslıhan Çavuşoğlu",
+          "Ofis Kodu": "OF10616",
+          "Portföy Sayısı": 0,
+          "Ünvan": "Gayrimenkul Danışmanı",
+          "_sourceFile": "platform_icerik_ozetleri.xlsx",
+          "Ofis Adı": "CB VEGA"
+        },
+        {
+          "Ofis Adı": "CB GALA",
+          "_sourceFile": "platform_icerik_ozetleri.xlsx",
+          "Ünvan": "Gayrimenkul Danışmanı",
+          "Portföy Sayısı": 38,
+          "Ofis Kodu": "OF10617",
+          "Danışman Adı Soyadı": "Nuran Ertekin"
+        },
+        {
+          "Ofis Kodu": "OF10617",
+          "Portföy Sayısı": 16,
+          "Danışman Adı Soyadı": "Banu Sun",
+          "Ünvan": "Gayrimenkul Danışmanı",
+          "_sourceFile": "platform_icerik_ozetleri.xlsx",
+          "Ofis Adı": "CB GALA"
+        },
+        {
+          "_sourceFile": "platform_icerik_ozetleri.xlsx",
+          "Ofis Adı": "CB GALA",
+          "Portföy Sayısı": 14,
+          "Ofis Kodu": "OF10617",
+          "Danışman Adı Soyadı": "Erhan Baştürk",
+          "Ünvan": "Gayrimenkul Danışmanı"
+        },
+        {
+          "Ofis Adı": "CB GALA",
+          "_sourceFile": "platform_icerik_ozetleri.xlsx",
+          "Ünvan": "Gayrimenkul Danışmanı",
+          "Danışman Adı Soyadı": "Giray Atagün",
+          "Ofis Kodu": "OF10617",
+          "Portföy Sayısı": 12
+        },
+        {
+          "_sourceFile": "platform_icerik_ozetleri.xlsx",
+          "Ofis Adı": "CB GALA",
+          "Portföy Sayısı": 9,
+          "Ofis Kodu": "OF10617",
+          "Danışman Adı Soyadı": "Çetin Mutlu",
+          "Ünvan": "Gayrimenkul Danışmanı"
+        },
+        {
+          "Ofis Adı": "CB GALA",
+          "_sourceFile": "platform_icerik_ozetleri.xlsx",
+          "Ünvan": "Gayrimenkul Danışmanı",
+          "Portföy Sayısı": 8,
+          "Ofis Kodu": "OF10617",
+          "Danışman Adı Soyadı": "Rafi Döker"
+        },
+        {
+          "Danışman Adı Soyadı": "Murat Atıl",
+          "Ofis Kodu": "OF10617",
+          "Portföy Sayısı": 8,
+          "Ünvan": "Gayrimenkul Danışmanı",
+          "_sourceFile": "platform_icerik_ozetleri.xlsx",
+          "Ofis Adı": "CB GALA"
+        },
+        {
+          "_sourceFile": "platform_icerik_ozetleri.xlsx",
+          "Ofis Adı": "CB GALA",
+          "Ofis Kodu": "OF10617",
+          "Portföy Sayısı": 7,
+          "Danışman Adı Soyadı": "Gökhan Uğursoy",
+          "Ünvan": "Gayrimenkul Danışmanı"
+        },
+        {
+          "Portföy Sayısı": 7,
+          "Ofis Kodu": "OF10617",
+          "Danışman Adı Soyadı": "Önder Öztekin",
+          "Ünvan": "Gayrimenkul Danışmanı",
+          "_sourceFile": "platform_icerik_ozetleri.xlsx",
+          "Ofis Adı": "CB GALA"
+        },
+        {
+          "Ünvan": "Gayrimenkul Danışmanı",
+          "Ofis Kodu": "OF10617",
+          "Portföy Sayısı": 6,
+          "Danışman Adı Soyadı": "Mesut Yalnızgezen",
+          "Ofis Adı": "CB GALA",
+          "_sourceFile": "platform_icerik_ozetleri.xlsx"
+        },
+        {
+          "Ünvan": "Gayrimenkul Danışmanı",
+          "Danışman Adı Soyadı": "Esma Çeştepe",
+          "Ofis Kodu": "OF10617",
+          "Portföy Sayısı": 6,
+          "Ofis Adı": "CB GALA",
+          "_sourceFile": "platform_icerik_ozetleri.xlsx"
+        },
+        {
+          "_sourceFile": "platform_icerik_ozetleri.xlsx",
+          "Ofis Adı": "CB GALA",
+          "Danışman Adı Soyadı": "Güler Türkoğlu",
+          "Portföy Sayısı": 3,
+          "Ofis Kodu": "OF10617",
+          "Ünvan": "Gayrimenkul Danışmanı"
+        },
+        {
+          "Ünvan": "Gayrimenkul Danışmanı",
+          "Danışman Adı Soyadı": "Sevinç Koç",
+          "Portföy Sayısı": 3,
+          "Ofis Kodu": "OF10617",
+          "Ofis Adı": "CB GALA",
+          "_sourceFile": "platform_icerik_ozetleri.xlsx"
+        },
+        {
+          "Danışman Adı Soyadı": "Eda Demirel",
+          "Portföy Sayısı": 2,
+          "Ofis Kodu": "OF10617",
+          "Ünvan": "Gayrimenkul Danışmanı",
+          "_sourceFile": "platform_icerik_ozetleri.xlsx",
+          "Ofis Adı": "CB GALA"
+        },
+        {
+          "Portföy Sayısı": 2,
+          "Ofis Kodu": "OF10617",
+          "Danışman Adı Soyadı": "Elif Güzel",
+          "Ünvan": "Gayrimenkul Danışmanı",
+          "_sourceFile": "platform_icerik_ozetleri.xlsx",
+          "Ofis Adı": "CB GALA"
+        },
+        {
+          "Danışman Adı Soyadı": "Nazlı Şermet",
+          "Portföy Sayısı": 1,
+          "Ofis Kodu": "OF10617",
+          "Ünvan": "Gayrimenkul Danışmanı",
+          "_sourceFile": "platform_icerik_ozetleri.xlsx",
+          "Ofis Adı": "CB GALA"
+        },
+        {
+          "Ofis Adı": "CB GALA",
+          "_sourceFile": "platform_icerik_ozetleri.xlsx",
+          "Ünvan": "Gayrimenkul Danışmanı",
+          "Portföy Sayısı": 1,
+          "Ofis Kodu": "OF10617",
+          "Danışman Adı Soyadı": "Senem Zengin"
+        },
+        {
+          "Ünvan": "Gayrimenkul Danışmanı",
+          "Danışman Adı Soyadı": "Ufuk İnce",
+          "Portföy Sayısı": 1,
+          "Ofis Kodu": "OF10617",
+          "Ofis Adı": "CB GALA",
+          "_sourceFile": "platform_icerik_ozetleri.xlsx"
+        },
+        {
+          "Ofis Kodu": "OF10617",
+          "Portföy Sayısı": 1,
+          "Danışman Adı Soyadı": "Duygu Uysalsoy",
+          "Ünvan": "Gayrimenkul Danışmanı",
+          "_sourceFile": "platform_icerik_ozetleri.xlsx",
+          "Ofis Adı": "CB GALA"
+        },
+        {
+          "Ünvan": "Gayrimenkul Danışmanı",
+          "Ofis Kodu": "OF10617",
+          "Portföy Sayısı": 0,
+          "Danışman Adı Soyadı": "İpek Ergül",
+          "Ofis Adı": "CB GALA",
+          "_sourceFile": "platform_icerik_ozetleri.xlsx"
+        },
+        {
+          "Ofis Adı": "CB GALA",
+          "_sourceFile": "platform_icerik_ozetleri.xlsx",
+          "Ünvan": "Gayrimenkul Danışmanı",
+          "Portföy Sayısı": 0,
+          "Ofis Kodu": "OF10617",
+          "Danışman Adı Soyadı": "Akın Sarıhan"
+        },
+        {
+          "_sourceFile": "platform_icerik_ozetleri.xlsx",
+          "Ofis Adı": "CB GALA",
+          "Portföy Sayısı": 0,
+          "Ofis Kodu": "OF10617",
+          "Danışman Adı Soyadı": "Victor Langer",
+          "Ünvan": "Gayrimenkul Danışmanı"
+        },
+        {
+          "Ünvan": "Gayrimenkul Danışmanı",
+          "Portföy Sayısı": 0,
+          "Ofis Kodu": "OF10617",
+          "Danışman Adı Soyadı": "Mustafa Levent İlgün",
+          "Ofis Adı": "CB GALA",
+          "_sourceFile": "platform_icerik_ozetleri.xlsx"
+        },
+        {
+          "_sourceFile": "platform_icerik_ozetleri.xlsx",
+          "Ofis Adı": "CB GALA",
+          "Danışman Adı Soyadı": "Cem Özince",
+          "Portföy Sayısı": 0,
+          "Ofis Kodu": "OF10617",
+          "Ünvan": "Gayrimenkul Danışmanı"
+        },
+        {
+          "_sourceFile": "platform_icerik_ozetleri.xlsx",
+          "Ofis Adı": "CB REFERANS",
+          "Portföy Sayısı": 11,
+          "Ofis Kodu": "OF10618",
+          "Danışman Adı Soyadı": "Müslüm Erçetin",
+          "Ünvan": "Gayrimenkul Danışmanı"
+        },
+        {
+          "_sourceFile": "platform_icerik_ozetleri.xlsx",
+          "Ofis Adı": "CB REFERANS",
+          "Ofis Kodu": "OF10618",
+          "Portföy Sayısı": 5,
+          "Danışman Adı Soyadı": "Sadettin Akyüz",
+          "Ünvan": "Gayrimenkul Danışmanı"
+        },
+        {
+          "_sourceFile": "platform_icerik_ozetleri.xlsx",
+          "Ofis Adı": "CB REFERANS",
+          "Portföy Sayısı": 4,
+          "Ofis Kodu": "OF10618",
+          "Danışman Adı Soyadı": "Sevim Vergili",
+          "Ünvan": "Gayrimenkul Danışmanı"
+        },
+        {
+          "Danışman Adı Soyadı": "Nurşen Üşenç",
+          "Portföy Sayısı": 4,
+          "Ofis Kodu": "OF10618",
+          "Ünvan": "Gayrimenkul Danışmanı",
+          "_sourceFile": "platform_icerik_ozetleri.xlsx",
+          "Ofis Adı": "CB REFERANS"
+        },
+        {
+          "Ofis Adı": "CB REFERANS",
+          "_sourceFile": "platform_icerik_ozetleri.xlsx",
+          "Ünvan": "Gayrimenkul Danışmanı",
+          "Ofis Kodu": "OF10618",
+          "Portföy Sayısı": 3,
+          "Danışman Adı Soyadı": "Onur Kurt"
+        },
+        {
+          "Ünvan": "Gayrimenkul Danışmanı",
+          "Ofis Kodu": "OF10618",
+          "Portföy Sayısı": 2,
+          "Danışman Adı Soyadı": "Mehmet Karacan",
+          "Ofis Adı": "CB REFERANS",
+          "_sourceFile": "platform_icerik_ozetleri.xlsx"
+        },
+        {
+          "_sourceFile": "platform_icerik_ozetleri.xlsx",
+          "Ofis Adı": "CB REFERANS",
+          "Danışman Adı Soyadı": "Mustafa Çağlayan",
+          "Portföy Sayısı": 1,
+          "Ofis Kodu": "OF10618",
+          "Ünvan": "Gayrimenkul Danışmanı"
+        },
+        {
+          "Ünvan": "Gayrimenkul Danışmanı",
+          "Danışman Adı Soyadı": "Oğuz Gönülsüz",
+          "Ofis Kodu": "OF10618",
+          "Portföy Sayısı": 1,
+          "Ofis Adı": "CB REFERANS",
+          "_sourceFile": "platform_icerik_ozetleri.xlsx"
+        },
+        {
+          "Ofis Adı": "CB REFERANS",
+          "_sourceFile": "platform_icerik_ozetleri.xlsx",
+          "Ünvan": "Gayrimenkul Danışmanı",
+          "Ofis Kodu": "OF10618",
+          "Portföy Sayısı": 0,
+          "Danışman Adı Soyadı": "Volkan Senyücel"
+        },
+        {
+          "Danışman Adı Soyadı": "Burhan Kandemir",
+          "Ofis Kodu": "OF10615",
+          "Portföy Sayısı": 14,
+          "Ünvan": "Ofis Sahibi (Broker)",
+          "_sourceFile": "platform_icerik_ozetleri.xlsx",
+          "Ofis Adı": "C21 WIN"
+        },
+        {
+          "Ofis Adı": "C21 WIN",
+          "_sourceFile": "platform_icerik_ozetleri.xlsx",
+          "Ünvan": "Gayrimenkul Danışmanı",
+          "Ofis Kodu": "OF10615",
+          "Portföy Sayısı": 29,
+          "Danışman Adı Soyadı": "Hakan Vural"
+        },
+        {
+          "Ofis Adı": "C21 WIN",
+          "_sourceFile": "platform_icerik_ozetleri.xlsx",
+          "Ünvan": "Gayrimenkul Danışmanı",
+          "Danışman Adı Soyadı": "Murat Cengiz",
+          "Ofis Kodu": "OF10615",
+          "Portföy Sayısı": 12
+        },
+        {
+          "Ofis Adı": "C21 WIN",
+          "_sourceFile": "platform_icerik_ozetleri.xlsx",
+          "Ünvan": "Gayrimenkul Danışmanı",
+          "Danışman Adı Soyadı": "Zeynep Uysal",
+          "Ofis Kodu": "OF10615",
+          "Portföy Sayısı": 11
+        },
+        {
+          "_sourceFile": "platform_icerik_ozetleri.xlsx",
+          "Ofis Adı": "C21 WIN",
+          "Danışman Adı Soyadı": "Murat Dündar",
+          "Portföy Sayısı": 8,
+          "Ofis Kodu": "OF10615",
+          "Ünvan": "Gayrimenkul Danışmanı"
+        },
+        {
+          "_sourceFile": "platform_icerik_ozetleri.xlsx",
+          "Ofis Adı": "C21 WIN",
+          "Ofis Kodu": "OF10615",
+          "Portföy Sayısı": 7,
+          "Danışman Adı Soyadı": "Sami Acar",
+          "Ünvan": "Gayrimenkul Danışmanı"
+        },
+        {
+          "Ofis Adı": "C21 WIN",
+          "_sourceFile": "platform_icerik_ozetleri.xlsx",
+          "Ünvan": "Gayrimenkul Danışmanı",
+          "Danışman Adı Soyadı": "Ayla Kaya",
+          "Ofis Kodu": "OF10615",
+          "Portföy Sayısı": 7
+        },
+        {
+          "Ünvan": "Gayrimenkul Danışmanı",
+          "Ofis Kodu": "OF10615",
+          "Portföy Sayısı": 6,
+          "Danışman Adı Soyadı": "Mehmet Karakaya",
+          "Ofis Adı": "C21 WIN",
+          "_sourceFile": "platform_icerik_ozetleri.xlsx"
+        },
+        {
+          "Ofis Adı": "C21 WIN",
+          "_sourceFile": "platform_icerik_ozetleri.xlsx",
+          "Ünvan": "Gayrimenkul Danışmanı",
+          "Ofis Kodu": "OF10615",
+          "Portföy Sayısı": 6,
+          "Danışman Adı Soyadı": "Mustafa Göktepe"
+        },
+        {
+          "Portföy Sayısı": 5,
+          "Ofis Kodu": "OF10615",
+          "Danışman Adı Soyadı": "Yalçın Çınar",
+          "Ünvan": "Gayrimenkul Danışmanı",
+          "_sourceFile": "platform_icerik_ozetleri.xlsx",
+          "Ofis Adı": "C21 WIN"
+        },
+        {
+          "Danışman Adı Soyadı": "Sibel Onat",
+          "Portföy Sayısı": 5,
+          "Ofis Kodu": "OF10615",
+          "Ünvan": "Gayrimenkul Danışmanı",
+          "_sourceFile": "platform_icerik_ozetleri.xlsx",
+          "Ofis Adı": "C21 WIN"
+        },
+        {
+          "_sourceFile": "platform_icerik_ozetleri.xlsx",
+          "Ofis Adı": "C21 WIN",
+          "Danışman Adı Soyadı": "Halil Büyükgüllü",
+          "Ofis Kodu": "OF10615",
+          "Portföy Sayısı": 4,
+          "Ünvan": "Gayrimenkul Danışmanı"
+        },
+        {
+          "Danışman Adı Soyadı": "Selenay Ekerbiçer",
+          "Portföy Sayısı": 4,
+          "Ofis Kodu": "OF10615",
+          "Ünvan": "Gayrimenkul Danışmanı",
+          "_sourceFile": "platform_icerik_ozetleri.xlsx",
+          "Ofis Adı": "C21 WIN"
+        },
+        {
+          "Ofis Adı": "C21 WIN",
+          "_sourceFile": "platform_icerik_ozetleri.xlsx",
+          "Ünvan": "Gayrimenkul Danışmanı",
+          "Danışman Adı Soyadı": "Gülden İlçin",
+          "Ofis Kodu": "OF10615",
+          "Portföy Sayısı": 4
+        },
+        {
+          "Ünvan": "Gayrimenkul Danışmanı",
+          "Portföy Sayısı": 3,
+          "Ofis Kodu": "OF10615",
+          "Danışman Adı Soyadı": "Seher Ekerbiçer",
+          "Ofis Adı": "C21 WIN",
+          "_sourceFile": "platform_icerik_ozetleri.xlsx"
+        },
+        {
+          "Ofis Kodu": "OF10615",
+          "Portföy Sayısı": 2,
+          "Danışman Adı Soyadı": "Hamiyet K. K.",
+          "Ünvan": "Gayrimenkul Danışmanı",
+          "_sourceFile": "platform_icerik_ozetleri.xlsx",
+          "Ofis Adı": "C21 WIN"
+        },
+        {
+          "Ofis Adı": "C21 WIN",
+          "_sourceFile": "platform_icerik_ozetleri.xlsx",
+          "Ünvan": "Gayrimenkul Danışmanı",
+          "Ofis Kodu": "OF10615",
+          "Portföy Sayısı": 2,
+          "Danışman Adı Soyadı": "Ayşe Gül Sungur"
+        },
+        {
+          "Ofis Adı": "C21 WIN",
+          "_sourceFile": "platform_icerik_ozetleri.xlsx",
+          "Ünvan": "Gayrimenkul Danışmanı",
+          "Danışman Adı Soyadı": "Cemil Özdoğan",
+          "Portföy Sayısı": 2,
+          "Ofis Kodu": "OF10615"
+        },
+        {
+          "_sourceFile": "platform_icerik_ozetleri.xlsx",
+          "Ofis Adı": "C21 WIN",
+          "Danışman Adı Soyadı": "Taylan Yıldırım",
+          "Portföy Sayısı": 0,
+          "Ofis Kodu": "OF10615",
+          "Ünvan": "Gayrimenkul Danışmanı"
+        },
+        {
+          "_sourceFile": "platform_icerik_ozetleri.xlsx",
+          "Ofis Adı": "C21 WIN",
+          "Ofis Kodu": "OF10615",
+          "Portföy Sayısı": 0,
+          "Danışman Adı Soyadı": "Hacer İbrahim",
+          "Ünvan": "Gayrimenkul Danışmanı"
+        },
+        {
+          "Ofis Adı": "C21 ASİL",
+          "_sourceFile": "platform_icerik_ozetleri.xlsx",
+          "Ünvan": "Ofis Sahibi (Broker)",
+          "Danışman Adı Soyadı": "Ayhan Kaya",
+          "Ofis Kodu": "OF10620",
+          "Portföy Sayısı": 8
+        },
+        {
+          "Ünvan": "Gayrimenkul Danışmanı",
+          "Ofis Kodu": "OF10620",
+          "Portföy Sayısı": 24,
+          "Danışman Adı Soyadı": "Besire Kaya",
+          "Ofis Adı": "C21 ASİL",
+          "_sourceFile": "platform_icerik_ozetleri.xlsx"
+        },
+        {
+          "Ünvan": "Gayrimenkul Danışmanı",
+          "Danışman Adı Soyadı": "Tunahan Şimşek",
+          "Ofis Kodu": "OF10620",
+          "Portföy Sayısı": 24,
+          "Ofis Adı": "C21 ASİL",
+          "_sourceFile": "platform_icerik_ozetleri.xlsx"
+        },
+        {
+          "Ofis Adı": "C21 ASİL",
+          "_sourceFile": "platform_icerik_ozetleri.xlsx",
+          "Ünvan": "Gayrimenkul Danışmanı",
+          "Danışman Adı Soyadı": "Ali Güçlü",
+          "Ofis Kodu": "OF10620",
+          "Portföy Sayısı": 13
+        },
+        {
+          "Portföy Sayısı": 10,
+          "Ofis Kodu": "OF10620",
+          "Danışman Adı Soyadı": "İlksen Özgenç",
+          "Ünvan": "Gayrimenkul Danışmanı",
+          "_sourceFile": "platform_icerik_ozetleri.xlsx",
+          "Ofis Adı": "C21 ASİL"
+        },
+        {
+          "Ofis Adı": "C21 ASİL",
+          "_sourceFile": "platform_icerik_ozetleri.xlsx",
+          "Ünvan": "Gayrimenkul Danışmanı",
+          "Danışman Adı Soyadı": "Rana Beg",
+          "Ofis Kodu": "OF10620",
+          "Portföy Sayısı": 9
+        },
+        {
+          "Ofis Adı": "C21 ASİL",
+          "_sourceFile": "platform_icerik_ozetleri.xlsx",
+          "Ünvan": "Gayrimenkul Danışmanı",
+          "Danışman Adı Soyadı": "Gönül Ergün",
+          "Portföy Sayısı": 9,
+          "Ofis Kodu": "OF10620"
+        },
+        {
+          "Ünvan": "Gayrimenkul Danışmanı",
+          "Portföy Sayısı": 5,
+          "Ofis Kodu": "OF10620",
+          "Danışman Adı Soyadı": "Halit Kolancı",
+          "Ofis Adı": "C21 ASİL",
+          "_sourceFile": "platform_icerik_ozetleri.xlsx"
+        },
+        {
+          "_sourceFile": "platform_icerik_ozetleri.xlsx",
+          "Ofis Adı": "C21 ASİL",
+          "Danışman Adı Soyadı": "Yunus Bedir",
+          "Portföy Sayısı": 5,
+          "Ofis Kodu": "OF10620",
+          "Ünvan": "Gayrimenkul Danışmanı"
+        },
+        {
+          "Ofis Adı": "C21 ASİL",
+          "_sourceFile": "platform_icerik_ozetleri.xlsx",
+          "Ünvan": "Gayrimenkul Danışmanı",
+          "Ofis Kodu": "OF10620",
+          "Portföy Sayısı": 4,
+          "Danışman Adı Soyadı": "Selma Zaim"
+        },
+        {
+          "Ünvan": "Gayrimenkul Danışmanı",
+          "Danışman Adı Soyadı": "Sema Arkman",
+          "Portföy Sayısı": 3,
+          "Ofis Kodu": "OF10620",
+          "Ofis Adı": "C21 ASİL",
+          "_sourceFile": "platform_icerik_ozetleri.xlsx"
+        },
+        {
+          "Ünvan": "Gayrimenkul Danışmanı",
+          "Portföy Sayısı": 3,
+          "Ofis Kodu": "OF10620",
+          "Danışman Adı Soyadı": "Ali Songur",
+          "Ofis Adı": "C21 ASİL",
+          "_sourceFile": "platform_icerik_ozetleri.xlsx"
+        },
+        {
+          "Ofis Adı": "C21 ASİL",
+          "_sourceFile": "platform_icerik_ozetleri.xlsx",
+          "Ünvan": "Gayrimenkul Danışmanı",
+          "Portföy Sayısı": 2,
+          "Ofis Kodu": "OF10620",
+          "Danışman Adı Soyadı": "Gülsüm Yıldız"
+        },
+        {
+          "Danışman Adı Soyadı": "Serpil Erdoğan",
+          "Ofis Kodu": "OF10620",
+          "Portföy Sayısı": 1,
+          "Ünvan": "Gayrimenkul Danışmanı",
+          "_sourceFile": "platform_icerik_ozetleri.xlsx",
+          "Ofis Adı": "C21 ASİL"
+        },
+        {
+          "Danışman Adı Soyadı": "Serkan Kalkan",
+          "Portföy Sayısı": 1,
+          "Ofis Kodu": "OF10620",
+          "Ünvan": "Gayrimenkul Danışmanı",
+          "_sourceFile": "platform_icerik_ozetleri.xlsx",
+          "Ofis Adı": "C21 ASİL"
+        },
+        {
+          "_sourceFile": "platform_icerik_ozetleri.xlsx",
+          "Ofis Adı": "C21 İLKE",
+          "Portföy Sayısı": 7,
+          "Ofis Kodu": "OF10621",
+          "Danışman Adı Soyadı": "Abidin Şahin",
+          "Ünvan": "Ofis Sahibi (Broker)"
+        },
+        {
+          "_sourceFile": "platform_icerik_ozetleri.xlsx",
+          "Ofis Adı": "C21 İLKE",
+          "Ofis Kodu": "OF10621",
+          "Portföy Sayısı": 17,
+          "Danışman Adı Soyadı": "Mustafa Umul",
+          "Ünvan": "Gayrimenkul Danışmanı"
+        },
+        {
+          "Ünvan": "Gayrimenkul Danışmanı",
+          "Danışman Adı Soyadı": "Eyyüp Er",
+          "Ofis Kodu": "OF10621",
+          "Portföy Sayısı": 12,
+          "Ofis Adı": "C21 İLKE",
+          "_sourceFile": "platform_icerik_ozetleri.xlsx"
+        },
+        {
+          "Ofis Adı": "C21 İLKE",
+          "_sourceFile": "platform_icerik_ozetleri.xlsx",
+          "Ünvan": "Gayrimenkul Danışmanı",
+          "Danışman Adı Soyadı": "Çağatay Tam",
+          "Portföy Sayısı": 11,
+          "Ofis Kodu": "OF10621"
+        },
+        {
+          "_sourceFile": "platform_icerik_ozetleri.xlsx",
+          "Ofis Adı": "C21 İLKE",
+          "Danışman Adı Soyadı": "Ferhat Ateş",
+          "Ofis Kodu": "OF10621",
+          "Portföy Sayısı": 10,
+          "Ünvan": "Gayrimenkul Danışmanı"
+        },
+        {
+          "Ofis Adı": "C21 İLKE",
+          "_sourceFile": "platform_icerik_ozetleri.xlsx",
+          "Ünvan": "Gayrimenkul Danışmanı",
+          "Danışman Adı Soyadı": "Sercan Yılmaz",
+          "Ofis Kodu": "OF10621",
+          "Portföy Sayısı": 9
+        },
+        {
+          "Ünvan": "Gayrimenkul Danışmanı",
+          "Danışman Adı Soyadı": "Murat Şeker",
+          "Ofis Kodu": "OF10621",
+          "Portföy Sayısı": 9,
+          "Ofis Adı": "C21 İLKE",
+          "_sourceFile": "platform_icerik_ozetleri.xlsx"
+        },
+        {
+          "Ünvan": "Gayrimenkul Danışmanı",
+          "Danışman Adı Soyadı": "Doğa Aydın",
+          "Portföy Sayısı": 8,
+          "Ofis Kodu": "OF10621",
+          "Ofis Adı": "C21 İLKE",
+          "_sourceFile": "platform_icerik_ozetleri.xlsx"
+        },
+        {
+          "Ünvan": "Gayrimenkul Danışmanı",
+          "Ofis Kodu": "OF10621",
+          "Portföy Sayısı": 7,
+          "Danışman Adı Soyadı": "Mustafa Ergüner",
+          "Ofis Adı": "C21 İLKE",
+          "_sourceFile": "platform_icerik_ozetleri.xlsx"
+        },
+        {
+          "Danışman Adı Soyadı": "Remzi Beyreli",
+          "Portföy Sayısı": 7,
+          "Ofis Kodu": "OF10621",
+          "Ünvan": "Gayrimenkul Danışmanı",
+          "_sourceFile": "platform_icerik_ozetleri.xlsx",
+          "Ofis Adı": "C21 İLKE"
+        },
+        {
+          "_sourceFile": "platform_icerik_ozetleri.xlsx",
+          "Ofis Adı": "C21 İLKE",
+          "Danışman Adı Soyadı": "Zeynep Silifkeli",
+          "Ofis Kodu": "OF10621",
+          "Portföy Sayısı": 6,
+          "Ünvan": "Gayrimenkul Danışmanı"
+        },
+        {
+          "Danışman Adı Soyadı": "Ali Öner",
+          "Portföy Sayısı": 5,
+          "Ofis Kodu": "OF10621",
+          "Ünvan": "Gayrimenkul Danışmanı",
+          "_sourceFile": "platform_icerik_ozetleri.xlsx",
+          "Ofis Adı": "C21 İLKE"
+        },
+        {
+          "Ünvan": "Gayrimenkul Danışmanı",
+          "Ofis Kodu": "OF10621",
+          "Portföy Sayısı": 4,
+          "Danışman Adı Soyadı": "Ali Veysel Başalak",
+          "Ofis Adı": "C21 İLKE",
+          "_sourceFile": "platform_icerik_ozetleri.xlsx"
+        },
+        {
+          "Danışman Adı Soyadı": "Şebnem Döner",
+          "Ofis Kodu": "OF10621",
+          "Portföy Sayısı": 3,
+          "Ünvan": "Gayrimenkul Danışmanı",
+          "_sourceFile": "platform_icerik_ozetleri.xlsx",
+          "Ofis Adı": "C21 İLKE"
+        },
+        {
+          "_sourceFile": "platform_icerik_ozetleri.xlsx",
+          "Ofis Adı": "C21 İLKE",
+          "Danışman Adı Soyadı": "Yalçın Özpınar",
+          "Ofis Kodu": "OF10621",
+          "Portföy Sayısı": 3,
+          "Ünvan": "Gayrimenkul Danışmanı"
+        },
+        {
+          "Portföy Sayısı": 3,
+          "Ofis Kodu": "OF10621",
+          "Danışman Adı Soyadı": "Oğulcan Evran",
+          "Ünvan": "Gayrimenkul Danışmanı",
+          "_sourceFile": "platform_icerik_ozetleri.xlsx",
+          "Ofis Adı": "C21 İLKE"
+        },
+        {
+          "Ofis Kodu": "OF10621",
+          "Portföy Sayısı": 2,
+          "Danışman Adı Soyadı": "Yasin Özkan",
+          "Ünvan": "Gayrimenkul Danışmanı",
+          "_sourceFile": "platform_icerik_ozetleri.xlsx",
+          "Ofis Adı": "C21 İLKE"
+        },
+        {
+          "Ofis Adı": "C21 İLKE",
+          "_sourceFile": "platform_icerik_ozetleri.xlsx",
+          "Ünvan": "Gayrimenkul Danışmanı",
+          "Danışman Adı Soyadı": "Emre Dinçgil",
+          "Ofis Kodu": "OF10621",
+          "Portföy Sayısı": 1
+        },
+        {
+          "Ofis Adı": "C21 İLKE",
+          "_sourceFile": "platform_icerik_ozetleri.xlsx",
+          "Ünvan": "Gayrimenkul Danışmanı",
+          "Portföy Sayısı": 1,
+          "Ofis Kodu": "OF10621",
+          "Danışman Adı Soyadı": "Sina Özgüleryüz"
+        },
+        {
+          "_sourceFile": "platform_icerik_ozetleri.xlsx",
+          "Ofis Adı": "C21 İLKE",
+          "Ofis Kodu": "OF10621",
+          "Portföy Sayısı": 1,
+          "Danışman Adı Soyadı": "Pelin Pekgöz",
+          "Ünvan": "Gayrimenkul Danışmanı"
+        },
+        {
+          "Ünvan": "Gayrimenkul Danışmanı",
+          "Portföy Sayısı": 0,
+          "Ofis Kodu": "OF10621",
+          "Danışman Adı Soyadı": "Hasan Karaarduç",
+          "Ofis Adı": "C21 İLKE",
+          "_sourceFile": "platform_icerik_ozetleri.xlsx"
+        },
+        {
+          "_sourceFile": "platform_icerik_ozetleri.xlsx",
+          "Ofis Adı": "C21 BOAZ",
+          "Portföy Sayısı": 20,
+          "Ofis Kodu": "OF10622",
+          "Danışman Adı Soyadı": "Mustafa Kıvrak",
+          "Ünvan": "Ofis Sahibi (Broker)"
+        },
+        {
+          "Ofis Adı": "C21 BOAZ",
+          "_sourceFile": "platform_icerik_ozetleri.xlsx",
+          "Ünvan": "Gayrimenkul Danışmanı",
+          "Portföy Sayısı": 26,
+          "Ofis Kodu": "OF10622",
+          "Danışman Adı Soyadı": "Kaan Akkaş"
+        },
+        {
+          "Ünvan": "Gayrimenkul Danışmanı",
+          "Ofis Kodu": "OF10622",
+          "Portföy Sayısı": 21,
+          "Danışman Adı Soyadı": "Tahsin Dursun",
+          "Ofis Adı": "C21 BOAZ",
+          "_sourceFile": "platform_icerik_ozetleri.xlsx"
+        },
+        {
+          "_sourceFile": "platform_icerik_ozetleri.xlsx",
+          "Ofis Adı": "C21 BOAZ",
+          "Ofis Kodu": "OF10622",
+          "Portföy Sayısı": 16,
+          "Danışman Adı Soyadı": "Havvanur Özçelik",
+          "Ünvan": "Gayrimenkul Danışmanı"
+        },
+        {
+          "_sourceFile": "platform_icerik_ozetleri.xlsx",
+          "Ofis Adı": "C21 BOAZ",
+          "Danışman Adı Soyadı": "Gürkan Candoğan",
+          "Ofis Kodu": "OF10622",
+          "Portföy Sayısı": 15,
+          "Ünvan": "Gayrimenkul Danışmanı"
+        },
+        {
+          "_sourceFile": "platform_icerik_ozetleri.xlsx",
+          "Ofis Adı": "C21 BOAZ",
+          "Portföy Sayısı": 14,
+          "Ofis Kodu": "OF10622",
+          "Danışman Adı Soyadı": "Övgü Tahra",
+          "Ünvan": "Gayrimenkul Danışmanı"
+        },
+        {
+          "Portföy Sayısı": 11,
+          "Ofis Kodu": "OF10622",
+          "Danışman Adı Soyadı": "Kemal Özdemir",
+          "Ünvan": "Gayrimenkul Danışmanı",
+          "_sourceFile": "platform_icerik_ozetleri.xlsx",
+          "Ofis Adı": "C21 BOAZ"
+        },
+        {
+          "Ünvan": "Gayrimenkul Danışmanı",
+          "Danışman Adı Soyadı": "Dilek Nacar",
+          "Portföy Sayısı": 10,
+          "Ofis Kodu": "OF10622",
+          "Ofis Adı": "C21 BOAZ",
+          "_sourceFile": "platform_icerik_ozetleri.xlsx"
+        },
+        {
+          "Ofis Adı": "C21 BOAZ",
+          "_sourceFile": "platform_icerik_ozetleri.xlsx",
+          "Ünvan": "Gayrimenkul Danışmanı",
+          "Portföy Sayısı": 10,
+          "Ofis Kodu": "OF10622",
+          "Danışman Adı Soyadı": "Serkan Özpınar"
+        },
+        {
+          "_sourceFile": "platform_icerik_ozetleri.xlsx",
+          "Ofis Adı": "C21 BOAZ",
+          "Portföy Sayısı": 10,
+          "Ofis Kodu": "OF10622",
+          "Danışman Adı Soyadı": "Burcu Demireren",
+          "Ünvan": "Gayrimenkul Danışmanı"
+        },
+        {
+          "Ünvan": "Gayrimenkul Danışmanı",
+          "Portföy Sayısı": 9,
+          "Ofis Kodu": "OF10622",
+          "Danışman Adı Soyadı": "Ali Can Küçük",
+          "Ofis Adı": "C21 BOAZ",
+          "_sourceFile": "platform_icerik_ozetleri.xlsx"
+        },
+        {
+          "_sourceFile": "platform_icerik_ozetleri.xlsx",
+          "Ofis Adı": "C21 BOAZ",
+          "Ofis Kodu": "OF10622",
+          "Portföy Sayısı": 9,
+          "Danışman Adı Soyadı": "Çağlar Gürbüz",
+          "Ünvan": "Gayrimenkul Danışmanı"
+        },
+        {
+          "Ofis Adı": "C21 BOAZ",
+          "_sourceFile": "platform_icerik_ozetleri.xlsx",
+          "Ünvan": "Gayrimenkul Danışmanı",
+          "Ofis Kodu": "OF10622",
+          "Portföy Sayısı": 9,
+          "Danışman Adı Soyadı": "Zafer Atalan"
+        },
+        {
+          "Portföy Sayısı": 8,
+          "Ofis Kodu": "OF10622",
+          "Danışman Adı Soyadı": "Keziban Akçin",
+          "Ünvan": "Gayrimenkul Danışmanı",
+          "_sourceFile": "platform_icerik_ozetleri.xlsx",
+          "Ofis Adı": "C21 BOAZ"
+        },
+        {
+          "Ofis Adı": "C21 BOAZ",
+          "_sourceFile": "platform_icerik_ozetleri.xlsx",
+          "Ünvan": "Gayrimenkul Danışmanı",
+          "Danışman Adı Soyadı": "Yasin Ekizler",
+          "Portföy Sayısı": 7,
+          "Ofis Kodu": "OF10622"
+        },
+        {
+          "Portföy Sayısı": 7,
+          "Ofis Kodu": "OF10622",
+          "Danışman Adı Soyadı": "Fatma Aysel",
+          "Ünvan": "Gayrimenkul Danışmanı",
+          "_sourceFile": "platform_icerik_ozetleri.xlsx",
+          "Ofis Adı": "C21 BOAZ"
+        },
+        {
+          "Ofis Adı": "C21 BOAZ",
+          "_sourceFile": "platform_icerik_ozetleri.xlsx",
+          "Ünvan": "Gayrimenkul Danışmanı",
+          "Danışman Adı Soyadı": "Keziban Kumral",
+          "Portföy Sayısı": 6,
+          "Ofis Kodu": "OF10622"
+        },
+        {
+          "_sourceFile": "platform_icerik_ozetleri.xlsx",
+          "Ofis Adı": "C21 BOAZ",
+          "Portföy Sayısı": 5,
+          "Ofis Kodu": "OF10622",
+          "Danışman Adı Soyadı": "Emin Kiraz",
+          "Ünvan": "Gayrimenkul Danışmanı"
+        },
+        {
+          "Portföy Sayısı": 3,
+          "Ofis Kodu": "OF10622",
+          "Danışman Adı Soyadı": "Fatih Gayırhan",
+          "Ünvan": "Gayrimenkul Danışmanı",
+          "_sourceFile": "platform_icerik_ozetleri.xlsx",
+          "Ofis Adı": "C21 BOAZ"
+        },
+        {
+          "Ofis Adı": "C21 BOAZ",
+          "_sourceFile": "platform_icerik_ozetleri.xlsx",
+          "Ünvan": "Gayrimenkul Danışmanı",
+          "Portföy Sayısı": 3,
+          "Ofis Kodu": "OF10622",
+          "Danışman Adı Soyadı": "Utku Cülha"
+        },
+        {
+          "_sourceFile": "platform_icerik_ozetleri.xlsx",
+          "Ofis Adı": "C21 BOAZ",
+          "Ofis Kodu": "OF10622",
+          "Portföy Sayısı": 2,
+          "Danışman Adı Soyadı": "Vedat Aydın",
+          "Ünvan": "Gayrimenkul Danışmanı"
+        },
+        {
+          "Ofis Adı": "C21 MAJOR",
+          "_sourceFile": "platform_icerik_ozetleri.xlsx",
+          "Ünvan": "Ofis Sahibi (Broker)",
+          "Portföy Sayısı": 14,
+          "Ofis Kodu": "OF10623",
+          "Danışman Adı Soyadı": "Nazire Kılıç"
+        },
+        {
+          "Ünvan": "Gayrimenkul Danışmanı",
+          "Danışman Adı Soyadı": "Yalçın Emre",
+          "Portföy Sayısı": 16,
+          "Ofis Kodu": "OF10623",
+          "Ofis Adı": "C21 MAJOR",
+          "_sourceFile": "platform_icerik_ozetleri.xlsx"
+        },
+        {
+          "Danışman Adı Soyadı": "Uğur Usta",
+          "Portföy Sayısı": 13,
+          "Ofis Kodu": "OF10623",
+          "Ünvan": "Gayrimenkul Danışmanı",
+          "_sourceFile": "platform_icerik_ozetleri.xlsx",
+          "Ofis Adı": "C21 MAJOR"
+        },
+        {
+          "Ofis Adı": "C21 MAJOR",
+          "_sourceFile": "platform_icerik_ozetleri.xlsx",
+          "Ünvan": "Gayrimenkul Danışmanı",
+          "Danışman Adı Soyadı": "Sevilay Karcılıoğlu",
+          "Ofis Kodu": "OF10623",
+          "Portföy Sayısı": 9
+        },
+        {
+          "Ofis Kodu": "OF10623",
+          "Portföy Sayısı": 7,
+          "Danışman Adı Soyadı": "Mine Poyraz",
+          "Ünvan": "Gayrimenkul Danışmanı",
+          "_sourceFile": "platform_icerik_ozetleri.xlsx",
+          "Ofis Adı": "C21 MAJOR"
+        },
+        {
+          "Ofis Kodu": "OF10623",
+          "Portföy Sayısı": 6,
+          "Danışman Adı Soyadı": "Tarık Aslan",
+          "Ünvan": "Gayrimenkul Danışmanı",
+          "_sourceFile": "platform_icerik_ozetleri.xlsx",
+          "Ofis Adı": "C21 MAJOR"
+        },
+        {
+          "_sourceFile": "platform_icerik_ozetleri.xlsx",
+          "Ofis Adı": "C21 MAJOR",
+          "Ofis Kodu": "OF10623",
+          "Portföy Sayısı": 5,
+          "Danışman Adı Soyadı": "Fahrettin Pune",
+          "Ünvan": "Gayrimenkul Danışmanı"
+        },
+        {
+          "Danışman Adı Soyadı": "Buğra Solak",
+          "Portföy Sayısı": 5,
+          "Ofis Kodu": "OF10623",
+          "Ünvan": "Gayrimenkul Danışmanı",
+          "_sourceFile": "platform_icerik_ozetleri.xlsx",
+          "Ofis Adı": "C21 MAJOR"
+        },
+        {
+          "Ünvan": "Gayrimenkul Danışmanı",
+          "Portföy Sayısı": 4,
+          "Ofis Kodu": "OF10623",
+          "Danışman Adı Soyadı": "İlknur Hastürk",
+          "Ofis Adı": "C21 MAJOR",
+          "_sourceFile": "platform_icerik_ozetleri.xlsx"
+        },
+        {
+          "Ofis Adı": "C21 MAJOR",
+          "_sourceFile": "platform_icerik_ozetleri.xlsx",
+          "Ünvan": "Gayrimenkul Danışmanı",
+          "Portföy Sayısı": 4,
+          "Ofis Kodu": "OF10623",
+          "Danışman Adı Soyadı": "Simge İsman"
+        },
+        {
+          "Ünvan": "Gayrimenkul Danışmanı",
+          "Danışman Adı Soyadı": "Buket Hepdarcan",
+          "Portföy Sayısı": 4,
+          "Ofis Kodu": "OF10623",
+          "Ofis Adı": "C21 MAJOR",
+          "_sourceFile": "platform_icerik_ozetleri.xlsx"
+        },
+        {
+          "_sourceFile": "platform_icerik_ozetleri.xlsx",
+          "Ofis Adı": "C21 MAJOR",
+          "Portföy Sayısı": 4,
+          "Ofis Kodu": "OF10623",
+          "Danışman Adı Soyadı": "Tuğçe Maden",
+          "Ünvan": "Gayrimenkul Danışmanı"
+        },
+        {
+          "Portföy Sayısı": 3,
+          "Ofis Kodu": "OF10623",
+          "Danışman Adı Soyadı": "Füsun Tolga",
+          "Ünvan": "Gayrimenkul Danışmanı",
+          "_sourceFile": "platform_icerik_ozetleri.xlsx",
+          "Ofis Adı": "C21 MAJOR"
+        },
+        {
+          "Ünvan": "Gayrimenkul Danışmanı",
+          "Portföy Sayısı": 3,
+          "Ofis Kodu": "OF10623",
+          "Danışman Adı Soyadı": "Ceren Eylül Çepni",
+          "Ofis Adı": "C21 MAJOR",
+          "_sourceFile": "platform_icerik_ozetleri.xlsx"
+        },
+        {
+          "Ünvan": "Gayrimenkul Danışmanı",
+          "Danışman Adı Soyadı": "Nilüfer Uygun",
+          "Ofis Kodu": "OF10623",
+          "Portföy Sayısı": 2,
+          "Ofis Adı": "C21 MAJOR",
+          "_sourceFile": "platform_icerik_ozetleri.xlsx"
+        },
+        {
+          "_sourceFile": "platform_icerik_ozetleri.xlsx",
+          "Ofis Adı": "C21 MAJOR",
+          "Danışman Adı Soyadı": "Volkan Ömer Erendor",
+          "Portföy Sayısı": 2,
+          "Ofis Kodu": "OF10623",
+          "Ünvan": "Gayrimenkul Danışmanı"
+        },
+        {
+          "Ofis Adı": "C21 MAJOR",
+          "_sourceFile": "platform_icerik_ozetleri.xlsx",
+          "Ünvan": "Gayrimenkul Danışmanı",
+          "Danışman Adı Soyadı": "Aylin Ergin",
+          "Portföy Sayısı": 2,
+          "Ofis Kodu": "OF10623"
+        },
+        {
+          "_sourceFile": "platform_icerik_ozetleri.xlsx",
+          "Ofis Adı": "C21 MAJOR",
+          "Portföy Sayısı": 1,
+          "Ofis Kodu": "OF10623",
+          "Danışman Adı Soyadı": "Ömer Faruk Erendor",
+          "Ünvan": "Gayrimenkul Danışmanı"
+        },
+        {
+          "Danışman Adı Soyadı": "İsmail D.",
+          "Ofis Kodu": "OF10623",
+          "Portföy Sayısı": 1,
+          "Ünvan": "Gayrimenkul Danışmanı",
+          "_sourceFile": "platform_icerik_ozetleri.xlsx",
+          "Ofis Adı": "C21 MAJOR"
+        },
+        {
+          "Ofis Adı": "C21 MAJOR",
+          "_sourceFile": "platform_icerik_ozetleri.xlsx",
+          "Ünvan": "Gayrimenkul Danışmanı",
+          "Danışman Adı Soyadı": "Cem Küçükcezzar",
+          "Portföy Sayısı": 0,
+          "Ofis Kodu": "OF10623"
+        },
+        {
+          "_sourceFile": "platform_icerik_ozetleri.xlsx",
+          "Ofis Adı": "C21 TREND",
+          "Portföy Sayısı": 2,
+          "Ofis Kodu": "OF10624",
+          "Danışman Adı Soyadı": "Aslıhan Çelebi Altay",
+          "Ünvan": "Ofis Sahibi (Broker)"
+        },
+        {
+          "Ofis Kodu": "OF10624",
+          "Portföy Sayısı": 12,
+          "Danışman Adı Soyadı": "Didem Neslihan Bozacı",
+          "Ünvan": "Gayrimenkul Danışmanı",
+          "_sourceFile": "platform_icerik_ozetleri.xlsx",
+          "Ofis Adı": "C21 TREND"
+        },
+        {
+          "Ünvan": "Gayrimenkul Danışmanı",
+          "Danışman Adı Soyadı": "Reşat Akbaş",
+          "Ofis Kodu": "OF10624",
+          "Portföy Sayısı": 11,
+          "Ofis Adı": "C21 TREND",
+          "_sourceFile": "platform_icerik_ozetleri.xlsx"
+        },
+        {
+          "Ofis Adı": "C21 TREND",
+          "_sourceFile": "platform_icerik_ozetleri.xlsx",
+          "Ünvan": "Gayrimenkul Danışmanı",
+          "Portföy Sayısı": 9,
+          "Ofis Kodu": "OF10624",
+          "Danışman Adı Soyadı": "Recep Şener"
+        },
+        {
+          "Ünvan": "Gayrimenkul Danışmanı",
+          "Ofis Kodu": "OF10624",
+          "Portföy Sayısı": 6,
+          "Danışman Adı Soyadı": "Efe Yontan",
+          "Ofis Adı": "C21 TREND",
+          "_sourceFile": "platform_icerik_ozetleri.xlsx"
+        },
+        {
+          "Portföy Sayısı": 5,
+          "Ofis Kodu": "OF10624",
+          "Danışman Adı Soyadı": "Levent Eyüboğlu",
+          "Ünvan": "Gayrimenkul Danışmanı",
+          "_sourceFile": "platform_icerik_ozetleri.xlsx",
+          "Ofis Adı": "C21 TREND"
+        },
+        {
+          "Ünvan": "Gayrimenkul Danışmanı",
+          "Portföy Sayısı": 5,
+          "Ofis Kodu": "OF10624",
+          "Danışman Adı Soyadı": "Yavuz Kayış",
+          "Ofis Adı": "C21 TREND",
+          "_sourceFile": "platform_icerik_ozetleri.xlsx"
+        },
+        {
+          "Ofis Adı": "C21 TREND",
+          "_sourceFile": "platform_icerik_ozetleri.xlsx",
+          "Ünvan": "Gayrimenkul Danışmanı",
+          "Danışman Adı Soyadı": "Hüseyin Rahmi Ketenci",
+          "Ofis Kodu": "OF10624",
+          "Portföy Sayısı": 5
+        },
+        {
+          "Ünvan": "Gayrimenkul Danışmanı",
+          "Danışman Adı Soyadı": "Ercan Candan",
+          "Portföy Sayısı": 5,
+          "Ofis Kodu": "OF10624",
+          "Ofis Adı": "C21 TREND",
+          "_sourceFile": "platform_icerik_ozetleri.xlsx"
+        },
+        {
+          "Ünvan": "Gayrimenkul Danışmanı",
+          "Danışman Adı Soyadı": "Altuğ Yeşilbaş",
+          "Ofis Kodu": "OF10624",
+          "Portföy Sayısı": 4,
+          "Ofis Adı": "C21 TREND",
+          "_sourceFile": "platform_icerik_ozetleri.xlsx"
+        },
+        {
+          "Ofis Kodu": "OF10624",
+          "Portföy Sayısı": 4,
+          "Danışman Adı Soyadı": "Özben Çelik",
+          "Ünvan": "Gayrimenkul Danışmanı",
+          "_sourceFile": "platform_icerik_ozetleri.xlsx",
+          "Ofis Adı": "C21 TREND"
+        },
+        {
+          "Ünvan": "Gayrimenkul Danışmanı",
+          "Portföy Sayısı": 4,
+          "Ofis Kodu": "OF10624",
+          "Danışman Adı Soyadı": "Süreyya Alçiçek",
+          "Ofis Adı": "C21 TREND",
+          "_sourceFile": "platform_icerik_ozetleri.xlsx"
+        },
+        {
+          "Danışman Adı Soyadı": "Meltem Aşut",
+          "Portföy Sayısı": 3,
+          "Ofis Kodu": "OF10624",
+          "Ünvan": "Gayrimenkul Danışmanı",
+          "_sourceFile": "platform_icerik_ozetleri.xlsx",
+          "Ofis Adı": "C21 TREND"
+        },
+        {
+          "_sourceFile": "platform_icerik_ozetleri.xlsx",
+          "Ofis Adı": "C21 TREND",
+          "Danışman Adı Soyadı": "Canan Kendir",
+          "Portföy Sayısı": 3,
+          "Ofis Kodu": "OF10624",
+          "Ünvan": "Gayrimenkul Danışmanı"
+        },
+        {
+          "Ofis Kodu": "OF10624",
+          "Portföy Sayısı": 3,
+          "Danışman Adı Soyadı": "Mehmet Bayındır",
+          "Ünvan": "Gayrimenkul Danışmanı",
+          "_sourceFile": "platform_icerik_ozetleri.xlsx",
+          "Ofis Adı": "C21 TREND"
+        },
+        {
+          "Ünvan": "Gayrimenkul Danışmanı",
+          "Danışman Adı Soyadı": "Volkan Acar",
+          "Portföy Sayısı": 3,
+          "Ofis Kodu": "OF10624",
+          "Ofis Adı": "C21 TREND",
+          "_sourceFile": "platform_icerik_ozetleri.xlsx"
+        },
+        {
+          "Ofis Adı": "C21 TREND",
+          "_sourceFile": "platform_icerik_ozetleri.xlsx",
+          "Ünvan": "Gayrimenkul Danışmanı",
+          "Danışman Adı Soyadı": "Caner Yücel",
+          "Ofis Kodu": "OF10624",
+          "Portföy Sayısı": 2
+        },
+        {
+          "Ünvan": "Gayrimenkul Danışmanı",
+          "Danışman Adı Soyadı": "Gülser Algül",
+          "Ofis Kodu": "OF10624",
+          "Portföy Sayısı": 1,
+          "Ofis Adı": "C21 TREND",
+          "_sourceFile": "platform_icerik_ozetleri.xlsx"
+        },
+        {
+          "Danışman Adı Soyadı": "Seda Keser Yükselir",
+          "Portföy Sayısı": 0,
+          "Ofis Kodu": "OF10624",
+          "Ünvan": "Gayrimenkul Danışmanı",
+          "_sourceFile": "platform_icerik_ozetleri.xlsx",
+          "Ofis Adı": "C21 TREND"
+        },
+        {
+          "Ofis Adı": "C21 TREND",
+          "_sourceFile": "platform_icerik_ozetleri.xlsx",
+          "Ünvan": "Gayrimenkul Danışmanı",
+          "Danışman Adı Soyadı": "Seda Kayı Coşgunçay",
+          "Ofis Kodu": "OF10624",
+          "Portföy Sayısı": 0
+        },
+        {
+          "Ofis Adı": "C21 TREND",
+          "_sourceFile": "platform_icerik_ozetleri.xlsx",
+          "Ünvan": "Gayrimenkul Danışmanı",
+          "Ofis Kodu": "OF10624",
+          "Portföy Sayısı": 0,
+          "Danışman Adı Soyadı": "Mert Bilgi"
+        },
+        {
+          "_sourceFile": "platform_icerik_ozetleri.xlsx",
+          "Ofis Adı": "C21 TREND",
+          "Portföy Sayısı": 0,
+          "Ofis Kodu": "OF10624",
+          "Danışman Adı Soyadı": "Ömer Aygün",
+          "Ünvan": "Gayrimenkul Danışmanı"
+        },
+        {
+          "Portföy Sayısı": 7,
+          "Ofis Kodu": "OF10625",
+          "Danışman Adı Soyadı": "Birten Yalçınkaya",
+          "Ünvan": "Ofis Sahibi (Broker)",
+          "_sourceFile": "platform_icerik_ozetleri.xlsx",
+          "Ofis Adı": "C21 ONKO 2"
+        },
+        {
+          "Danışman Adı Soyadı": "Ferda Kahraman",
+          "Ofis Kodu": "OF10625",
+          "Portföy Sayısı": 3,
+          "Ünvan": "Gayrimenkul Danışmanı",
+          "_sourceFile": "platform_icerik_ozetleri.xlsx",
+          "Ofis Adı": "C21 ONKO 2"
+        },
+        {
+          "Danışman Adı Soyadı": "Caner Serbest",
+          "Ofis Kodu": "OF10625",
+          "Portföy Sayısı": 3,
+          "Ünvan": "Gayrimenkul Danışmanı",
+          "_sourceFile": "platform_icerik_ozetleri.xlsx",
+          "Ofis Adı": "C21 ONKO 2"
+        },
+        {
+          "_sourceFile": "platform_icerik_ozetleri.xlsx",
+          "Ofis Adı": "C21 ONKO 2",
+          "Danışman Adı Soyadı": "Yeşim Kadrizade Odabaşı",
+          "Portföy Sayısı": 2,
+          "Ofis Kodu": "OF10625",
+          "Ünvan": "Gayrimenkul Danışmanı"
+        },
+        {
+          "_sourceFile": "platform_icerik_ozetleri.xlsx",
+          "Ofis Adı": "C21 ONKO 2",
+          "Danışman Adı Soyadı": "Gülnaz Yönter",
+          "Portföy Sayısı": 2,
+          "Ofis Kodu": "OF10625",
+          "Ünvan": "Gayrimenkul Danışmanı"
+        },
+        {
+          "Ünvan": "Gayrimenkul Danışmanı",
+          "Danışman Adı Soyadı": "Uğur Kamil Akın",
+          "Portföy Sayısı": 1,
+          "Ofis Kodu": "OF10625",
+          "Ofis Adı": "C21 ONKO 2",
+          "_sourceFile": "platform_icerik_ozetleri.xlsx"
+        },
+        {
+          "Ofis Adı": "C21 ONKO 2",
+          "_sourceFile": "platform_icerik_ozetleri.xlsx",
+          "Ünvan": "Gayrimenkul Danışmanı",
+          "Ofis Kodu": "OF10625",
+          "Portföy Sayısı": 1,
+          "Danışman Adı Soyadı": "Nuri Genç"
+        },
+        {
+          "Ofis Adı": "C21 ONKO 2",
+          "_sourceFile": "platform_icerik_ozetleri.xlsx",
+          "Ünvan": "Gayrimenkul Danışmanı",
+          "Danışman Adı Soyadı": "Aylin Uludoğan",
+          "Ofis Kodu": "OF10625",
+          "Portföy Sayısı": 1
+        },
+        {
+          "_sourceFile": "platform_icerik_ozetleri.xlsx",
+          "Ofis Adı": "C21 ONKO 2",
+          "Portföy Sayısı": 1,
+          "Ofis Kodu": "OF10625",
+          "Danışman Adı Soyadı": "Murat Çakçi",
+          "Ünvan": "Gayrimenkul Danışmanı"
+        },
+        {
+          "_sourceFile": "platform_icerik_ozetleri.xlsx",
+          "Ofis Adı": "C21 ONKO 2",
+          "Ofis Kodu": "OF10625",
+          "Portföy Sayısı": 0,
+          "Danışman Adı Soyadı": "Nilgün Zararsız",
+          "Ünvan": "Gayrimenkul Danışmanı"
+        },
+        {
+          "Ünvan": "Gayrimenkul Danışmanı",
+          "Danışman Adı Soyadı": "Hülya Camcıoğlu",
+          "Ofis Kodu": "OF10625",
+          "Portföy Sayısı": 0,
+          "Ofis Adı": "C21 ONKO 2",
+          "_sourceFile": "platform_icerik_ozetleri.xlsx"
+        },
+        {
+          "Ünvan": "Gayrimenkul Danışmanı",
+          "Danışman Adı Soyadı": "Ayça Berfin Cemiloğlu",
+          "Portföy Sayısı": 0,
+          "Ofis Kodu": "OF10625",
+          "Ofis Adı": "C21 ONKO 2",
+          "_sourceFile": "platform_icerik_ozetleri.xlsx"
+        },
+        {
+          "Ofis Kodu": "OF10625",
+          "Portföy Sayısı": 0,
+          "Danışman Adı Soyadı": "Cem Berk Tokgöz",
+          "Ünvan": "Gayrimenkul Danışmanı",
+          "_sourceFile": "platform_icerik_ozetleri.xlsx",
+          "Ofis Adı": "C21 ONKO 2"
+        },
+        {
+          "Ünvan": "Ofis Sahibi (Broker)",
+          "Danışman Adı Soyadı": "Koray Yoldar",
+          "Ofis Kodu": "OF10626",
+          "Portföy Sayısı": 1,
+          "Ofis Adı": "C21 VEGA",
+          "_sourceFile": "platform_icerik_ozetleri.xlsx"
+        },
+        {
+          "Ünvan": "Gayrimenkul Danışmanı",
+          "Danışman Adı Soyadı": "Hüseyin Öztürk",
+          "Ofis Kodu": "OF10626",
+          "Portföy Sayısı": 28,
+          "Ofis Adı": "C21 VEGA",
+          "_sourceFile": "platform_icerik_ozetleri.xlsx"
+        },
+        {
+          "_sourceFile": "platform_icerik_ozetleri.xlsx",
+          "Ofis Adı": "C21 VEGA",
+          "Ofis Kodu": "OF10626",
+          "Portföy Sayısı": 15,
+          "Danışman Adı Soyadı": "Endercan Yoldar",
+          "Ünvan": "Gayrimenkul Danışmanı"
+        },
+        {
+          "Ünvan": "Gayrimenkul Danışmanı",
+          "Portföy Sayısı": 12,
+          "Ofis Kodu": "OF10626",
+          "Danışman Adı Soyadı": "Temel Soyak",
+          "Ofis Adı": "C21 VEGA",
+          "_sourceFile": "platform_icerik_ozetleri.xlsx"
+        },
+        {
+          "_sourceFile": "platform_icerik_ozetleri.xlsx",
+          "Ofis Adı": "C21 VEGA",
+          "Portföy Sayısı": 9,
+          "Ofis Kodu": "OF10626",
+          "Danışman Adı Soyadı": "Elif Şahin",
+          "Ünvan": "Gayrimenkul Danışmanı"
+        },
+        {
+          "Ofis Adı": "C21 VEGA",
+          "_sourceFile": "platform_icerik_ozetleri.xlsx",
+          "Ünvan": "Gayrimenkul Danışmanı",
+          "Danışman Adı Soyadı": "Altuğ Akyürek",
+          "Ofis Kodu": "OF10626",
+          "Portföy Sayısı": 7
+        },
+        {
+          "Portföy Sayısı": 7,
+          "Ofis Kodu": "OF10626",
+          "Danışman Adı Soyadı": "Orhan Ercan",
+          "Ünvan": "Gayrimenkul Danışmanı",
+          "_sourceFile": "platform_icerik_ozetleri.xlsx",
+          "Ofis Adı": "C21 VEGA"
+        },
+        {
+          "_sourceFile": "platform_icerik_ozetleri.xlsx",
+          "Ofis Adı": "C21 VEGA",
+          "Ofis Kodu": "OF10626",
+          "Portföy Sayısı": 6,
+          "Danışman Adı Soyadı": "Metehan Aksakal",
+          "Ünvan": "Gayrimenkul Danışmanı"
+        },
+        {
+          "_sourceFile": "platform_icerik_ozetleri.xlsx",
+          "Ofis Adı": "C21 VEGA",
+          "Portföy Sayısı": 6,
+          "Ofis Kodu": "OF10626",
+          "Danışman Adı Soyadı": "Çağdaş Yılmaz",
+          "Ünvan": "Gayrimenkul Danışmanı"
+        },
+        {
+          "Ünvan": "Gayrimenkul Danışmanı",
+          "Ofis Kodu": "OF10626",
+          "Portföy Sayısı": 5,
+          "Danışman Adı Soyadı": "Mustafa İnal",
+          "Ofis Adı": "C21 VEGA",
+          "_sourceFile": "platform_icerik_ozetleri.xlsx"
+        },
+        {
+          "Ofis Adı": "C21 VEGA",
+          "_sourceFile": "platform_icerik_ozetleri.xlsx",
+          "Ünvan": "Gayrimenkul Danışmanı",
+          "Danışman Adı Soyadı": "Kazım Dinçmen",
+          "Portföy Sayısı": 5,
+          "Ofis Kodu": "OF10626"
+        },
+        {
+          "Ofis Adı": "C21 VEGA",
+          "_sourceFile": "platform_icerik_ozetleri.xlsx",
+          "Ünvan": "Gayrimenkul Danışmanı",
+          "Danışman Adı Soyadı": "Ebru Aktaş",
+          "Ofis Kodu": "OF10626",
+          "Portföy Sayısı": 5
+        },
+        {
+          "_sourceFile": "platform_icerik_ozetleri.xlsx",
+          "Ofis Adı": "C21 VEGA",
+          "Danışman Adı Soyadı": "Canan Toraman",
+          "Ofis Kodu": "OF10626",
+          "Portföy Sayısı": 4,
+          "Ünvan": "Gayrimenkul Danışmanı"
+        },
+        {
+          "_sourceFile": "platform_icerik_ozetleri.xlsx",
+          "Ofis Adı": "C21 VEGA",
+          "Danışman Adı Soyadı": "Beste Taşpınar",
+          "Portföy Sayısı": 3,
+          "Ofis Kodu": "OF10626",
+          "Ünvan": "Gayrimenkul Danışmanı"
+        },
+        {
+          "Ünvan": "Gayrimenkul Danışmanı",
+          "Danışman Adı Soyadı": "Berk Özdemir",
+          "Ofis Kodu": "OF10626",
+          "Portföy Sayısı": 3,
+          "Ofis Adı": "C21 VEGA",
+          "_sourceFile": "platform_icerik_ozetleri.xlsx"
+        },
+        {
+          "Ofis Kodu": "OF10626",
+          "Portföy Sayısı": 3,
+          "Danışman Adı Soyadı": "Ersin E.",
+          "Ünvan": "Gayrimenkul Danışmanı",
+          "_sourceFile": "platform_icerik_ozetleri.xlsx",
+          "Ofis Adı": "C21 VEGA"
+        },
+        {
+          "Portföy Sayısı": 3,
+          "Ofis Kodu": "OF10626",
+          "Danışman Adı Soyadı": "Burcu Yeşilçimen",
+          "Ünvan": "Gayrimenkul Danışmanı",
+          "_sourceFile": "platform_icerik_ozetleri.xlsx",
+          "Ofis Adı": "C21 VEGA"
+        },
+        {
+          "_sourceFile": "platform_icerik_ozetleri.xlsx",
+          "Ofis Adı": "C21 VEGA",
+          "Ofis Kodu": "OF10626",
+          "Portföy Sayısı": 1,
+          "Danışman Adı Soyadı": "Çağlan Er",
+          "Ünvan": "Gayrimenkul Danışmanı"
+        },
+        {
+          "_sourceFile": "platform_icerik_ozetleri.xlsx",
+          "Ofis Adı": "C21 VEGA",
+          "Danışman Adı Soyadı": "Nuray Özcan",
+          "Portföy Sayısı": 1,
+          "Ofis Kodu": "OF10626",
+          "Ünvan": "Gayrimenkul Danışmanı"
+        },
+        {
+          "_sourceFile": "platform_icerik_ozetleri.xlsx",
+          "Ofis Adı": "C21 VEGA",
+          "Ofis Kodu": "OF10626",
+          "Portföy Sayısı": 1,
+          "Danışman Adı Soyadı": "Yasemin Çerkeş",
+          "Ünvan": "Gayrimenkul Danışmanı"
+        },
+        {
+          "Ofis Adı": "C21 VEGA",
+          "_sourceFile": "platform_icerik_ozetleri.xlsx",
+          "Ünvan": "Gayrimenkul Danışmanı",
+          "Danışman Adı Soyadı": "Devran Aksungur",
+          "Portföy Sayısı": 0,
+          "Ofis Kodu": "OF10626"
+        },
+        {
+          "Ofis Kodu": "OF10626",
+          "Portföy Sayısı": 0,
+          "Danışman Adı Soyadı": "Özgür Asal",
+          "Ünvan": "Gayrimenkul Danışmanı",
+          "_sourceFile": "platform_icerik_ozetleri.xlsx",
+          "Ofis Adı": "C21 VEGA"
+        },
+        {
+          "Ünvan": "Gayrimenkul Danışmanı",
+          "Danışman Adı Soyadı": "Mert Erkut",
+          "Ofis Kodu": "OF10626",
+          "Portföy Sayısı": 0,
+          "Ofis Adı": "C21 VEGA",
+          "_sourceFile": "platform_icerik_ozetleri.xlsx"
+        },
+        {
+          "_sourceFile": "platform_icerik_ozetleri.xlsx",
+          "Ofis Adı": "C21 VEGA",
+          "Danışman Adı Soyadı": "Buse Sümer",
+          "Ofis Kodu": "OF10626",
+          "Portföy Sayısı": 0,
+          "Ünvan": "Gayrimenkul Danışmanı"
+        },
+        {
+          "Ofis Adı": "C21 VEGA",
+          "_sourceFile": "platform_icerik_ozetleri.xlsx",
+          "Ünvan": "Gayrimenkul Danışmanı",
+          "Ofis Kodu": "OF10626",
+          "Portföy Sayısı": 0,
+          "Danışman Adı Soyadı": "Yasemin Tuzlu"
+        },
+        {
+          "Danışman Adı Soyadı": "Arda Corogil",
+          "Ofis Kodu": "OF10626",
+          "Portföy Sayısı": 0,
+          "Ünvan": "Gayrimenkul Danışmanı",
+          "_sourceFile": "platform_icerik_ozetleri.xlsx",
+          "Ofis Adı": "C21 VEGA"
+        },
+        {
+          "Ünvan": "Gayrimenkul Danışmanı",
+          "Danışman Adı Soyadı": "Kadir Ergür",
+          "Ofis Kodu": "OF10626",
+          "Portföy Sayısı": 0,
+          "Ofis Adı": "C21 VEGA",
+          "_sourceFile": "platform_icerik_ozetleri.xlsx"
+        },
+        {
+          "Danışman Adı Soyadı": "Yunus Emre Rahvalı",
+          "Portföy Sayısı": 20,
+          "Ofis Kodu": "OF10627",
+          "Ünvan": "Gayrimenkul Danışmanı",
+          "_sourceFile": "platform_icerik_ozetleri.xlsx",
+          "Ofis Adı": "C21 GALA"
+        },
+        {
+          "Ofis Adı": "C21 GALA",
+          "_sourceFile": "platform_icerik_ozetleri.xlsx",
+          "Ünvan": "Gayrimenkul Danışmanı",
+          "Danışman Adı Soyadı": "Arda Pehlivan",
+          "Ofis Kodu": "OF10627",
+          "Portföy Sayısı": 7
+        },
+        {
+          "Portföy Sayısı": 2,
+          "Ofis Kodu": "OF10627",
+          "Danışman Adı Soyadı": "Eser Işık",
+          "Ünvan": "Gayrimenkul Danışmanı",
+          "_sourceFile": "platform_icerik_ozetleri.xlsx",
+          "Ofis Adı": "C21 GALA"
+        },
+        {
+          "Ünvan": "Gayrimenkul Danışmanı",
+          "Ofis Kodu": "OF10627",
+          "Portföy Sayısı": 0,
+          "Danışman Adı Soyadı": "Emrah D.",
+          "Ofis Adı": "C21 GALA",
+          "_sourceFile": "platform_icerik_ozetleri.xlsx"
+        },
+        {
+          "Ünvan": "Ofis Sahibi (Broker)",
+          "Ofis Kodu": "OF10628",
+          "Portföy Sayısı": 2,
+          "Danışman Adı Soyadı": "Bilal Aygıt",
+          "Ofis Adı": "C21 REFERANS",
+          "_sourceFile": "platform_icerik_ozetleri.xlsx"
+        },
+        {
+          "Ünvan": "Gayrimenkul Danışmanı",
+          "Danışman Adı Soyadı": "Meltem Köseoğlu",
+          "Portföy Sayısı": 11,
+          "Ofis Kodu": "OF10628",
+          "Ofis Adı": "C21 REFERANS",
+          "_sourceFile": "platform_icerik_ozetleri.xlsx"
+        },
+        {
+          "Ofis Adı": "C21 REFERANS",
+          "_sourceFile": "platform_icerik_ozetleri.xlsx",
+          "Ünvan": "Gayrimenkul Danışmanı",
+          "Danışman Adı Soyadı": "Neslihan Güç Kaya",
+          "Ofis Kodu": "OF10628",
+          "Portföy Sayısı": 7
+        },
+        {
+          "_sourceFile": "platform_icerik_ozetleri.xlsx",
+          "Ofis Adı": "C21 REFERANS",
+          "Portföy Sayısı": 6,
+          "Ofis Kodu": "OF10628",
+          "Danışman Adı Soyadı": "Ender Güvenç",
+          "Ünvan": "Gayrimenkul Danışmanı"
+        },
+        {
+          "Ofis Kodu": "OF10628",
+          "Portföy Sayısı": 3,
+          "Danışman Adı Soyadı": "Fatih Gürünlü",
+          "Ünvan": "Gayrimenkul Danışmanı",
+          "_sourceFile": "platform_icerik_ozetleri.xlsx",
+          "Ofis Adı": "C21 REFERANS"
+        },
+        {
+          "Danışman Adı Soyadı": "Esra Pilger Sakarya",
+          "Ofis Kodu": "OF10628",
+          "Portföy Sayısı": 0,
+          "Ünvan": "Gayrimenkul Danışmanı",
+          "_sourceFile": "platform_icerik_ozetleri.xlsx",
+          "Ofis Adı": "C21 REFERANS"
+        },
+        {
+          "Ofis Adı": "ERA WIN",
+          "_sourceFile": "platform_icerik_ozetleri.xlsx",
+          "Ünvan": "Ofis Sahibi (Broker)",
+          "Danışman Adı Soyadı": "Oğuzhan Akçeal",
+          "Ofis Kodu": "OF10615",
+          "Portföy Sayısı": 1
+        },
+        {
+          "Ünvan": "Gayrimenkul Danışmanı",
+          "Danışman Adı Soyadı": "Derviş Murat Alagöz",
+          "Ofis Kodu": "OF10615",
+          "Portföy Sayısı": 8,
+          "Ofis Adı": "ERA WIN",
+          "_sourceFile": "platform_icerik_ozetleri.xlsx"
+        },
+        {
+          "Ofis Adı": "ERA WIN",
+          "_sourceFile": "platform_icerik_ozetleri.xlsx",
+          "Ünvan": "Gayrimenkul Danışmanı",
+          "Danışman Adı Soyadı": "Sevgi Şahsuvaroğlu",
+          "Ofis Kodu": "OF10615",
+          "Portföy Sayısı": 8
+        },
+        {
+          "Danışman Adı Soyadı": "Aykut İpek",
+          "Portföy Sayısı": 8,
+          "Ofis Kodu": "OF10615",
+          "Ünvan": "Gayrimenkul Danışmanı",
+          "_sourceFile": "platform_icerik_ozetleri.xlsx",
+          "Ofis Adı": "ERA WIN"
+        },
+        {
+          "Ofis Adı": "ERA WIN",
+          "_sourceFile": "platform_icerik_ozetleri.xlsx",
+          "Ünvan": "Gayrimenkul Danışmanı",
+          "Danışman Adı Soyadı": "Lale Ü.",
+          "Portföy Sayısı": 4,
+          "Ofis Kodu": "OF10615"
+        },
+        {
+          "Danışman Adı Soyadı": "İlksen Aydın",
+          "Ofis Kodu": "OF10615",
+          "Portföy Sayısı": 2,
+          "Ünvan": "Gayrimenkul Danışmanı",
+          "_sourceFile": "platform_icerik_ozetleri.xlsx",
+          "Ofis Adı": "ERA WIN"
+        },
+        {
+          "_sourceFile": "platform_icerik_ozetleri.xlsx",
+          "Ofis Adı": "ERA WIN",
+          "Danışman Adı Soyadı": "Alp Merttürk",
+          "Ofis Kodu": "OF10615",
+          "Portföy Sayısı": 1,
+          "Ünvan": "Gayrimenkul Danışmanı"
+        },
+        {
+          "Ünvan": "Gayrimenkul Danışmanı",
+          "Portföy Sayısı": 0,
+          "Ofis Kodu": "OF10615",
+          "Danışman Adı Soyadı": "Ahmet Hakan Aykaç",
+          "Ofis Adı": "ERA WIN",
+          "_sourceFile": "platform_icerik_ozetleri.xlsx"
+        },
+        {
+          "Ofis Adı": "ERA WIN",
+          "_sourceFile": "platform_icerik_ozetleri.xlsx",
+          "Ünvan": "Gayrimenkul Danışmanı",
+          "Ofis Kodu": "OF10615",
+          "Portföy Sayısı": 0,
+          "Danışman Adı Soyadı": "Egemen Abacı"
+        },
+        {
+          "_sourceFile": "platform_icerik_ozetleri.xlsx",
+          "Ofis Adı": "ERA WIN",
+          "Danışman Adı Soyadı": "Sinan Bingöl",
+          "Portföy Sayısı": 0,
+          "Ofis Kodu": "OF10615",
+          "Ünvan": "Gayrimenkul Danışmanı"
+        },
+        {
+          "_sourceFile": "platform_icerik_ozetleri.xlsx",
+          "Ofis Adı": "ERA WIN",
+          "Danışman Adı Soyadı": "Umut Dereli",
+          "Ofis Kodu": "OF10615",
+          "Portföy Sayısı": 0,
+          "Ünvan": "Gayrimenkul Danışmanı"
+        },
+        {
+          "Portföy Sayısı": 0,
+          "Ofis Kodu": "OF10615",
+          "Danışman Adı Soyadı": "Erdal Bengi",
+          "Ünvan": "Gayrimenkul Danışmanı",
+          "_sourceFile": "platform_icerik_ozetleri.xlsx",
+          "Ofis Adı": "ERA WIN"
+        },
+        {
+          "Portföy Sayısı": 23,
+          "Ofis Kodu": "OF10630",
+          "Danışman Adı Soyadı": "Onur Karaman",
+          "Ünvan": "Gayrimenkul Danışmanı",
+          "_sourceFile": "platform_icerik_ozetleri.xlsx",
+          "Ofis Adı": "ERA ASİL"
+        },
+        {
+          "Ünvan": "Gayrimenkul Danışmanı",
+          "Danışman Adı Soyadı": "Murat Ozan",
+          "Ofis Kodu": "OF10630",
+          "Portföy Sayısı": 16,
+          "Ofis Adı": "ERA ASİL",
+          "_sourceFile": "platform_icerik_ozetleri.xlsx"
+        },
+        {
+          "Ofis Adı": "ERA ASİL",
+          "_sourceFile": "platform_icerik_ozetleri.xlsx",
+          "Ünvan": "Gayrimenkul Danışmanı",
+          "Danışman Adı Soyadı": "Mehmet Çete",
+          "Ofis Kodu": "OF10630",
+          "Portföy Sayısı": 14
+        },
+        {
+          "Ünvan": "Gayrimenkul Danışmanı",
+          "Portföy Sayısı": 13,
+          "Ofis Kodu": "OF10630",
+          "Danışman Adı Soyadı": "Hakan Çağlayan",
+          "Ofis Adı": "ERA ASİL",
+          "_sourceFile": "platform_icerik_ozetleri.xlsx"
+        },
+        {
+          "Ünvan": "Gayrimenkul Danışmanı",
+          "Portföy Sayısı": 9,
+          "Ofis Kodu": "OF10630",
+          "Danışman Adı Soyadı": "Özden Bahadır",
+          "Ofis Adı": "ERA ASİL",
+          "_sourceFile": "platform_icerik_ozetleri.xlsx"
+        },
+        {
+          "Danışman Adı Soyadı": "Şebnem Şahan",
+          "Ofis Kodu": "OF10630",
+          "Portföy Sayısı": 9,
+          "Ünvan": "Gayrimenkul Danışmanı",
+          "_sourceFile": "platform_icerik_ozetleri.xlsx",
+          "Ofis Adı": "ERA ASİL"
+        },
+        {
+          "Ofis Kodu": "OF10630",
+          "Portföy Sayısı": 8,
+          "Danışman Adı Soyadı": "Egemen Timur",
+          "Ünvan": "Gayrimenkul Danışmanı",
+          "_sourceFile": "platform_icerik_ozetleri.xlsx",
+          "Ofis Adı": "ERA ASİL"
+        },
+        {
+          "_sourceFile": "platform_icerik_ozetleri.xlsx",
+          "Ofis Adı": "ERA ASİL",
+          "Ofis Kodu": "OF10630",
+          "Portföy Sayısı": 8,
+          "Danışman Adı Soyadı": "Ayçin Elmastaş",
+          "Ünvan": "Gayrimenkul Danışmanı"
+        },
+        {
+          "Ofis Adı": "ERA ASİL",
+          "_sourceFile": "platform_icerik_ozetleri.xlsx",
+          "Ünvan": "Gayrimenkul Danışmanı",
+          "Portföy Sayısı": 8,
+          "Ofis Kodu": "OF10630",
+          "Danışman Adı Soyadı": "Nadejda Apostolov"
+        },
+        {
+          "_sourceFile": "platform_icerik_ozetleri.xlsx",
+          "Ofis Adı": "ERA ASİL",
+          "Danışman Adı Soyadı": "Ertuğ Bümen",
+          "Portföy Sayısı": 7,
+          "Ofis Kodu": "OF10630",
+          "Ünvan": "Gayrimenkul Danışmanı"
+        },
+        {
+          "Ofis Adı": "ERA ASİL",
+          "_sourceFile": "platform_icerik_ozetleri.xlsx",
+          "Ünvan": "Gayrimenkul Danışmanı",
+          "Danışman Adı Soyadı": "Sayyara Hudayberdyyeva",
+          "Portföy Sayısı": 6,
+          "Ofis Kodu": "OF10630"
+        },
+        {
+          "Ofis Adı": "ERA ASİL",
+          "_sourceFile": "platform_icerik_ozetleri.xlsx",
+          "Ünvan": "Gayrimenkul Danışmanı",
+          "Ofis Kodu": "OF10630",
+          "Portföy Sayısı": 5,
+          "Danışman Adı Soyadı": "Emin Özgül"
+        },
+        {
+          "_sourceFile": "platform_icerik_ozetleri.xlsx",
+          "Ofis Adı": "ERA ASİL",
+          "Portföy Sayısı": 5,
+          "Ofis Kodu": "OF10630",
+          "Danışman Adı Soyadı": "Bilal Badak",
+          "Ünvan": "Gayrimenkul Danışmanı"
+        },
+        {
+          "Ünvan": "Gayrimenkul Danışmanı",
+          "Danışman Adı Soyadı": "Gülçin Keskin Tüzün",
+          "Ofis Kodu": "OF10630",
+          "Portföy Sayısı": 4,
+          "Ofis Adı": "ERA ASİL",
+          "_sourceFile": "platform_icerik_ozetleri.xlsx"
+        },
+        {
+          "Ünvan": "Gayrimenkul Danışmanı",
+          "Portföy Sayısı": 4,
+          "Ofis Kodu": "OF10630",
+          "Danışman Adı Soyadı": "Ebru Suntay",
+          "Ofis Adı": "ERA ASİL",
+          "_sourceFile": "platform_icerik_ozetleri.xlsx"
+        },
+        {
+          "_sourceFile": "platform_icerik_ozetleri.xlsx",
+          "Ofis Adı": "ERA ASİL",
+          "Portföy Sayısı": 4,
+          "Ofis Kodu": "OF10630",
+          "Danışman Adı Soyadı": "Hasan Akyüz",
+          "Ünvan": "Gayrimenkul Danışmanı"
+        },
+        {
+          "Ofis Adı": "ERA ASİL",
+          "_sourceFile": "platform_icerik_ozetleri.xlsx",
+          "Ünvan": "Gayrimenkul Danışmanı",
+          "Portföy Sayısı": 3,
+          "Ofis Kodu": "OF10630",
+          "Danışman Adı Soyadı": "Ümit Yumlu"
+        },
+        {
+          "Ünvan": "Gayrimenkul Danışmanı",
+          "Ofis Kodu": "OF10630",
+          "Portföy Sayısı": 3,
+          "Danışman Adı Soyadı": "Ferudun A.",
+          "Ofis Adı": "ERA ASİL",
+          "_sourceFile": "platform_icerik_ozetleri.xlsx"
+        },
+        {
+          "_sourceFile": "platform_icerik_ozetleri.xlsx",
+          "Ofis Adı": "ERA ASİL",
+          "Danışman Adı Soyadı": "Necdet Ünal",
+          "Portföy Sayısı": 3,
+          "Ofis Kodu": "OF10630",
+          "Ünvan": "Gayrimenkul Danışmanı"
+        },
+        {
+          "Ünvan": "Ofis Sahibi (Broker)",
+          "Portföy Sayısı": 1,
+          "Ofis Kodu": "OF10631",
+          "Danışman Adı Soyadı": "Çağatay G.",
+          "Ofis Adı": "ERA İLKE",
+          "_sourceFile": "platform_icerik_ozetleri.xlsx"
+        },
+        {
+          "Ofis Adı": "ERA İLKE",
+          "_sourceFile": "platform_icerik_ozetleri.xlsx",
+          "Ünvan": "Gayrimenkul Danışmanı",
+          "Danışman Adı Soyadı": "Sibel Öner",
+          "Portföy Sayısı": 12,
+          "Ofis Kodu": "OF10631"
+        },
+        {
+          "_sourceFile": "platform_icerik_ozetleri.xlsx",
+          "Ofis Adı": "ERA İLKE",
+          "Ofis Kodu": "OF10631",
+          "Portföy Sayısı": 8,
+          "Danışman Adı Soyadı": "Betül K. Ö.",
+          "Ünvan": "Gayrimenkul Danışmanı"
+        },
+        {
+          "_sourceFile": "platform_icerik_ozetleri.xlsx",
+          "Ofis Adı": "ERA İLKE",
+          "Danışman Adı Soyadı": "Ozan Baykal",
+          "Portföy Sayısı": 7,
+          "Ofis Kodu": "OF10631",
+          "Ünvan": "Gayrimenkul Danışmanı"
+        },
+        {
+          "Ünvan": "Gayrimenkul Danışmanı",
+          "Danışman Adı Soyadı": "Ümit Kesmez",
+          "Portföy Sayısı": 7,
+          "Ofis Kodu": "OF10631",
+          "Ofis Adı": "ERA İLKE",
+          "_sourceFile": "platform_icerik_ozetleri.xlsx"
+        },
+        {
+          "Ofis Adı": "ERA İLKE",
+          "_sourceFile": "platform_icerik_ozetleri.xlsx",
+          "Ünvan": "Gayrimenkul Danışmanı",
+          "Portföy Sayısı": 2,
+          "Ofis Kodu": "OF10631",
+          "Danışman Adı Soyadı": "Tuğba Uzügüten"
+        },
+        {
+          "Ünvan": "Gayrimenkul Danışmanı",
+          "Ofis Kodu": "OF10631",
+          "Portföy Sayısı": 2,
+          "Danışman Adı Soyadı": "Tuğberk Akın",
+          "Ofis Adı": "ERA İLKE",
+          "_sourceFile": "platform_icerik_ozetleri.xlsx"
+        },
+        {
+          "Ofis Adı": "ERA İLKE",
+          "_sourceFile": "platform_icerik_ozetleri.xlsx",
+          "Ünvan": "Gayrimenkul Danışmanı",
+          "Portföy Sayısı": 2,
+          "Ofis Kodu": "OF10631",
+          "Danışman Adı Soyadı": "Mehmet Eymen Tutan"
+        },
+        {
+          "Ofis Adı": "ERA İLKE",
+          "_sourceFile": "platform_icerik_ozetleri.xlsx",
+          "Ünvan": "Gayrimenkul Danışmanı",
+          "Danışman Adı Soyadı": "Samet Kargı",
+          "Portföy Sayısı": 2,
+          "Ofis Kodu": "OF10631"
+        },
+        {
+          "Ünvan": "Ofis Sahibi (Broker)",
+          "Ofis Kodu": "OF10632",
+          "Portföy Sayısı": 74,
+          "Danışman Adı Soyadı": "Gökhan Güney",
+          "Ofis Adı": "ERA BOAZ",
+          "_sourceFile": "platform_icerik_ozetleri.xlsx"
+        },
+        {
+          "Ofis Adı": "ERA BOAZ",
+          "_sourceFile": "platform_icerik_ozetleri.xlsx",
+          "Ünvan": "Gayrimenkul Danışmanı",
+          "Danışman Adı Soyadı": "Hilal D.",
+          "Portföy Sayısı": 11,
+          "Ofis Kodu": "OF10632"
+        },
+        {
+          "_sourceFile": "platform_icerik_ozetleri.xlsx",
+          "Ofis Adı": "ERA BOAZ",
+          "Portföy Sayısı": 10,
+          "Ofis Kodu": "OF10632",
+          "Danışman Adı Soyadı": "Meral Çoban",
+          "Ünvan": "Gayrimenkul Danışmanı"
+        },
+        {
+          "Danışman Adı Soyadı": "Kamer Aladağlı",
+          "Ofis Kodu": "OF10632",
+          "Portföy Sayısı": 9,
+          "Ünvan": "Gayrimenkul Danışmanı",
+          "_sourceFile": "platform_icerik_ozetleri.xlsx",
+          "Ofis Adı": "ERA BOAZ"
+        },
+        {
+          "Danışman Adı Soyadı": "Altan Alkaşi",
+          "Ofis Kodu": "OF10632",
+          "Portföy Sayısı": 8,
+          "Ünvan": "Gayrimenkul Danışmanı",
+          "_sourceFile": "platform_icerik_ozetleri.xlsx",
+          "Ofis Adı": "ERA BOAZ"
+        },
+        {
+          "Ünvan": "Gayrimenkul Danışmanı",
+          "Ofis Kodu": "OF10632",
+          "Portföy Sayısı": 8,
+          "Danışman Adı Soyadı": "Yasin Gündüz",
+          "Ofis Adı": "ERA BOAZ",
+          "_sourceFile": "platform_icerik_ozetleri.xlsx"
+        },
+        {
+          "_sourceFile": "platform_icerik_ozetleri.xlsx",
+          "Ofis Adı": "ERA BOAZ",
+          "Ofis Kodu": "OF10632",
+          "Portföy Sayısı": 6,
+          "Danışman Adı Soyadı": "Caner Yavuz",
+          "Ünvan": "Gayrimenkul Danışmanı"
+        },
+        {
+          "Ofis Kodu": "OF10632",
+          "Portföy Sayısı": 6,
+          "Danışman Adı Soyadı": "Mustafa Sönmez",
+          "Ünvan": "Gayrimenkul Danışmanı",
+          "_sourceFile": "platform_icerik_ozetleri.xlsx",
+          "Ofis Adı": "ERA BOAZ"
+        },
+        {
+          "_sourceFile": "platform_icerik_ozetleri.xlsx",
+          "Ofis Adı": "ERA BOAZ",
+          "Danışman Adı Soyadı": "Başar Umut Canyurt",
+          "Portföy Sayısı": 2,
+          "Ofis Kodu": "OF10632",
+          "Ünvan": "Gayrimenkul Danışmanı"
+        },
+        {
+          "Ofis Kodu": "OF10632",
+          "Portföy Sayısı": 2,
+          "Danışman Adı Soyadı": "Recep Genç",
+          "Ünvan": "Gayrimenkul Danışmanı",
+          "_sourceFile": "platform_icerik_ozetleri.xlsx",
+          "Ofis Adı": "ERA BOAZ"
+        },
+        {
+          "Ofis Adı": "ERA BOAZ",
+          "_sourceFile": "platform_icerik_ozetleri.xlsx",
+          "Ünvan": "Gayrimenkul Danışmanı",
+          "Danışman Adı Soyadı": "Volkan Güney",
+          "Portföy Sayısı": 0,
+          "Ofis Kodu": "OF10632"
+        },
+        {
+          "Portföy Sayısı": 0,
+          "Ofis Kodu": "OF10632",
+          "Danışman Adı Soyadı": "Serap Parlar",
+          "Ünvan": "Gayrimenkul Danışmanı",
+          "_sourceFile": "platform_icerik_ozetleri.xlsx",
+          "Ofis Adı": "ERA BOAZ"
+        },
+        {
+          "Danışman Adı Soyadı": "Süleyman Cihan Erkan",
+          "Ofis Kodu": "OF10633",
+          "Portföy Sayısı": 19,
+          "Ünvan": "Gayrimenkul Danışmanı",
+          "_sourceFile": "platform_icerik_ozetleri.xlsx",
+          "Ofis Adı": "ERA MAJOR"
+        },
+        {
+          "Ofis Adı": "ERA MAJOR",
+          "_sourceFile": "platform_icerik_ozetleri.xlsx",
+          "Ünvan": "Gayrimenkul Danışmanı",
+          "Danışman Adı Soyadı": "Serkan Günay",
+          "Portföy Sayısı": 26,
+          "Ofis Kodu": "OF10633"
+        },
+        {
+          "Ünvan": "Gayrimenkul Danışmanı",
+          "Portföy Sayısı": 24,
+          "Ofis Kodu": "OF10633",
+          "Danışman Adı Soyadı": "Dilay Duyan",
+          "Ofis Adı": "ERA MAJOR",
+          "_sourceFile": "platform_icerik_ozetleri.xlsx"
+        },
+        {
+          "Ünvan": "Gayrimenkul Danışmanı",
+          "Ofis Kodu": "OF10633",
+          "Portföy Sayısı": 17,
+          "Danışman Adı Soyadı": "Hakan Aslan",
+          "Ofis Adı": "ERA MAJOR",
+          "_sourceFile": "platform_icerik_ozetleri.xlsx"
+        },
+        {
+          "_sourceFile": "platform_icerik_ozetleri.xlsx",
+          "Ofis Adı": "ERA MAJOR",
+          "Ofis Kodu": "OF10633",
+          "Portföy Sayısı": 10,
+          "Danışman Adı Soyadı": "Dilara Papila",
+          "Ünvan": "Gayrimenkul Danışmanı"
+        },
+        {
+          "_sourceFile": "platform_icerik_ozetleri.xlsx",
+          "Ofis Adı": "ERA MAJOR",
+          "Danışman Adı Soyadı": "Mert Beratlıgil",
+          "Ofis Kodu": "OF10633",
+          "Portföy Sayısı": 9,
+          "Ünvan": "Gayrimenkul Danışmanı"
+        },
+        {
+          "_sourceFile": "platform_icerik_ozetleri.xlsx",
+          "Ofis Adı": "ERA MAJOR",
+          "Ofis Kodu": "OF10633",
+          "Portföy Sayısı": 8,
+          "Danışman Adı Soyadı": "Yigit Bahadır",
+          "Ünvan": "Gayrimenkul Danışmanı"
+        },
+        {
+          "_sourceFile": "platform_icerik_ozetleri.xlsx",
+          "Ofis Adı": "ERA MAJOR",
+          "Danışman Adı Soyadı": "Ali Ceyhun Erkan",
+          "Portföy Sayısı": 5,
+          "Ofis Kodu": "OF10633",
+          "Ünvan": "Gayrimenkul Danışmanı"
+        },
+        {
+          "_sourceFile": "platform_icerik_ozetleri.xlsx",
+          "Ofis Adı": "ERA MAJOR",
+          "Danışman Adı Soyadı": "Alara Dila Dinç",
+          "Portföy Sayısı": 4,
+          "Ofis Kodu": "OF10633",
+          "Ünvan": "Gayrimenkul Danışmanı"
+        },
+        {
+          "_sourceFile": "platform_icerik_ozetleri.xlsx",
+          "Ofis Adı": "ERA MAJOR",
+          "Danışman Adı Soyadı": "Deniz Balfidan",
+          "Portföy Sayısı": 4,
+          "Ofis Kodu": "OF10633",
+          "Ünvan": "Gayrimenkul Danışmanı"
+        },
+        {
+          "_sourceFile": "platform_icerik_ozetleri.xlsx",
+          "Ofis Adı": "ERA MAJOR",
+          "Danışman Adı Soyadı": "Funda Öz",
+          "Portföy Sayısı": 2,
+          "Ofis Kodu": "OF10633",
+          "Ünvan": "Gayrimenkul Danışmanı"
+        },
+        {
+          "Ünvan": "Ofis Sahibi (Broker)",
+          "Ofis Kodu": "OF10634",
+          "Portföy Sayısı": 4,
+          "Danışman Adı Soyadı": "Raşit Özen",
+          "Ofis Adı": "ERA TREND",
+          "_sourceFile": "platform_icerik_ozetleri.xlsx"
+        },
+        {
+          "_sourceFile": "platform_icerik_ozetleri.xlsx",
+          "Ofis Adı": "ERA TREND",
+          "Ofis Kodu": "OF10634",
+          "Portföy Sayısı": 21,
+          "Danışman Adı Soyadı": "Ömer Tayyib Karaduman",
+          "Ünvan": "Gayrimenkul Danışmanı"
+        },
+        {
+          "_sourceFile": "platform_icerik_ozetleri.xlsx",
+          "Ofis Adı": "ERA TREND",
+          "Ofis Kodu": "OF10634",
+          "Portföy Sayısı": 11,
+          "Danışman Adı Soyadı": "Gökçen Üçkardeş",
+          "Ünvan": "Gayrimenkul Danışmanı"
+        },
+        {
+          "Ofis Adı": "ERA TREND",
+          "_sourceFile": "platform_icerik_ozetleri.xlsx",
+          "Ünvan": "Gayrimenkul Danışmanı",
+          "Danışman Adı Soyadı": "Gözde Ergin",
+          "Portföy Sayısı": 7,
+          "Ofis Kodu": "OF10634"
+        },
+        {
+          "Ünvan": "Gayrimenkul Danışmanı",
+          "Danışman Adı Soyadı": "Serra Haytabay",
+          "Portföy Sayısı": 3,
+          "Ofis Kodu": "OF10634",
+          "Ofis Adı": "ERA TREND",
+          "_sourceFile": "platform_icerik_ozetleri.xlsx"
+        },
+        {
+          "_sourceFile": "platform_icerik_ozetleri.xlsx",
+          "Ofis Adı": "ERA TREND",
+          "Ofis Kodu": "OF10634",
+          "Portföy Sayısı": 2,
+          "Danışman Adı Soyadı": "Veli Özorak",
+          "Ünvan": "Gayrimenkul Danışmanı"
+        },
+        {
+          "_sourceFile": "platform_icerik_ozetleri.xlsx",
+          "Ofis Adı": "ERA TREND",
+          "Portföy Sayısı": 0,
+          "Ofis Kodu": "OF10634",
+          "Danışman Adı Soyadı": "Erhan Gülenç",
+          "Ünvan": "Gayrimenkul Danışmanı"
+        },
+        {
+          "Portföy Sayısı": 4,
+          "Ofis Kodu": "OF10645",
+          "Danışman Adı Soyadı": "Barış Özler",
+          "Ünvan": "Ofis Sahibi (Broker)",
+          "_sourceFile": "platform_icerik_ozetleri.xlsx",
+          "Ofis Adı": "ERA ONKO 2"
+        },
+        {
+          "Ünvan": "Gayrimenkul Danışmanı",
+          "Ofis Kodu": "OF10645",
+          "Portföy Sayısı": 13,
+          "Danışman Adı Soyadı": "Süleyman Köse",
+          "Ofis Adı": "ERA ONKO 2",
+          "_sourceFile": "platform_icerik_ozetleri.xlsx"
+        },
+        {
+          "Ünvan": "Gayrimenkul Danışmanı",
+          "Ofis Kodu": "OF10645",
+          "Portföy Sayısı": 9,
+          "Danışman Adı Soyadı": "Türkan Aydınalp",
+          "Ofis Adı": "ERA ONKO 2",
+          "_sourceFile": "platform_icerik_ozetleri.xlsx"
+        },
+        {
+          "Ofis Adı": "ERA ONKO 2",
+          "_sourceFile": "platform_icerik_ozetleri.xlsx",
+          "Ünvan": "Gayrimenkul Danışmanı",
+          "Ofis Kodu": "OF10645",
+          "Portföy Sayısı": 6,
+          "Danışman Adı Soyadı": "Niyazi Ballı"
+        },
+        {
+          "_sourceFile": "platform_icerik_ozetleri.xlsx",
+          "Ofis Adı": "ERA ONKO 2",
+          "Portföy Sayısı": 5,
+          "Ofis Kodu": "OF10645",
+          "Danışman Adı Soyadı": "Özlem Taşcı",
+          "Ünvan": "Gayrimenkul Danışmanı"
+        },
+        {
+          "_sourceFile": "platform_icerik_ozetleri.xlsx",
+          "Ofis Adı": "ERA ONKO 2",
+          "Danışman Adı Soyadı": "Ayşe Gül Alpun Karahan",
+          "Ofis Kodu": "OF10645",
+          "Portföy Sayısı": 5,
+          "Ünvan": "Gayrimenkul Danışmanı"
+        },
+        {
+          "Ofis Adı": "ERA ONKO 2",
+          "_sourceFile": "platform_icerik_ozetleri.xlsx",
+          "Ünvan": "Gayrimenkul Danışmanı",
+          "Danışman Adı Soyadı": "Birsen Ü.",
+          "Ofis Kodu": "OF10645",
+          "Portföy Sayısı": 5
+        },
+        {
+          "Ofis Adı": "ERA ONKO 2",
+          "_sourceFile": "platform_icerik_ozetleri.xlsx",
+          "Ünvan": "Gayrimenkul Danışmanı",
+          "Portföy Sayısı": 4,
+          "Ofis Kodu": "OF10645",
+          "Danışman Adı Soyadı": "Mustafa Köse"
+        },
+        {
+          "Ünvan": "Gayrimenkul Danışmanı",
+          "Ofis Kodu": "OF10645",
+          "Portföy Sayısı": 4,
+          "Danışman Adı Soyadı": "Orkun Ergenekon",
+          "Ofis Adı": "ERA ONKO 2",
+          "_sourceFile": "platform_icerik_ozetleri.xlsx"
+        },
+        {
+          "Ofis Kodu": "OF10645",
+          "Portföy Sayısı": 3,
+          "Danışman Adı Soyadı": "Neslihan Bozkır",
+          "Ünvan": "Gayrimenkul Danışmanı",
+          "_sourceFile": "platform_icerik_ozetleri.xlsx",
+          "Ofis Adı": "ERA ONKO 2"
+        },
+        {
+          "Ofis Kodu": "OF10645",
+          "Portföy Sayısı": 3,
+          "Danışman Adı Soyadı": "Sıla Tanla",
+          "Ünvan": "Gayrimenkul Danışmanı",
+          "_sourceFile": "platform_icerik_ozetleri.xlsx",
+          "Ofis Adı": "ERA ONKO 2"
+        },
+        {
+          "Ünvan": "Gayrimenkul Danışmanı",
+          "Danışman Adı Soyadı": "İbrahim Yüksel",
+          "Portföy Sayısı": 3,
+          "Ofis Kodu": "OF10645",
+          "Ofis Adı": "ERA ONKO 2",
+          "_sourceFile": "platform_icerik_ozetleri.xlsx"
+        },
+        {
+          "Ofis Adı": "ERA ONKO 2",
+          "_sourceFile": "platform_icerik_ozetleri.xlsx",
+          "Ünvan": "Gayrimenkul Danışmanı",
+          "Ofis Kodu": "OF10645",
+          "Portföy Sayısı": 2,
+          "Danışman Adı Soyadı": "Ufuk Ören"
+        },
+        {
+          "Ofis Kodu": "OF10645",
+          "Portföy Sayısı": 2,
+          "Danışman Adı Soyadı": "Erdinç Akın",
+          "Ünvan": "Gayrimenkul Danışmanı",
+          "_sourceFile": "platform_icerik_ozetleri.xlsx",
+          "Ofis Adı": "ERA ONKO 2"
+        },
+        {
+          "Ünvan": "Gayrimenkul Danışmanı",
+          "Danışman Adı Soyadı": "Mehmet Kökbudak",
+          "Ofis Kodu": "OF10645",
+          "Portföy Sayısı": 1,
+          "Ofis Adı": "ERA ONKO 2",
+          "_sourceFile": "platform_icerik_ozetleri.xlsx"
+        },
+        {
+          "Ünvan": "Gayrimenkul Danışmanı",
+          "Danışman Adı Soyadı": "Selin Metin",
+          "Ofis Kodu": "OF10645",
+          "Portföy Sayısı": 1,
+          "Ofis Adı": "ERA ONKO 2",
+          "_sourceFile": "platform_icerik_ozetleri.xlsx"
+        },
+        {
+          "Ofis Adı": "ERA ONKO 2",
+          "_sourceFile": "platform_icerik_ozetleri.xlsx",
+          "Ünvan": "Gayrimenkul Danışmanı",
+          "Danışman Adı Soyadı": "Batuhan K.",
+          "Ofis Kodu": "OF10645",
+          "Portföy Sayısı": 0
+        },
+        {
+          "Danışman Adı Soyadı": "Zeynep Eser",
+          "Portföy Sayısı": 0,
+          "Ofis Kodu": "OF10645",
+          "Ünvan": "Gayrimenkul Danışmanı",
+          "_sourceFile": "platform_icerik_ozetleri.xlsx",
+          "Ofis Adı": "ERA ONKO 2"
+        },
+        {
+          "Ünvan": "Gayrimenkul Danışmanı",
+          "Ofis Kodu": "OF10645",
+          "Portföy Sayısı": 0,
+          "Danışman Adı Soyadı": "İbrahim Ortaş",
+          "Ofis Adı": "ERA ONKO 2",
+          "_sourceFile": "platform_icerik_ozetleri.xlsx"
+        },
+        {
+          "Ofis Adı": "ERA ONKO 2",
+          "_sourceFile": "platform_icerik_ozetleri.xlsx",
+          "Ünvan": "Gayrimenkul Danışmanı",
+          "Ofis Kodu": "OF10645",
+          "Portföy Sayısı": 0,
+          "Danışman Adı Soyadı": "Sibel Çimen Ciran"
+        },
+        {
+          "_sourceFile": "platform_icerik_ozetleri.xlsx",
+          "Ofis Adı": "ERA VEGA",
+          "Ofis Kodu": "OF10636",
+          "Portföy Sayısı": 2,
+          "Danışman Adı Soyadı": "Nihat Akınoğlu",
+          "Ünvan": "Ofis Sahibi (Broker)"
+        },
+        {
+          "Danışman Adı Soyadı": "Ali Taştan",
+          "Portföy Sayısı": 25,
+          "Ofis Kodu": "OF10636",
+          "Ünvan": "Gayrimenkul Danışmanı",
+          "_sourceFile": "platform_icerik_ozetleri.xlsx",
+          "Ofis Adı": "ERA VEGA"
+        },
+        {
+          "_sourceFile": "platform_icerik_ozetleri.xlsx",
+          "Ofis Adı": "ERA VEGA",
+          "Portföy Sayısı": 16,
+          "Ofis Kodu": "OF10636",
+          "Danışman Adı Soyadı": "Ahmet Faruk Yavuz",
+          "Ünvan": "Gayrimenkul Danışmanı"
+        },
+        {
+          "Ofis Adı": "ERA VEGA",
+          "_sourceFile": "platform_icerik_ozetleri.xlsx",
+          "Ünvan": "Gayrimenkul Danışmanı",
+          "Ofis Kodu": "OF10636",
+          "Portföy Sayısı": 14,
+          "Danışman Adı Soyadı": "Yıldırım Akkuş"
+        },
+        {
+          "_sourceFile": "platform_icerik_ozetleri.xlsx",
+          "Ofis Adı": "ERA VEGA",
+          "Portföy Sayısı": 12,
+          "Ofis Kodu": "OF10636",
+          "Danışman Adı Soyadı": "Cengiz Özkaya",
+          "Ünvan": "Gayrimenkul Danışmanı"
+        },
+        {
+          "Danışman Adı Soyadı": "Yalçın Kötek",
+          "Ofis Kodu": "OF10636",
+          "Portföy Sayısı": 8,
+          "Ünvan": "Gayrimenkul Danışmanı",
+          "_sourceFile": "platform_icerik_ozetleri.xlsx",
+          "Ofis Adı": "ERA VEGA"
+        },
+        {
+          "Ünvan": "Gayrimenkul Danışmanı",
+          "Danışman Adı Soyadı": "Aykut Al",
+          "Ofis Kodu": "OF10636",
+          "Portföy Sayısı": 8,
+          "Ofis Adı": "ERA VEGA",
+          "_sourceFile": "platform_icerik_ozetleri.xlsx"
+        },
+        {
+          "_sourceFile": "platform_icerik_ozetleri.xlsx",
+          "Ofis Adı": "ERA VEGA",
+          "Ofis Kodu": "OF10636",
+          "Portföy Sayısı": 7,
+          "Danışman Adı Soyadı": "Asmahan A. M. O. A.",
+          "Ünvan": "Gayrimenkul Danışmanı"
+        },
+        {
+          "_sourceFile": "platform_icerik_ozetleri.xlsx",
+          "Ofis Adı": "ERA VEGA",
+          "Danışman Adı Soyadı": "Ahmed Alamarh",
+          "Portföy Sayısı": 6,
+          "Ofis Kodu": "OF10636",
+          "Ünvan": "Gayrimenkul Danışmanı"
+        },
+        {
+          "Ofis Adı": "ERA VEGA",
+          "_sourceFile": "platform_icerik_ozetleri.xlsx",
+          "Ünvan": "Gayrimenkul Danışmanı",
+          "Danışman Adı Soyadı": "Cansu Parlar",
+          "Ofis Kodu": "OF10636",
+          "Portföy Sayısı": 5
+        },
+        {
+          "_sourceFile": "platform_icerik_ozetleri.xlsx",
+          "Ofis Adı": "ERA VEGA",
+          "Danışman Adı Soyadı": "Seyfi Babür",
+          "Portföy Sayısı": 4,
+          "Ofis Kodu": "OF10636",
+          "Ünvan": "Gayrimenkul Danışmanı"
+        },
+        {
+          "Ofis Adı": "ERA VEGA",
+          "_sourceFile": "platform_icerik_ozetleri.xlsx",
+          "Ünvan": "Gayrimenkul Danışmanı",
+          "Ofis Kodu": "OF10636",
+          "Portföy Sayısı": 4,
+          "Danışman Adı Soyadı": "Furkan Karaman"
+        },
+        {
+          "Ofis Adı": "ERA VEGA",
+          "_sourceFile": "platform_icerik_ozetleri.xlsx",
+          "Ünvan": "Gayrimenkul Danışmanı",
+          "Ofis Kodu": "OF10636",
+          "Portföy Sayısı": 4,
+          "Danışman Adı Soyadı": "Burak Çamlıca"
+        },
+        {
+          "Ofis Adı": "ERA VEGA",
+          "_sourceFile": "platform_icerik_ozetleri.xlsx",
+          "Ünvan": "Gayrimenkul Danışmanı",
+          "Danışman Adı Soyadı": "Buket Kılıç",
+          "Ofis Kodu": "OF10636",
+          "Portföy Sayısı": 4
+        },
+        {
+          "Ofis Adı": "ERA VEGA",
+          "_sourceFile": "platform_icerik_ozetleri.xlsx",
+          "Ünvan": "Gayrimenkul Danışmanı",
+          "Danışman Adı Soyadı": "İrfan Küçükoğlu",
+          "Ofis Kodu": "OF10636",
+          "Portföy Sayısı": 1
+        },
+        {
+          "Ofis Adı": "ERA VEGA",
+          "_sourceFile": "platform_icerik_ozetleri.xlsx",
+          "Ünvan": "Gayrimenkul Danışmanı",
+          "Portföy Sayısı": 1,
+          "Ofis Kodu": "OF10636",
+          "Danışman Adı Soyadı": "Nurullah Güneş"
+        },
+        {
+          "Ofis Kodu": "OF10636",
+          "Portföy Sayısı": 1,
+          "Danışman Adı Soyadı": "Alper Dedeoğlu",
+          "Ünvan": "Gayrimenkul Danışmanı",
+          "_sourceFile": "platform_icerik_ozetleri.xlsx",
+          "Ofis Adı": "ERA VEGA"
+        },
+        {
+          "Ünvan": "Gayrimenkul Danışmanı",
+          "Portföy Sayısı": 0,
+          "Ofis Kodu": "OF10636",
+          "Danışman Adı Soyadı": "Efe Akınoğlu",
+          "Ofis Adı": "ERA VEGA",
+          "_sourceFile": "platform_icerik_ozetleri.xlsx"
+        },
+        {
+          "Danışman Adı Soyadı": "Demet Tüzün",
+          "Ofis Kodu": "OF10637",
+          "Portföy Sayısı": 6,
+          "Ünvan": "Ofis Sahibi (Broker)",
+          "_sourceFile": "platform_icerik_ozetleri.xlsx",
+          "Ofis Adı": "ERA GALA"
+        },
+        {
+          "Danışman Adı Soyadı": "Gökhan Şahin",
+          "Portföy Sayısı": 22,
+          "Ofis Kodu": "OF10637",
+          "Ünvan": "Gayrimenkul Danışmanı",
+          "_sourceFile": "platform_icerik_ozetleri.xlsx",
+          "Ofis Adı": "ERA GALA"
+        },
+        {
+          "_sourceFile": "platform_icerik_ozetleri.xlsx",
+          "Ofis Adı": "ERA GALA",
+          "Ofis Kodu": "OF10637",
+          "Portföy Sayısı": 19,
+          "Danışman Adı Soyadı": "Elif Döğüş",
+          "Ünvan": "Gayrimenkul Danışmanı"
+        },
+        {
+          "Ünvan": "Gayrimenkul Danışmanı",
+          "Danışman Adı Soyadı": "Burçin Esra Karadağ",
+          "Ofis Kodu": "OF10637",
+          "Portföy Sayısı": 14,
+          "Ofis Adı": "ERA GALA",
+          "_sourceFile": "platform_icerik_ozetleri.xlsx"
+        },
+        {
+          "Ünvan": "Gayrimenkul Danışmanı",
+          "Portföy Sayısı": 11,
+          "Ofis Kodu": "OF10637",
+          "Danışman Adı Soyadı": "Feyza Önkol",
+          "Ofis Adı": "ERA GALA",
+          "_sourceFile": "platform_icerik_ozetleri.xlsx"
+        },
+        {
+          "_sourceFile": "platform_icerik_ozetleri.xlsx",
+          "Ofis Adı": "ERA GALA",
+          "Danışman Adı Soyadı": "Kaan Sezer",
+          "Portföy Sayısı": 10,
+          "Ofis Kodu": "OF10637",
+          "Ünvan": "Gayrimenkul Danışmanı"
+        },
+        {
+          "Ofis Adı": "ERA GALA",
+          "_sourceFile": "platform_icerik_ozetleri.xlsx",
+          "Ünvan": "Gayrimenkul Danışmanı",
+          "Danışman Adı Soyadı": "Dijvar Perişan",
+          "Portföy Sayısı": 8,
+          "Ofis Kodu": "OF10637"
+        },
+        {
+          "Ofis Adı": "ERA GALA",
+          "_sourceFile": "platform_icerik_ozetleri.xlsx",
+          "Ünvan": "Gayrimenkul Danışmanı",
+          "Portföy Sayısı": 7,
+          "Ofis Kodu": "OF10637",
+          "Danışman Adı Soyadı": "Kaan Tüzün"
+        },
+        {
+          "Ofis Kodu": "OF10637",
+          "Portföy Sayısı": 7,
+          "Danışman Adı Soyadı": "Elif Güven",
+          "Ünvan": "Gayrimenkul Danışmanı",
+          "_sourceFile": "platform_icerik_ozetleri.xlsx",
+          "Ofis Adı": "ERA GALA"
+        },
+        {
+          "_sourceFile": "platform_icerik_ozetleri.xlsx",
+          "Ofis Adı": "ERA GALA",
+          "Danışman Adı Soyadı": "Hüseyin Duran",
+          "Portföy Sayısı": 6,
+          "Ofis Kodu": "OF10637",
+          "Ünvan": "Gayrimenkul Danışmanı"
+        },
+        {
+          "Portföy Sayısı": 6,
+          "Ofis Kodu": "OF10637",
+          "Danışman Adı Soyadı": "Ümit Aybars",
+          "Ünvan": "Gayrimenkul Danışmanı",
+          "_sourceFile": "platform_icerik_ozetleri.xlsx",
+          "Ofis Adı": "ERA GALA"
+        },
+        {
+          "Ofis Adı": "ERA GALA",
+          "_sourceFile": "platform_icerik_ozetleri.xlsx",
+          "Ünvan": "Gayrimenkul Danışmanı",
+          "Ofis Kodu": "OF10637",
+          "Portföy Sayısı": 6,
+          "Danışman Adı Soyadı": "Ceyda Cebeci Şahin"
+        },
+        {
+          "_sourceFile": "platform_icerik_ozetleri.xlsx",
+          "Ofis Adı": "ERA GALA",
+          "Danışman Adı Soyadı": "Işıl Koç",
+          "Ofis Kodu": "OF10637",
+          "Portföy Sayısı": 4,
+          "Ünvan": "Gayrimenkul Danışmanı"
+        },
+        {
+          "_sourceFile": "platform_icerik_ozetleri.xlsx",
+          "Ofis Adı": "ERA GALA",
+          "Danışman Adı Soyadı": "Gözde Mermer",
+          "Ofis Kodu": "OF10637",
+          "Portföy Sayısı": 4,
+          "Ünvan": "Gayrimenkul Danışmanı"
+        },
+        {
+          "Danışman Adı Soyadı": "Ertuğrul Koç",
+          "Ofis Kodu": "OF10637",
+          "Portföy Sayısı": 2,
+          "Ünvan": "Gayrimenkul Danışmanı",
+          "_sourceFile": "platform_icerik_ozetleri.xlsx",
+          "Ofis Adı": "ERA GALA"
+        },
+        {
+          "_sourceFile": "platform_icerik_ozetleri.xlsx",
+          "Ofis Adı": "ERA GALA",
+          "Portföy Sayısı": 1,
+          "Ofis Kodu": "OF10637",
+          "Danışman Adı Soyadı": "Enise Kurbaş",
+          "Ünvan": "Gayrimenkul Danışmanı"
+        },
+        {
+          "Ünvan": "Gayrimenkul Danışmanı",
+          "Danışman Adı Soyadı": "Cengiz Hacıhasanoğlu",
+          "Ofis Kodu": "OF10637",
+          "Portföy Sayısı": 0,
+          "Ofis Adı": "ERA GALA",
+          "_sourceFile": "platform_icerik_ozetleri.xlsx"
+        },
+        {
+          "_sourceFile": "platform_icerik_ozetleri.xlsx",
+          "Ofis Adı": "ERA GALA",
+          "Portföy Sayısı": 0,
+          "Ofis Kodu": "OF10637",
+          "Danışman Adı Soyadı": "Iryna Turhan",
+          "Ünvan": "Gayrimenkul Danışmanı"
+        },
+        {
+          "Ünvan": "Ofis Sahibi (Broker)",
+          "Portföy Sayısı": 5,
+          "Ofis Kodu": "OF10638",
+          "Danışman Adı Soyadı": "Emre Aydoğdu",
+          "Ofis Adı": "ERA REFERANS",
+          "_sourceFile": "platform_icerik_ozetleri.xlsx"
+        },
+        {
+          "Ünvan": "Gayrimenkul Danışmanı",
+          "Portföy Sayısı": 12,
+          "Ofis Kodu": "OF10638",
+          "Danışman Adı Soyadı": "Hüseyin Güneş",
+          "Ofis Adı": "ERA REFERANS",
+          "_sourceFile": "platform_icerik_ozetleri.xlsx"
+        },
+        {
+          "Ünvan": "Gayrimenkul Danışmanı",
+          "Danışman Adı Soyadı": "Samet Güneş",
+          "Portföy Sayısı": 5,
+          "Ofis Kodu": "OF10638",
+          "Ofis Adı": "ERA REFERANS",
+          "_sourceFile": "platform_icerik_ozetleri.xlsx"
+        },
+        {
+          "Ünvan": "Gayrimenkul Danışmanı",
+          "Danışman Adı Soyadı": "Mustafa Özaydın",
+          "Portföy Sayısı": 4,
+          "Ofis Kodu": "OF10638",
+          "Ofis Adı": "ERA REFERANS",
+          "_sourceFile": "platform_icerik_ozetleri.xlsx"
+        },
+        {
+          "Ofis Adı": "ERA REFERANS",
+          "_sourceFile": "platform_icerik_ozetleri.xlsx",
+          "Ünvan": "Gayrimenkul Danışmanı",
+          "Ofis Kodu": "OF10638",
+          "Portföy Sayısı": 3,
+          "Danışman Adı Soyadı": "Murat Hazır"
+        },
+        {
+          "Ofis Adı": "ERA REFERANS",
+          "_sourceFile": "platform_icerik_ozetleri.xlsx",
+          "Ünvan": "Gayrimenkul Danışmanı",
+          "Danışman Adı Soyadı": "Mehmet Özgür",
+          "Portföy Sayısı": 1,
+          "Ofis Kodu": "OF10638"
+        }
+      ]
     }
   ],
+  "emails": [],
   "config": {
     "resendApiKey": "",
     "brevoApiKey": "",
@@ -383,8 +4761,8 @@
     "smtpPass": "fucaupikpfrrhzzs",
     "managerEmail": "nilufer.perkim@masterturk.com.tr",
     "fieldStaffEmails": {
-      "Nilüfer Perkim": "nilufer.perkim@masterturk.com.tr",
       "Tunç Süzer": "tunc.suzer@masterturk.com.tr",
+      "Nilüfer Perkim": "nilufer.perkim@masterturk.com.tr",
       "Kaan Albayrak": "kaan.albayrak@masterturk.com.tr"
     }
   }

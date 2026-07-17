@@ -1,0 +1,12 @@
+--- src/components/ExcelUploader.tsx
++++ src/components/ExcelUploader.tsx
+@@ -101,6 +101,8 @@
+   
+   if (name.includes("akullanici") || name.includes("akullanıcı")) {
+-    return "danisman";
++    // If they have "akullanici" but they expect it to be Ofis Kullanicilari
++    // let's map it to ofis_kullanicilari for now, or just let them select manually.
++    return "ofis_kullanicilari";
+   } else if (name.includes("cb_kullanici") || name.includes("cb kullanici") || name.includes("cb_kullanıcı") || name.includes("cb kullanıcı") ||
+              name.includes("c21_kullanici") || name.includes("c21 kullanici") || name.includes("c21_kullanıcı") || name.includes("c21 kullanıcı") ||
+              name.includes("era_kullanici") || name.includes("era kullanici") || name.includes("era_kullanıcı") || name.includes("era kullanıcı") ||
