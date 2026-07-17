@@ -534,23 +534,47 @@ export default function AuditPanel({ offices, groups, activeAudit, onRefresh, on
   const handleRealDataLoad = async (type: string, data: any[], secondaryData?: any[]): Promise<boolean> => {
     if (!activeAudit) return false;
     setLoading(true);
+    
+    const CHUNK_SIZE = 1000;
+
     try {
-      const res = await fetch("/api/audits/active/upload", {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ type, data, secondaryData })
-      });
-      if (res.ok) {
-        showMsg("success", "Gerçek veri başarıyla yüklendi!");
-        onRefresh();
-        return true;
+      const dataLen = Array.isArray(data) ? data.length : 0;
+      const secLen = Array.isArray(secondaryData) ? secondaryData.length : 0;
+      const totalLen = Math.max(dataLen, secLen);
+      
+      if (totalLen === 0) {
+        // Send empty request to trigger any empty logic if needed
+        const res = await fetch("/api/audits/active/upload", {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({ type, data: [], secondaryData: [] })
+        });
+        if (!res.ok) throw new Error("Yükleme başarısız");
       } else {
-        const err = await res.json();
-        showMsg("error", "Hata: " + err.error);
-        return false;
+        const totalChunks = Math.ceil(totalLen / CHUNK_SIZE);
+        for (let i = 0; i < totalChunks; i++) {
+          const dataChunk = Array.isArray(data) ? data.slice(i * CHUNK_SIZE, (i + 1) * CHUNK_SIZE) : undefined;
+          const secChunk = Array.isArray(secondaryData) ? secondaryData.slice(i * CHUNK_SIZE, (i + 1) * CHUNK_SIZE) : undefined;
+          
+          const res = await fetch("/api/audits/active/upload", {
+            method: "POST",
+            headers: { "Content-Type": "application/json" },
+            body: JSON.stringify({ type, data: dataChunk, secondaryData: secChunk })
+          });
+          
+          if (!res.ok) {
+            const err = await res.json().catch(() => ({ error: "Bilinmeyen hata" }));
+            showMsg("error", `Hata (Parça ${i+1}/${totalChunks}): ` + err.error);
+            return false;
+          }
+        }
       }
+
+      showMsg("success", "Gerçek veri başarıyla yüklendi!");
+      onRefresh();
+      return true;
     } catch (err) {
-      showMsg("error", "Sunucuya bağlanılamadı.");
+      showMsg("error", "Sunucuya bağlanılamadı veya zaman aşımı oluştu.");
       return false;
     } finally {
       setLoading(false);
