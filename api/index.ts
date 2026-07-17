@@ -175,6 +175,8 @@ const DEFAULT_DB: Database = {
 // --- DB MEMORY CACHE & FIRESTORE SYNC ---
 let cachedDB: Database | null = null;
 let isSyncingFromFirestore = false;
+let initialSyncPromise: Promise<void> | null = null;
+let lastSyncTime = 0;
 
 function getMatchedKey(row: any, searchKeys: string[]): string | null {
   if (!row || typeof row !== "object") return null;
@@ -262,11 +264,25 @@ function pruneRow(row: any, type: "danisman" | "ilan_panel" | "ilan_sahibinden" 
 }
 
 // Async background fetch to sync local db with cloud Firestore
-async function syncFromFirestoreAsync() {
-  if (isSyncingFromFirestore) return;
+async function syncFromFirestoreAsync(force = false): Promise<void> {
+  if (isSyncingFromFirestore) {
+    if (force) {
+      // If already syncing and forced, wait until the current sync is finished
+      while (isSyncingFromFirestore) {
+        await new Promise(resolve => setTimeout(resolve, 100));
+      }
+    }
+    return;
+  }
+
+  // Prevent multiple spam sync requests if checked very recently, unless forced
+  if (!force && Date.now() - lastSyncTime < 5000) {
+    return;
+  }
+
   isSyncingFromFirestore = true;
   try {
-    console.log("[Firebase] Arka planda Firestore veritabanı eşitlemesi başlatılıyor...");
+    console.log(`[Firebase] Firestore veritabanı eşitlemesi başlatılıyor (Zorunlu: ${force})...`);
     const cloudData = await loadFromFirestore();
     
     // Create robust merge to protect from empty objects or missing fields in Firestore
@@ -331,9 +347,10 @@ async function syncFromFirestoreAsync() {
     };
 
     cachedDB = mergedDB;
+    lastSyncTime = Date.now();
     // Write to local fallback file
     fs.writeFileSync(DB_PATH, JSON.stringify(cachedDB, null, 2), "utf8");
-    console.log("[Firebase] Arka planda eşitleme başarılı. Veriler Firestore'dan güvenli bir şekilde güncellendi.");
+    console.log("[Firebase] Eşitleme başarılı. Veriler Firestore'dan güncellendi.");
 
     // If cloud was empty, push local seed back to Firestore
     if (!cloudData || !Array.isArray(cloudData.offices) || cloudData.offices.length === 0) {
@@ -341,14 +358,38 @@ async function syncFromFirestoreAsync() {
       await saveToFirestore(mergedDB);
     }
   } catch (err) {
-    console.error("[Firebase] Arka planda eşitleme başarısız oldu:", err);
+    console.error("[Firebase] Eşitleme başarısız oldu:", err);
   } finally {
     isSyncingFromFirestore = false;
   }
 }
 
-// Trigger initial async sync on load
-syncFromFirestoreAsync();
+// Trigger initial async sync on load and store the promise so requests can block on it
+initialSyncPromise = syncFromFirestoreAsync(true);
+
+// Middleware to block requests until initial Firestore sync is completed,
+// and force sync on write requests to prevent race conditions or stale cache overrides.
+app.use(async (req, res, next) => {
+  if (initialSyncPromise) {
+    try {
+      await initialSyncPromise;
+    } catch (err) {
+      console.error("Error waiting for initial Firestore sync:", err);
+    }
+  }
+
+  const isApiWrite = (req.method === "POST" || req.method === "PUT" || req.method === "DELETE") && req.path.startsWith("/api/");
+  if (isApiWrite && req.path !== "/api/db/sync-from-client") {
+    try {
+      console.log(`[Firebase] Write request detected (${req.method} ${req.url}). Forcing Firestore sync before operation.`);
+      await syncFromFirestoreAsync(true);
+    } catch (err) {
+      console.error("Error forcing sync before write operation:", err);
+    }
+  }
+
+  next();
+});
 
 // --- DB READ/WRITE HELPERS ---
 function readDB(): Database {
