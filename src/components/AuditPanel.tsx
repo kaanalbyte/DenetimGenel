@@ -1290,7 +1290,7 @@ export default function AuditPanel({ offices, groups, activeAudit, onRefresh, on
                             ✓ {getUploadDetails().cbDanisman.count} Satır
                           </span>
                         ) : (
-                          <span className="text-[10px] font-bold text-rose-600 bg-rose-50 border border-rose-200 px-1.5 py-0.5 rounded">Eksik (Y�klenmedi)</span>
+                          <span className="text-[10px] font-bold text-rose-600 bg-rose-50 border border-rose-200 px-1.5 py-0.5 rounded">Eksik (Yüklenmedi)</span>
                         )}
                       </div>
 
@@ -1305,7 +1305,7 @@ export default function AuditPanel({ offices, groups, activeAudit, onRefresh, on
                             ✓ {getUploadDetails().c21Danisman.count} Satır
                           </span>
                         ) : (
-                          <span className="text-[10px] font-bold text-rose-600 bg-rose-50 border border-rose-200 px-1.5 py-0.5 rounded">Eksik (Y�klenmedi)</span>
+                          <span className="text-[10px] font-bold text-rose-600 bg-rose-50 border border-rose-200 px-1.5 py-0.5 rounded">Eksik (Yüklenmedi)</span>
                         )}
                       </div>
 
@@ -1320,7 +1320,7 @@ export default function AuditPanel({ offices, groups, activeAudit, onRefresh, on
                             ✓ {getUploadDetails().eraDanisman.count} Satır
                           </span>
                         ) : (
-                          <span className="text-[10px] font-bold text-rose-600 bg-rose-50 border border-rose-200 px-1.5 py-0.5 rounded">Eksik (Y�klenmedi)</span>
+                          <span className="text-[10px] font-bold text-rose-600 bg-rose-50 border border-rose-200 px-1.5 py-0.5 rounded">Eksik (Yüklenmedi)</span>
                         )}
                       </div>
                     </div>
@@ -1348,7 +1348,7 @@ export default function AuditPanel({ offices, groups, activeAudit, onRefresh, on
                             ✓ {getUploadDetails().cbIlan.count} Satır
                           </span>
                         ) : (
-                          <span className="text-[10px] font-bold text-rose-600 bg-rose-50 border border-rose-200 px-1.5 py-0.5 rounded">Eksik (Y�klenmedi)</span>
+                          <span className="text-[10px] font-bold text-rose-600 bg-rose-50 border border-rose-200 px-1.5 py-0.5 rounded">Eksik (Yüklenmedi)</span>
                         )}
                       </div>
 
@@ -1363,7 +1363,7 @@ export default function AuditPanel({ offices, groups, activeAudit, onRefresh, on
                             ✓ {getUploadDetails().c21Ilan.count} Satır
                           </span>
                         ) : (
-                          <span className="text-[10px] font-bold text-rose-600 bg-rose-50 border border-rose-200 px-1.5 py-0.5 rounded">Eksik (Y�klenmedi)</span>
+                          <span className="text-[10px] font-bold text-rose-600 bg-rose-50 border border-rose-200 px-1.5 py-0.5 rounded">Eksik (Yüklenmedi)</span>
                         )}
                       </div>
 
@@ -1378,7 +1378,7 @@ export default function AuditPanel({ offices, groups, activeAudit, onRefresh, on
                             ✓ {getUploadDetails().eraIlan.count} Satır
                           </span>
                         ) : (
-                          <span className="text-[10px] font-bold text-rose-600 bg-rose-50 border border-rose-200 px-1.5 py-0.5 rounded">Eksik (Y�klenmedi)</span>
+                          <span className="text-[10px] font-bold text-rose-600 bg-rose-50 border border-rose-200 px-1.5 py-0.5 rounded">Eksik (Yüklenmedi)</span>
                         )}
                       </div>
                     </div>
@@ -1406,7 +1406,7 @@ export default function AuditPanel({ offices, groups, activeAudit, onRefresh, on
                             ✓ {getUploadDetails().sahibinden.count} Satır
                           </span>
                         ) : (
-                          <span className="text-[10px] font-bold text-rose-600 bg-rose-50 border border-rose-200 px-1.5 py-0.5 rounded">Eksik (Y�klenmedi)</span>
+                          <span className="text-[10px] font-bold text-rose-600 bg-rose-50 border border-rose-200 px-1.5 py-0.5 rounded">Eksik (Yüklenmedi)</span>
                         )}
                       </div>
 
@@ -1421,7 +1421,7 @@ export default function AuditPanel({ offices, groups, activeAudit, onRefresh, on
                             ✓ {getUploadDetails().kacak.count} Danışman
                           </span>
                         ) : (
-                          <span className="text-[10px] font-bold text-rose-600 bg-rose-50 border border-rose-200 px-1.5 py-0.5 rounded">Eksik (Y�klenmedi)</span>
+                          <span className="text-[10px] font-bold text-rose-600 bg-rose-50 border border-rose-200 px-1.5 py-0.5 rounded">Eksik (Yüklenmedi)</span>
                         )}
                       </div>
                     </div>
@@ -1448,7 +1448,7 @@ export default function AuditPanel({ offices, groups, activeAudit, onRefresh, on
                             ✓ {getUploadDetails().ofisKullanicilari.count} Satır
                           </span>
                         ) : (
-                          <span className="text-[10px] font-bold text-rose-600 bg-rose-50 border border-rose-200 px-1.5 py-0.5 rounded">Eksik (Y�klenmedi)</span>
+                          <span className="text-[10px] font-bold text-rose-600 bg-rose-50 border border-rose-200 px-1.5 py-0.5 rounded">Eksik (Yüklenmedi)</span>
                         )}
                       </div>
                       <p className="text-[10px] text-slate-500 leading-tight">
