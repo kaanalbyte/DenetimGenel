@@ -23,6 +23,8 @@ import {
 } from "lucide-react";
 
 
+import BetaTester from "./components/BetaTester";
+
 export default function App() {
   const [isSidebarOpen, setIsSidebarOpen] = useState(true);
   const [offices, setOffices] = useState<Office[]>([]);
@@ -249,6 +251,18 @@ export default function App() {
           >
             <Mail className="w-5 h-5 shrink-0" />
             {isSidebarOpen && <span className="whitespace-nowrap">E-Posta Şablonları</span>}
+          </button>
+          <button
+            onClick={() => setActiveTab("tester")}
+            title="Test Ekranı (Beta)"
+            className={`w-full flex items-center gap-3 py-2 rounded text-xs font-semibold transition-all ${
+              activeTab === "tester"
+                ? "bg-slate-800 text-white shadow-xs"
+                : "text-slate-400 hover:bg-slate-800/60 hover:text-white"
+            } ${isSidebarOpen ? "px-3" : "px-0 justify-center"}`}
+          >
+            <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className="shrink-0"><path d="M10 2v7.31"/><path d="M14 9.3V1.99"/><path d="M8.5 2h7"/><path d="M14 9.3a6.5 6.5 0 1 1-4 0"/><path d="M5.52 16h12.96"/></svg>
+            {isSidebarOpen && <span className="whitespace-nowrap">Test Ekranı (Beta)</span>}
           </button>
           <button
             onClick={() => setActiveTab("archive")}
@@ -632,6 +646,17 @@ export default function App() {
                   config={config}
                   onSaveConfig={handleSaveConfig}
                   onRefresh={refreshData}
+                />
+              </div>
+            )}
+
+            {activeTab === "tester" && (
+              <div key="tester">
+                <BetaTester
+                  offices={offices}
+                  groups={groups}
+                  config={config}
+                  activeAudit={activeAudit}
                 />
               </div>
             )}

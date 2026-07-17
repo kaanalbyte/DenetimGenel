@@ -749,7 +749,7 @@ app.post("/api/offices/upload", async (req, res) => {
     else if (brand.toLowerCase().includes("c21") || brand.toLowerCase().includes("century")) brand = "Century 21";
     else if (brand.toLowerCase().includes("era")) brand = "ERA";
 
-    const existingIdx = db.offices.findIndex((o) => o.id === id && o.brand === brand);
+    const existingIdx = db.offices.findIndex((o) => o.id === id);
     if (existingIdx > -1) {
       // Update fields but preserve group ID so relationships aren't broken!
       db.offices[existingIdx] = {

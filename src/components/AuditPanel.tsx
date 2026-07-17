@@ -1243,7 +1243,7 @@ export default function AuditPanel({ offices, groups, activeAudit, onRefresh, on
                   </div>
                 </div>
 
-                <div className="p-5 grid grid-cols-1 md:grid-cols-3 gap-6">
+                <div className="p-5 grid grid-cols-1 md:grid-cols-2 xl:grid-cols-4 gap-6">
                   {/* 1. Panel Kişi Card */}
                   <div className="bg-slate-50/50 rounded-lg p-4 border border-slate-150 space-y-3.5">
                     <div className="flex items-center gap-2 border-b border-slate-100 pb-2">
@@ -1416,6 +1416,38 @@ export default function AuditPanel({ offices, groups, activeAudit, onRefresh, on
                           </span>
                         )}
                       </div>
+                    </div>
+                  </div>
+
+                  {/* 4. Ofis Kullanıcıları Raporu Card */}
+                  <div className="bg-slate-50/50 rounded-lg p-4 border border-slate-150 space-y-3.5">
+                    <div className="flex items-center gap-2 border-b border-slate-100 pb-2">
+                      <div className="w-6 h-6 bg-purple-100 text-purple-700 rounded flex items-center justify-center font-bold text-xs shrink-0">👥</div>
+                      <div>
+                        <h4 className="text-xs font-bold text-slate-800">4. Ofis Kullanıcıları</h4>
+                        <p className="text-[9px] text-slate-400 font-mono">Broker/Owner Raporu</p>
+                      </div>
+                    </div>
+
+                    <div className="space-y-2">
+                      <div className="flex items-center justify-between text-xs p-1.5 bg-white rounded border border-slate-100">
+                        <span className="font-semibold text-slate-700 flex items-center gap-1.5">
+                          <span className="w-1.5 h-1.5 rounded-full bg-purple-500"></span>
+                          Ofis Kullanıcıları Listesi
+                        </span>
+                        {getUploadDetails().ofisKullanicilari.uploaded ? (
+                          <span className="text-[10px] font-bold text-emerald-700 bg-emerald-50 px-1.5 py-0.5 rounded border border-emerald-100">
+                            ✓ {getUploadDetails().ofisKullanicilari.count} Satır
+                          </span>
+                        ) : (
+                          <span className="text-[10px] font-bold text-slate-400 bg-slate-100 px-1.5 py-0.5 rounded">
+                            Bekleniyor
+                          </span>
+                        )}
+                      </div>
+                      <p className="text-[10px] text-slate-500 leading-tight">
+                        E-posta yönlendirmelerinde Broker & Owner eşleştirmesi için kullanılır.
+                      </p>
                     </div>
                   </div>
                 </div>
