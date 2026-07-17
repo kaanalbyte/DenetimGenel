@@ -1080,14 +1080,94 @@ function getBrandFromRowBackend(row: any): string {
   return "";
 }
 
+// Helper to resolve Office ID from a raw row using code or name resiliently
+function resolveOfficeIdBackend(row: any, officesList: any[]): string {
+  if (!row || typeof row !== "object") return "";
+
+  // 1. Try to find office code/ID with wide set of keys
+  let officeId = getNormalizedValue(row, [
+    "ofiskodu", "ofis kodu", "id", "kod", "ofis no", "ofisno", 
+    "office code", "sistem kodu", "sistemkodu", "no", "kodu", "ofis_kodu"
+  ]).toUpperCase().trim();
+
+  if (!officeId && row["Ofis Kodu"]) {
+    officeId = String(row["Ofis Kodu"]).toUpperCase().trim();
+  }
+
+  if (officeId) {
+    // If we have an office code, check if it matches an office in our DB (either directly or as part of ID)
+    const exactMatch = officesList.find(o => o && String(o.id).toUpperCase().trim() === officeId);
+    if (exactMatch) {
+      return exactMatch.id;
+    }
+    // Try numeric only match (e.g. OF10605 vs 10605 or 10605-A)
+    const numericOnly = officeId.replace(/\D/g, "");
+    if (numericOnly) {
+      const foundNum = officesList.find(o => o && String(o.id).replace(/\D/g, "") === numericOnly);
+      if (foundNum) return foundNum.id;
+    }
+    return officeId;
+  }
+
+  // 2. Try name-based matching
+  const officeName = getNormalizedValue(row, [
+    "ofisadi", "ofis adi", "name", "office name", "ad", "unvan", "ofis", "ofis adı", "ofis_adi"
+  ]).trim().toLowerCase();
+
+  if (officeName) {
+    const cleanName = (str: string) => {
+      return str.toLowerCase()
+        .replace(/ı/g, "i")
+        .replace(/ğ/g, "g")
+        .replace(/ü/g, "u")
+        .replace(/ş/g, "s")
+        .replace(/ö/g, "o")
+        .replace(/ç/g, "c")
+        .replace(/[\s\-_.,/()]+/g, "")
+        .replace("coldwellbanker", "cb")
+        .replace("century21", "c21")
+        .replace("gayrimenkul", "")
+        .replace("pazarlama", "")
+        .replace("insaat", "")
+        .replace("emlak", "")
+        .replace("ofis", "")
+        .replace("danismanlik", "");
+    };
+
+    const cleanedIncoming = cleanName(officeName);
+    if (cleanedIncoming) {
+      const found = officesList.find(o => {
+        if (!o || !o.name) return false;
+        const cleanedDb = cleanName(o.name);
+        return cleanedDb.includes(cleanedIncoming) || cleanedIncoming.includes(cleanedDb);
+      });
+      if (found) {
+        return found.id.toUpperCase().trim();
+      }
+    }
+  }
+
+  return "";
+}
+
 // Helper to merge incoming rows with existing ones based on office code resiliently
 function mergeByOfficeCode(existing: any[], incoming: any[]) {
   if (!Array.isArray(existing)) existing = [];
   if (!Array.isArray(incoming)) incoming = [];
 
+  let officesList: any[] = [];
+  try {
+    const db = readDB();
+    officesList = db.offices || [];
+  } catch (e) {
+    // Ignore
+  }
+
+  console.log(`[Upload Merge Code] Starting merge. Existing: ${existing.length}, Incoming: ${incoming.length}`);
+
   const existingMap = new Map<string, any>();
   existing.forEach(row => {
-    const officeId = getNormalizedValue(row, ["ofiskodu", "ofis kodu", "id", "kod"]).toUpperCase().trim();
+    const officeId = resolveOfficeIdBackend(row, officesList);
     if (officeId) {
       const brand = getBrandFromRowBackend(row);
       const name = getNormalizedValue(row, ["danismanadi", "danisman adi", "danisman adisoyadi", "danisman adi soyadi", "adsoyad", "ad soyad", "danismanadisoyadi"]).toUpperCase().trim();
@@ -1096,15 +1176,29 @@ function mergeByOfficeCode(existing: any[], incoming: any[]) {
     }
   });
 
+  let matchedCount = 0;
+  let failedRows: any[] = [];
+
   incoming.forEach(row => {
-    const officeId = getNormalizedValue(row, ["ofiskodu", "ofis kodu", "id", "kod"]).toUpperCase().trim();
+    const officeId = resolveOfficeIdBackend(row, officesList);
     if (officeId) {
+      matchedCount++;
       const brand = getBrandFromRowBackend(row);
       const name = getNormalizedValue(row, ["danismanadi", "danisman adi", "danisman adisoyadi", "danisman adi soyadi", "adsoyad", "ad soyad", "danismanadisoyadi"]).toUpperCase().trim();
       const key = name ? `${officeId}:::${brand}:::${name}` : (brand ? `${officeId}:::${brand}` : officeId);
       existingMap.set(key, row); // Overwrite existing or add new
+    } else {
+      failedRows.push(row);
     }
   });
+
+  console.log(`[Upload Merge Code] Merged incoming. Successfully resolved: ${matchedCount}/${incoming.length}.`);
+  if (failedRows.length > 0) {
+    console.warn(`[Upload Merge Code] WARNING: ${failedRows.length} rows failed to resolve an Office ID! Sample failed rows:`);
+    failedRows.slice(0, 10).forEach((r, idx) => {
+      console.warn(`  Failed Row #${idx + 1}: Keys=[${Object.keys(r).join(",")}] Values=[${Object.values(r).slice(0, 5).join(",")}]`);
+    });
+  }
 
   return Array.from(existingMap.values());
 }
@@ -1114,9 +1208,17 @@ function mergeKacakDanisman(existing: any[], incoming: any[]) {
   if (!Array.isArray(existing)) existing = [];
   if (!Array.isArray(incoming)) incoming = [];
 
+  let officesList: any[] = [];
+  try {
+    const db = readDB();
+    officesList = db.offices || [];
+  } catch (e) {
+    // Ignore
+  }
+
   const existingMap = new Map<string, any>();
   existing.forEach(row => {
-    const offId = getNormalizedValue(row, ["ofiskodu", "ofis kodu", "id", "kod"]).toUpperCase().trim();
+    const offId = resolveOfficeIdBackend(row, officesList);
     const brand = getBrandFromRowBackend(row);
     const name = getNormalizedValue(row, ["danismanadi", "danisman adi", "danisman adisoyadi", "danisman adi soyadi", "adsoyad", "ad soyad", "danismanadisoyadi"]).toUpperCase().trim();
     const key = `${offId}:::${brand}:::${name}`;
@@ -1126,7 +1228,7 @@ function mergeKacakDanisman(existing: any[], incoming: any[]) {
   });
 
   incoming.forEach(row => {
-    const offId = getNormalizedValue(row, ["ofiskodu", "ofis kodu", "id", "kod"]).toUpperCase().trim();
+    const offId = resolveOfficeIdBackend(row, officesList);
     const brand = getBrandFromRowBackend(row);
     const name = getNormalizedValue(row, ["danismanadi", "danisman adi", "danisman adisoyadi", "danisman adi soyadi", "adsoyad", "ad soyad", "danismanadisoyadi"]).toUpperCase().trim();
     const key = `${offId}:::${brand}:::${name}`;
@@ -1154,25 +1256,11 @@ function mergeByOfisKullanicilari(existing: any[], incoming: any[]) {
     // Ignore
   }
 
-  const resolveOfficeId = (row: any) => {
-    let officeId = getNormalizedValue(row, ["ofiskodu", "ofis kodu", "id", "kod", "ofis no", "ofisno", "office code", "sistem kodu", "sistemkodu", "no", "kodu"]).toUpperCase().trim();
-    if (!officeId && row["Ofis Kodu"]) {
-      officeId = String(row["Ofis Kodu"]).toUpperCase().trim();
-    }
-    if (!officeId) {
-      const officeName = getNormalizedValue(row, ["ofisadi", "ofis adi", "name", "office name", "ad", "unvan", "ofis", "ofis adı"]).trim().toLowerCase();
-      if (officeName) {
-        const found = officesList.find(o => o && (o.name.toLowerCase().includes(officeName) || officeName.includes(o.name.toLowerCase())));
-        if (found) {
-          officeId = found.id.toUpperCase().trim();
-        }
-      }
-    }
-    return officeId;
-  };
+  console.log(`[Upload Users] Starting merge. Existing: ${existing.length}, Incoming: ${incoming.length}`);
+  console.log(`[Upload Users] Registered offices count in DB: ${officesList.length}`);
 
   existing.forEach(row => {
-    const officeId = resolveOfficeId(row);
+    const officeId = resolveOfficeIdBackend(row, officesList);
     if (officeId) {
       const brand = getBrandFromRowBackend(row);
       const name = getNormalizedValue(row, ["adsoyad", "ad soyad", "ad soyadi", "adisoyadi", "adi soyadi", "kullaniciadi", "kullanici adi", "kullanici adisoyadi", "name", "full name", "isim", "ad", "soyad"]).toUpperCase().trim();
@@ -1184,9 +1272,13 @@ function mergeByOfisKullanicilari(existing: any[], incoming: any[]) {
     }
   });
 
+  let matchedCount = 0;
+  let failedRows: any[] = [];
+
   incoming.forEach(row => {
-    const officeId = resolveOfficeId(row);
+    const officeId = resolveOfficeIdBackend(row, officesList);
     if (officeId) {
+      matchedCount++;
       const brand = getBrandFromRowBackend(row);
       const name = getNormalizedValue(row, ["adsoyad", "ad soyad", "ad soyadi", "adisoyadi", "adi soyadi", "kullaniciadi", "kullanici adi", "kullanici adisoyadi", "name", "full name", "isim", "ad", "soyad"]).toUpperCase().trim();
       const email = getNormalizedValue(row, ["e-posta", "eposta", "email", "mail", "kullanicieposta", "kullanicimail", "e posta", "eposta adresi", "e-posta adresi"]).toLowerCase().trim();
@@ -1194,8 +1286,18 @@ function mergeByOfisKullanicilari(existing: any[], incoming: any[]) {
       const fallbackKey = Math.random().toString(36).substring(7);
       const key = `${officeId}:::${brand}:::${name || email || fallbackKey}`;
       existingMap.set(key, row); // Overwrite existing or add new
+    } else {
+      failedRows.push(row);
     }
   });
+
+  console.log(`[Upload Users] Merged incoming users. Successfully resolved: ${matchedCount}/${incoming.length}.`);
+  if (failedRows.length > 0) {
+    console.warn(`[Upload Users] WARNING: ${failedRows.length} user rows failed to resolve an Office ID! Sample failed rows:`);
+    failedRows.slice(0, 10).forEach((r, idx) => {
+      console.warn(`  Failed User Row #${idx + 1}: Keys=[${Object.keys(r).join(",")}] Values=[${Object.values(r).slice(0, 5).join(",")}]`);
+    });
+  }
 
   return Array.from(existingMap.values());
 }
@@ -1208,19 +1310,7 @@ function populateOfficeBrokerEmails(db: any, rawUsers: any[]) {
   const officeBrokerMap = new Map<string, Set<string>>();
 
   rawUsers.forEach(row => {
-    let officeId = getNormalizedValue(row, ["ofiskodu", "ofis kodu", "id", "kod", "ofis no", "ofisno", "office code", "sistem kodu", "sistemkodu", "no", "kodu"]).toUpperCase().trim();
-    if (!officeId && row["Ofis Kodu"]) {
-      officeId = String(row["Ofis Kodu"]).toUpperCase().trim();
-    }
-    if (!officeId) {
-      const officeName = getNormalizedValue(row, ["ofisadi", "ofis adi", "name", "office name", "ad", "unvan", "ofis", "ofis adı"]).trim().toLowerCase();
-      if (officeName) {
-        const found = db.offices.find((o: any) => o && (o.name.toLowerCase().includes(officeName) || officeName.includes(o.name.toLowerCase())));
-        if (found) {
-          officeId = found.id.toUpperCase().trim();
-        }
-      }
-    }
+    const officeId = resolveOfficeIdBackend(row, db.offices);
     if (!officeId) return;
 
     const brand = getBrandFromRowBackend(row);
