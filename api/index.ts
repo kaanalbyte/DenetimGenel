@@ -164,6 +164,7 @@ interface Database {
   audits: AuditPeriod[];
   emails: EmailLog[];
   config: AppConfig;
+  systemLogs?: any[];
 }
 
 // --- SEED/DEFAULT DATA ---
@@ -249,12 +250,13 @@ function pruneRow(row: any, type: "danisman" | "ilan_panel" | "ilan_sahibinden" 
   if (!row || typeof row !== "object") return row;
   const pruned: any = {};
   
-  const officeCodeKey = getMatchedKey(row, ["ofiskodu", "ofis kodu", "id", "kod", "ofis no", "ofisno", "office code", "sistem kodu", "sistemkodu", "no", "kodu"]);
+  const officeCodeKey = getMatchedKey(row, ["ofiskodu", "ofis kodu", "id", "kod", "ofis no", "ofisno", "office code", "sistem kodu", "sistemkodu", "no", "kodu", "ofis_kodu", "ofis"]);
   if (officeCodeKey) {
     pruned[officeCodeKey] = String(row[officeCodeKey]).trim();
   }
 
-  const officeNameKey = getMatchedKey(row, ["ofisadi", "ofis adi", "name", "office name", "ad", "unvan", "ofis", "ofis adı"]);
+  // Avoid matching user fields ('ad', 'unvan', 'name') as office names
+  const officeNameKey = getMatchedKey(row, ["ofisadi", "ofis adi", "office name", "ofis", "ofis adı", "ofis_adi"]);
   if (officeNameKey) {
     pruned[officeNameKey] = String(row[officeNameKey]).trim();
   }
@@ -367,6 +369,7 @@ async function syncFromFirestoreAsync(force = false): Promise<void> {
       groups: (cloudData && Array.isArray(cloudData.groups)) ? cloudData.groups : current.groups || DEFAULT_DB.groups,
       audits: mergedAudits,
       emails: (cloudData && Array.isArray(cloudData.emails)) ? cloudData.emails : current.emails || [],
+      systemLogs: (cloudData && Array.isArray((cloudData as any).systemLogs)) ? (cloudData as any).systemLogs : (current as any).systemLogs || [],
       config: {
         ...DEFAULT_DB.config,
         ...(cloudData && cloudData.config ? cloudData.config : {}),
@@ -383,6 +386,10 @@ async function syncFromFirestoreAsync(force = false): Promise<void> {
     };
 
     cachedDB = mergedDB;
+    if (Array.isArray((mergedDB as any).systemLogs)) {
+      systemLogs.length = 0;
+      systemLogs.push(...(mergedDB as any).systemLogs);
+    }
     lastSyncTime = Date.now();
     // Write to local fallback file
     fs.writeFileSync(DB_PATH, JSON.stringify(cachedDB, null, 2), "utf8");
@@ -465,6 +472,7 @@ function readDB(): Database {
       groups: Array.isArray(db.groups) ? db.groups : DEFAULT_DB.groups,
       audits: Array.isArray(db.audits) ? db.audits : [],
       emails: Array.isArray(db.emails) ? db.emails : [],
+      systemLogs: Array.isArray((db as any).systemLogs) ? (db as any).systemLogs : [],
       config: {
         ...DEFAULT_DB.config,
         ...(db.config || {}),
@@ -481,6 +489,10 @@ function readDB(): Database {
     };
 
     cachedDB = robustDB;
+    if (Array.isArray((robustDB as any).systemLogs)) {
+      systemLogs.length = 0;
+      systemLogs.push(...(robustDB as any).systemLogs);
+    }
     // Trigger background sync from Firestore to get the most up-to-date cloud state
     syncFromFirestoreAsync();
 
@@ -493,6 +505,8 @@ function readDB(): Database {
 
 async function writeDB(data: Database) {
   try {
+    // Save current system logs into database
+    (data as any).systemLogs = systemLogs;
     // Save to memory cache immediately
     cachedDB = data;
     // Write to local fallback file synchronously
@@ -1123,11 +1137,32 @@ function resolveOfficeIdBackend(row: any, officesList: any[]): string {
   // 1. Try to find office code/ID with wide set of keys
   let officeId = getNormalizedValue(row, [
     "ofiskodu", "ofis kodu", "id", "kod", "ofis no", "ofisno", 
-    "office code", "sistem kodu", "sistemkodu", "no", "kodu", "ofis_kodu"
+    "office code", "sistem kodu", "sistemkodu", "no", "kodu", "ofis_kodu", "ofis"
   ]).toUpperCase().trim();
 
   if (!officeId && row["Ofis Kodu"]) {
     officeId = String(row["Ofis Kodu"]).toUpperCase().trim();
+  }
+
+  // Smart backup: search ALL values in the row for a pattern like OF10605 or 10605
+  if (!officeId) {
+    for (const key of Object.keys(row)) {
+      if (key === "_sourceFile") continue;
+      const val = String(row[key] || "").trim().toUpperCase();
+      // Match OF followed by digits, or just a 5-6 digit number, or CB/C21/ERA followed by digits
+      const match = val.match(/\b(OF|CB|C21|ERA)?(\d{5,6})\b/i);
+      if (match) {
+        const codeCandidate = match[0].toUpperCase();
+        const numericPart = match[2];
+        const found = officesList.find(o => 
+          o && (String(o.id).toUpperCase() === codeCandidate || String(o.id).replace(/\D/g, "") === numericPart)
+        );
+        if (found) {
+          officeId = found.id;
+          break;
+        }
+      }
+    }
   }
 
   if (officeId) {
@@ -1145,9 +1180,9 @@ function resolveOfficeIdBackend(row: any, officesList: any[]): string {
     return officeId;
   }
 
-  // 2. Try name-based matching
+  // 2. Try name-based matching (removed 'ad', 'unvan', 'name' to avoid collision with user data)
   const officeName = getNormalizedValue(row, [
-    "ofisadi", "ofis adi", "name", "office name", "ad", "unvan", "ofis", "ofis adı", "ofis_adi"
+    "ofisadi", "ofis adi", "office name", "ofis", "ofis adı", "ofis_adi"
   ]).trim().toLowerCase();
 
   if (officeName) {
